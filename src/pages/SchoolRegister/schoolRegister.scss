@@ -1,0 +1,602 @@
+// schoolRegister.scss
+:root {
+  // Light theme variables
+  --school-register-primary: #3a6ea5;
+  --school-register-secondary: #eef4fb;
+  --school-register-bg-gradient: linear-gradient(135deg, #f5f7fa, #d6e4f0);
+  --school-register-form-bg: rgba(255, 255, 255, 0.97);
+  --school-register-text-primary: #2c3e50;
+  --school-register-text-secondary: #5a6c7d;
+  --school-register-input-bg: #f5f7fa;
+  --school-register-input-border: #e1e8ed;
+  --school-register-input-text: #2c3e50;
+  --school-register-divider: #ddd;
+  --school-register-shadow: rgba(50, 50, 93, 0.1) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.05) 0px 8px 16px -8px;
+  --school-register-button-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px;
+  --school-register-error: #e74c3c;
+  --school-register-success: #2ecc71;
+  --school-register-info-bg: #eef4fb;
+}
+
+[data-theme="dark"] {
+  // Dark theme variables
+  --school-register-primary: #4a8cc7;
+  --school-register-secondary: #1a2634;
+  --school-register-bg-gradient: linear-gradient(135deg, #0f172a, #1e293b);
+  --school-register-form-bg: rgba(30, 41, 59, 0.97);
+  --school-register-text-primary: #e1e8ed;
+  --school-register-text-secondary: #a0aec0;
+  --school-register-input-bg: #1e293b;
+  --school-register-input-border: #334155;
+  --school-register-input-text: #e1e8ed;
+  --school-register-divider: #334155;
+  --school-register-shadow: rgba(0, 0, 0, 0.3) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.2) 0px 8px 16px -8px;
+  --school-register-button-shadow: rgba(0, 0, 0, 0.3) 0px 4px 6px;
+  --school-register-info-bg: #1a2634;
+}
+
+// Container background
+.school-register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--school-register-bg-gradient);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83zm20.97 0l9.315 9.314-1.414 1.414L34.828 0h2.83zM22.344 0L13.03 9.314l1.414 1.414L25.172 0h-2.83zM32 0l12.142 12.142-1.414 1.414L30 .828 17.272 13.556l-1.414-1.414L28 0h4zM.284 0l28 28-1.414 1.414L0 2.544v2.83L26.272 32l-1.414 1.414-28-28V0h3.428zM60 0L31.716 28.284l-1.414-1.414L60 0zM39.88 0l-10.16 10.16-1.414-1.414L38.465 0h1.414zM20.12 0l10.16 10.16 1.414-1.414L21.534 0h-1.414zM30 0L17.544 12.456l-1.414-1.414L28.586 0H30zm-2.828 0L0 27.172v-1.414L25.414 0h1.758zM60 2.544L32.544 30l-1.414-1.414L60 0v2.544zm-10.44 0L30 22.104l-1.414-1.414L50.972 0h1.414L60 7.588v1.414l-8.026-8.026L60 9.414v1.414L42.418 0h1.414l13.44 13.44-1.414 1.414L38.444 0h1.414L60 20.142v1.414l-15.3-15.3 1.414-1.414L60 19.314v1.414l-10.44-10.44 1.414-1.414L60 17.314v1.414l-5.52-5.52 1.414-1.414 5.52 5.52v1.414l-2.834-2.834L60 15.314v1.414l-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414-1.414 1.414-1.414-1.414L15.414 30l-1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52 1.414-1.414-5.52-5.52 1.414-1.414 5.52 5.52v-1.414l-5.52-5.52 1.414-1.414 5.52 5.52v-1.414l-5.52-5.52 1.414-1.414 5.52 5.52v-1.414l-5.52-5.52 1.414-1.414 5.52 5.52zM30 .828L1.886 28.942 0 30.828V28L28.586 0h1.414v.828z' fill='%233a6ea5' fill-opacity='.03' fill-rule='evenodd'/%3E%3C/svg%3E")
+      repeat;
+    z-index: 0;
+  }
+}
+
+// Form card
+.school-register-card {
+  width: 100%;
+  max-width: 800px;
+  background: var(--school-register-form-bg);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: var(--school-register-shadow);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+  animation: school-register-appear 0.6s ease-out;
+}
+
+.school-register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .school-register-logo {
+    color: var(--school-register-primary);
+    margin-bottom: 16px;
+    animation: school-register-float 3s ease-in-out infinite;
+  }
+
+  h1 {
+    color: var(--school-register-text-primary);
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    text-align: center;
+    font-weight: 700;
+    animation: school-register-fade 0.8s ease-out;
+  }
+}
+
+.school-register-description {
+  color: var(--school-register-text-secondary);
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 24px;
+  animation: school-register-fade 0.8s ease-out 0.2s backwards;
+  line-height: 1.5;
+}
+
+.school-register-info-box {
+  display: flex;
+  align-items: flex-start;
+  background: var(--school-register-info-bg);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 30px;
+  animation: school-register-fade 0.8s ease-out 0.3s backwards;
+
+  .school-register-info-icon {
+    color: var(--school-register-primary);
+    flex-shrink: 0;
+    margin-right: 12px;
+    margin-top: 2px;
+  }
+
+  p {
+    color: var(--school-register-text-primary);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.school-register-form {
+  animation: school-register-fade 0.8s ease-out 0.4s backwards;
+}
+
+// Two-column layout
+.school-register-columns {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -12px;
+
+  .school-register-column {
+    flex: 1 1 50%;
+    padding: 0 12px;
+    min-width: 250px;
+
+    @media (max-width: 768px) {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+// Form fields
+.school-register-field {
+  margin-bottom: 20px;
+
+  .school-register-label {
+    display: block;
+    color: var(--school-register-text-primary);
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 1rem;
+
+    .required {
+      color: var(--school-register-error);
+      margin-left: 2px;
+    }
+  }
+
+  .school-register-input-wrapper {
+    position: relative;
+
+    .school-register-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--school-register-primary);
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    .school-register-input {
+      width: 100%;
+      height: 50px;
+      background: var(--school-register-input-bg);
+      color: var(--school-register-input-text);
+      border: 1px solid var(--school-register-input-border);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--school-register-primary);
+        box-shadow: 0 0 0 3px rgba(58, 110, 165, 0.2);
+      }
+
+      &::placeholder {
+        color: var(--school-register-text-secondary);
+        opacity: 0.7;
+      }
+    }
+
+    .school-register-password {
+      padding-right: 40px;
+      &::-ms-reveal,
+      &::-webkit-reveal-password-button {
+        display: none;
+      }
+    }
+
+    .school-register-eye-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--school-register-text-secondary);
+      z-index: 2;
+    }
+  }
+
+  .school-register-error {
+    color: var(--school-register-error);
+    font-size: 0.85rem;
+    margin-top: 5px;
+  }
+}
+
+// Terms checkbox
+.school-register-terms {
+  margin-bottom: 24px;
+
+  .school-register-terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+
+    input {
+      margin-top: 3px;
+      margin-right: 8px;
+      accent-color: var(--school-register-primary);
+    }
+
+    span {
+      color: var(--school-register-text-primary);
+      font-size: 0.95rem;
+    }
+  }
+
+  .school-register-terms-link {
+    color: var(--school-register-primary);
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Submit button
+.school-register-submit {
+  width: 100%;
+  height: 50px;
+  background: var(--school-register-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--school-register-button-shadow);
+  margin-bottom: 24px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--school-register-button-shadow),
+      0 6px 20px rgba(0, 0, 0, 0.1);
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Footer
+.school-register-footer {
+  margin-top: 20px;
+  border-top: 1px solid var(--school-register-divider);
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+// Login link
+.school-register-login {
+  color: var(--school-register-text-secondary);
+  font-size: 0.95rem;
+
+  .school-register-login-link {
+    color: var(--school-register-primary);
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 5px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Back link
+.school-register-back {
+  .school-register-back-link {
+    display: inline-flex;
+    align-items: center;
+    color: var(--school-register-text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+
+    svg {
+      margin-right: 6px;
+    }
+
+    &:hover {
+      color: var(--school-register-primary);
+    }
+  }
+}
+
+// Modal
+.school-register-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: school-register-fade 0.3s ease-out;
+
+  .school-register-modal-content {
+    background: var(--school-register-form-bg);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: var(--school-register-shadow);
+    animation: school-register-modal-appear 0.3s ease-out;
+
+    .school-register-modal-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--school-register-divider);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        margin: 0;
+        color: var(--school-register-text-primary);
+        font-size: 1.4rem;
+        font-weight: 600;
+      }
+
+      .school-register-modal-close {
+        background: none;
+        border: none;
+        color: var(--school-register-text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          color: var(--school-register-text-primary);
+        }
+      }
+    }
+
+    .school-register-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: 400px;
+      color: var(--school-register-text-primary);
+
+      p {
+        margin-bottom: 15px;
+        line-height: 1.5;
+        text-align: left;
+      }
+    }
+
+    .school-register-modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid var(--school-register-divider);
+      display: flex;
+      justify-content: flex-end;
+
+      .school-register-modal-button {
+        background: var(--school-register-primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          filter: brightness(1.05);
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes school-register-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes school-register-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes school-register-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes school-register-modal-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .school-register-card {
+    padding: 30px 20px;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+  }
+}
+
+.otp-verification-container {
+  text-align: center;
+
+  .school-register-description {
+    margin-bottom: 50px;
+  }
+
+  .auth-otp-inputs {
+    margin-top: 15px;
+  }
+}
+
+.resend-otp-section {
+  text-align: center;
+
+  .resend-otp-button {
+    background: none;
+    border: none;
+    color: var(--school-register-primary);
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:disabled {
+      color: var(--school-register-text-secondary);
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Add glow animation
+@keyframes school-register-glow {
+  0% {
+    box-shadow: 0 0 4px rgba(231, 76, 60, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 4px rgba(231, 76, 60, 0.3);
+  }
+}
+
+// Add error class
+.school-register-input-error {
+  border-color: var(--school-register-error) !important;
+  animation: school-register-glow 1.5s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important;
+  }
+}
+
+// Remove error message styles (since we're using notifications)
+.school-register-error {
+  display: none;
+}
+
+// Add these styles to your schoolRegister.scss file
+
+// OTP Input Styles
+.auth-otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 30px 0;
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
+}
+
+.auth-otp-input {
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--school-register-input-border);
+  border-radius: 10px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  background: var(--school-register-input-bg);
+  color: var(--school-register-input-text);
+  transition: all 0.3s ease;
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--school-register-primary);
+    box-shadow: 0 0 0 3px rgba(58, 110, 165, 0.2);
+  }
+
+  &.error {
+    border-color: var(--school-register-error);
+    animation: school-register-glow 1.5s ease-in-out infinite;
+  }
+}

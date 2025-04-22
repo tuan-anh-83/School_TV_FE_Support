@@ -1,0 +1,219 @@
+.create-channel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 0px;
+  .create-channel-table {
+    border: 1px solid #d3d3d3;
+    border-radius: 10px;
+    width: 50%;
+    padding: 20px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+    }
+    .create-channel-back-btn {
+      border: 1px solid #d3d3d3;
+      padding: 5px 15px;
+      border-radius: 500px;
+      cursor: pointer;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      a {
+        color: #4681f4;
+        text-decoration: none;
+      }
+
+      &:hover {
+        opacity: 0.9;
+        transform: scale(1.05);
+      }
+
+      &:active {
+        background-color: #3a6fc2;
+        border-color: #3a6fc2;
+        a {
+          color: white;
+        }
+      }
+    }
+
+    .create-channel-signup-range {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+
+      .create-channel-intro {
+        text-align: center;
+
+        &__title {
+          font-size: 28px;
+          font-weight: 600;
+          color: var(--text-color);
+          margin-bottom: 12px;
+          position: relative;
+          display: inline-block;
+
+          &::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #4096ff, #1677ff);
+            border-radius: 2px;
+          }
+        }
+
+        &__description {
+          font-size: 16px;
+          color: #666;
+          line-height: 1.6;
+          max-width: 500px;
+          margin: 0 auto;
+          padding-top: 8px;
+
+          &:hover {
+            transform: translateY(-1px);
+            transition: all 0.3s ease;
+          }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      @media (max-width: 768px) {
+        .create-channel-intro {
+          margin-bottom: 32px;
+
+          &__title {
+            font-size: 24px;
+          }
+
+          &__description {
+            font-size: 15px;
+            padding: 0 16px;
+          }
+        }
+      }
+
+      .create-channel {
+        $self: &;
+        width: 100%;
+        padding: 24px;
+
+        &__form {
+          background-color: var(--all-video-card-bg);
+          padding: 32px;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+          &-row {
+            margin-bottom: 24px;
+
+            &--two-cols {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 24px;
+            }
+          }
+
+          &-item {
+            margin-bottom: 0;
+
+            .ant-form-item-label {
+              padding-bottom: 8px;
+
+              label {
+                font-weight: 500;
+                color: var(--text-color);
+              }
+            }
+
+            .ant-input,
+            .ant-input-textarea {
+              border-radius: 6px;
+              border-color: #e2e8f0;
+              background-color: var(--form-input-bg);
+
+              &::placeholder {
+                color: var(--form-input-placeholder);
+              }
+
+              color: var(--text-color);
+
+              &:hover,
+              &:focus {
+                border-color: #4096ff;
+                box-shadow: 0 0 0 2px rgba(64, 150, 255, 0.1);
+              }
+
+              &:focus::placeholder {
+                color: transparent;
+              }
+            }
+
+            .ant-form-item-explain-error {
+              font-size: 13px;
+              margin-top: 4px;
+            }
+          }
+        }
+
+        &__form-actions {
+          margin-top: 32px;
+          display: flex;
+          justify-content: center;
+        }
+
+        &__submit-btn {
+          min-width: 120px;
+          height: 40px;
+          font-weight: 500;
+
+          &:hover {
+            opacity: 0.9;
+          }
+        }
+      }
+    }
+
+    @media (max-width: 1024px) {
+      width: 75%;
+    }
+
+    @media (max-width: 768px) {
+      width: 80%;
+    }
+
+    @media (max-width: 480px) {
+      width: 90%;
+    }
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.create-channel-marginBottom {
+  margin-bottom: 10px;
+}

@@ -1,0 +1,186 @@
+body {
+  transition: background-color var(--transition-speed) ease;
+}
+
+/* Add quick transitions for common text and background properties */
+*,
+*::before,
+*::after {
+  transition: color var(--transition-speed) ease,
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    box-shadow var(--transition-speed) ease;
+}
+
+.studio-post-layout {
+  display: flex;
+  justify-content: space-between;
+  .studio-post-container {
+    width: 49%;
+    position: relative;
+    z-index: 1;
+
+    .studio-post-content {
+      background-color: var(--unique-video-card-bg);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 20px 12px;
+      position: relative;
+      transition: all var(--transition-speed) ease;
+
+      .studio-post-input {
+        background-color: var(--form-input-bg);
+        color: var(--text-color);
+
+        &::placeholder {
+          color: var(--form-input-placeholder);
+          opacity: 1;
+          transition: opacity 0.2s ease-in-out;
+        }
+
+        &:focus::placeholder {
+          opacity: 0;
+        }
+      }
+
+      .ant-form-item-has-error .studio-post-input {
+        background-color: var(--form-input-bg) !important;
+      }
+
+      .studio-post-dragger {
+        p {
+          color: var(--form-input-placeholder);
+        }
+      }
+
+      .ant-upload-list-item-thumbnail,
+      .anticon-paper-clip,
+      .ant-upload-list-item-name {
+        color: #00ccff !important;
+      }
+
+      .anticon-delete {
+        color: red !important;
+      }
+
+      .studio-post-des {
+        margin: 0;
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+        padding: 4px 8px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        display: inline-block;
+      }
+
+      .mdxeditor {
+        --baseText: var(--text-color);
+        --baseTextContrast: var(--text-color);
+        --baseBg: var(--secondary-color);
+        --basePageBg: var(--toolbar-bg);
+        --baseBgActive: var(--primary-color)
+      }
+
+      .mdxeditor-rich-text-editor {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .studio-post-status {
+        width: 49%;
+        border: 1px solid #e5e5e5;
+        padding: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+
+        p {
+          margin: 0;
+          font-size: 15px;
+          color: var(--text-color);
+        }
+      }
+
+      .studio-post-status__active {
+        background-color: rgba(74, 144, 226, 0.1);
+        border: 1px solid #4a90e2;
+      }
+
+      .studio-post-button {
+        margin-right: 10px;
+        background-color: lightgray;
+        background-color: #4a90e2;
+        color: white;
+        border: none;
+      }
+
+      .preview-switch.ant-switch-checked {
+        background-color: var(--cyperbunk-switch-bg) !important;
+      }
+
+      .preview-switch .ant-switch-handle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .preview-switch .ant-switch-handle::before {
+        background: none;
+        content: "😎";
+        margin-bottom: 2px;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .preview-switch.ant-switch-checked .ant-switch-handle::before {
+        background: none;
+        margin-bottom: 2px;
+        content: "🙂";
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    .ql-toolbar button .ql-stroke {
+      stroke: var(--text-color) !important;
+    }
+
+    .ql-toolbar button .ql-fill {
+      fill: var(--text-color) !important;
+    }
+
+    .ql-toolbar .ql-picker {
+      color: var(--text-color) !important;
+    }
+
+    .ql-toolbar .ql-picker-options {
+      background-color: var(--bg-color) !important;
+    }
+
+    .ql-toolbar .ql-picker-item {
+      color: var(--text-color) !important;
+    }
+
+    .ql-editor {
+      color: var(--text-color) !important;
+    }
+  }
+
+  //Lớp phủ cho post preview modal
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+  }
+}
+
+

@@ -1,0 +1,30 @@
+.studio-stream-container {
+  background-color: var(--unique-video-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 20px 12px;
+  transition: all var(--transition-speed) ease;
+  .studio-stream__title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    padding: 4px 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .studio-stream__btn {
+    background-color: #ff6a5e;
+    color: white;
+
+    &:hover {
+      transform: scaleX(1.05);
+      background-color: #ff6a5e !important;
+      color: white !important;
+      border: none !important;
+      opacity: 0.8;
+    }
+  }
+}

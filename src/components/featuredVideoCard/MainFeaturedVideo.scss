@@ -1,0 +1,46 @@
+.main-featured-video-container {
+  width: 100%;
+
+  video {
+    border-radius: 20px 20px 0 0;
+    overflow: hidden;
+  }
+
+  .main-featured-video-info {
+    background-color: var(--unique-video-card-bg);
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    color: var(--text-color);
+    
+    h1 {
+      margin: 0;
+    }
+
+    .main-featured-video-info__interaction {
+      color: var(--video-interaction-color);
+      font-size: 12px;
+      p {
+        margin: 0 0;
+      }
+    }
+  }
+
+  .main-featured-video-info__channel {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+
+    img {
+        border-radius: 50%;
+    }
+
+    a {
+        margin-left: 10px;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+  }
+}

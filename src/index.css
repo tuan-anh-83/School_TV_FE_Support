@@ -1,0 +1,26 @@
+:root {
+  --video-interaction-color: #606060;
+  --unique-video-card-bg: #ffffff;
+  --form-input-bg: #ffffff;
+  --form-input-placeholder: gray;
+  --cyperbunk-switch-bg: #0a3d62;
+  --postBtn-view-more-color: blue;
+  --toolbar-bg: lightgray;
+}
+
+[data-theme="dark"] {
+  --video-interaction-color: #ffffff;
+  --form-input-bg: #272727;
+  --form-input-placeholder: #ffffff;
+  --unique-video-card-bg: #2c3f55;
+  --all-video-card-bg: #374151;
+  --cyperbunk-switch-bg: #008f7a;
+  --postBtn-view-more-color: #4a90e2;
+  --toolbar-bg: rgba(0, 0, 0, 0.8);
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 14.4px; /* 90% of default 16px */
+  }
+}

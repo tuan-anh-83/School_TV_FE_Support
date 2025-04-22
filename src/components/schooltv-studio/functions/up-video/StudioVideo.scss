@@ -1,0 +1,105 @@
+body {
+  transition: background-color var(--transition-speed) ease;
+}
+
+/* Add quick transitions for common text and background properties */
+*,
+*::before,
+*::after {
+  transition: color var(--transition-speed) ease,
+    background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    box-shadow var(--transition-speed) ease;
+}
+
+.studio-video-container {
+  margin-top: 50px;
+
+  .studio-video-content {
+    background-color: var(--unique-video-card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 20px 12px;
+    transition: all var(--transition-speed) ease;
+
+    .studio-video-input {
+      background-color: var(--form-input-bg);
+
+      &::placeholder {
+        color: var(--form-input-placeholder);
+      }
+    }
+
+    .studio-video-dragger {
+      p {
+        color: var(--form-input-placeholder);
+      }
+    }
+
+    .studio-video-des {
+      margin: 0;
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+      padding: 4px 8px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .studio-video-status {
+      width: 49%;
+      border: 1px solid #e5e5e5;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+
+      p {
+        margin: 0;
+        font-size: 15px;
+        color: var(--text-color);
+      }
+    }
+
+    .studio-video-status__active {
+      background-color: rgba(74, 144, 226, 0.1);
+      border: 1px solid #4a90e2;
+    }
+
+    .video-plan-picker {
+      background-color: var(--form-input-bg);
+
+      .ant-picker-input {
+        input::placeholder {
+          color: var(--form-input-placeholder);
+        }
+      }
+
+      .ant-picker-suffix {
+        color: var(--form-input-placeholder);
+      }
+    }
+
+    .studio-video-button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+    }
+
+    .video-manual-ask {
+      font-size: 16px;
+      color: var(--text-color);
+      margin: 0;
+      padding: 10px 0;
+      display: flex;
+      align-items: center;
+
+      .video-manual-nav {
+        color: #4a90e2;
+        font-weight: bold;
+        cursor: pointer;
+        margin-left: 5px;
+      }
+    }
+  }
+}

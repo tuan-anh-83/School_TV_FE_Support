@@ -1,0 +1,41 @@
+.allVideo-card-container {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  background-color: var(--all-video-card-bg);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  cursor: pointer;
+
+  .allVideo-card-detail {
+    padding: 16px;
+
+    .allVideo-card-detail__stats {
+      font-size: 12px;
+      color: #888;
+    }
+  }
+}
+
+.allVideo-card-container:hover {
+  box-shadow: 0 4px 16px var(--shadow-color);
+  transform: translateY(-2px);
+}
+
+.video-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 8px;
+  color: var(--text-color);
+}
+
+.video-channel {
+  font-size: 14px;
+  color: var(--primary-color);
+  margin: 0 0 16px;
+}
+
+.video-stats {
+  font-size: 12px;
+  color: var(--text-color);
+}
