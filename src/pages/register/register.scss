@@ -1,0 +1,545 @@
+// Unique theme variables with auth-register prefix
+:root {
+  // Light theme variables
+  --auth-register-primary: #4a90e2;
+  --auth-register-secondary: #f0f4f8;
+  --auth-register-bg-gradient: linear-gradient(135deg, #ffffff, #a0c4ff);
+  --auth-register-form-bg: rgba(255, 255, 255, 0.95);
+  --auth-register-text-primary: #2c3e50;
+  --auth-register-text-secondary: #666;
+  --auth-register-input-bg: #f5f7fa;
+  --auth-register-input-border: #e1e8ed;
+  --auth-register-input-text: #2c3e50;
+  --auth-register-divider: #ddd;
+  --auth-register-shadow: rgba(50, 50, 93, 0.1) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.05) 0px 8px 16px -8px;
+  --auth-register-button-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px;
+  --auth-register-error: #e74c3c;
+  --auth-register-success: #2ecc71;
+}
+
+[data-theme="dark"] {
+  // Dark theme variables
+  --auth-register-primary: #5a9de2;
+  --auth-register-secondary: #1a2634;
+  --auth-register-bg-gradient: linear-gradient(135deg, #0f172a, #1e293b);
+  --auth-register-form-bg: rgba(30, 41, 59, 0.95);
+  --auth-register-text-primary: #e1e8ed;
+  --auth-register-text-secondary: #a0aec0;
+  --auth-register-input-bg: #1e293b;
+  --auth-register-input-border: #334155;
+  --auth-register-input-text: #e1e8ed;
+  --auth-register-divider: #334155;
+  --auth-register-shadow: rgba(0, 0, 0, 0.3) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.2) 0px 8px 16px -8px;
+  --auth-register-button-shadow: rgba(0, 0, 0, 0.3) 0px 4px 6px;
+}
+
+// Container background
+.auth-register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--auth-register-bg-gradient);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px
+    );
+    background-size: 30px 30px;
+    opacity: 0.5;
+    animation: backgroundMove 60s linear infinite;
+  }
+}
+
+// Form card
+.auth-register-card {
+  width: 100%;
+  max-width: 800px;
+  background: var(--auth-register-form-bg);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: var(--auth-register-shadow);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
+  animation: auth-register-appear 0.6s ease-out;
+
+  h1 {
+    color: var(--auth-register-text-primary);
+    font-size: 2rem;
+    margin-bottom: 6px;
+    text-align: center;
+    font-weight: 700;
+    animation: auth-register-fade 0.8s ease-out;
+  }
+
+  p {
+    color: var(--auth-register-text-secondary);
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 20px;
+    animation: auth-register-fade 0.8s ease-out 0.2s backwards;
+  }
+}
+
+// Form fields
+.auth-register-field {
+  margin-bottom: 15px;
+
+  .auth-register-label {
+    display: block;
+    color: var(--auth-register-text-primary);
+    font-weight: 500;
+    margin-bottom: 8px;
+    font-size: 1rem;
+  }
+
+  .auth-register-input-wrapper {
+    position: relative;
+
+    .auth-register-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--auth-register-primary);
+      font-size: 18px;
+      z-index: 2;
+    }
+
+    .auth-register-input {
+      width: 100%;
+      height: 45px;
+      background: var(--auth-register-input-bg);
+      color: var(--auth-register-input-text);
+      border: 1px solid var(--auth-register-input-border);
+      border-radius: 10px;
+      padding: 0 16px 0 42px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--auth-register-primary);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+      }
+
+      &::placeholder {
+        color: rgba(var(--auth-register-text-secondary), 0.7);
+      }
+    }
+
+    .auth-register-password {
+      padding-right: 40px;
+      &::-ms-reveal,
+      &::-webkit-reveal-password-button {
+        display: none;
+      }
+    }
+
+    .auth-register-eye-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--auth-register-text-secondary);
+      z-index: 2;
+    }
+  }
+}
+
+// Input error state
+.auth-register-input-error {
+  border-color: var(--auth-register-error) !important;
+  animation: auth-register-glow 1.5s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important;
+  }
+}
+
+@keyframes auth-register-glow {
+  0% {
+    box-shadow: 0 0 4px rgba(231, 76, 60, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 4px rgba(231, 76, 60, 0.3);
+  }
+}
+
+// Terms checkbox
+.auth-register-terms {
+  margin-bottom: 24px;
+
+  .auth-register-terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+
+    input {
+      margin-top: 3px;
+      margin-right: 8px;
+      accent-color: var(--auth-register-primary);
+    }
+
+    span {
+      color: var(--auth-register-text-primary);
+      font-size: 0.95rem;
+    }
+  }
+
+  .auth-register-terms-link {
+    color: var(--auth-register-primary);
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Submit button
+.auth-register-submit {
+  width: 100%;
+  height: 50px;
+  background: var(--auth-register-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--auth-register-button-shadow);
+  margin-bottom: 24px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--auth-register-button-shadow),
+      0 6px 20px rgba(0, 0, 0, 0.1);
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Login link
+.auth-register-login {
+  text-align: center;
+  margin-top: 10px;
+  color: var(--auth-register-text-secondary);
+  font-size: 0.95rem;
+
+  .auth-register-login-link {
+    color: var(--auth-register-primary);
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 5px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Modal
+.auth-register-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: auth-register-fade 0.3s ease-out;
+
+  .auth-register-modal-content {
+    background: var(--auth-register-form-bg);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: var(--auth-register-shadow);
+    animation: auth-register-modal-appear 0.3s ease-out;
+
+    .auth-register-modal-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--auth-register-divider);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        margin: 0;
+        color: var(--auth-register-text-primary);
+        font-size: 1.4rem;
+        font-weight: 600;
+      }
+
+      .auth-register-modal-close {
+        background: none;
+        border: none;
+        color: var(--auth-register-text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          color: var(--auth-register-text-primary);
+        }
+      }
+    }
+
+    .auth-register-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: 400px;
+      color: var(--auth-register-text-primary);
+
+      p {
+        margin-bottom: 15px;
+        line-height: 1.5;
+        text-align: left;
+      }
+    }
+
+    .auth-register-modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid var(--auth-register-divider);
+      display: flex;
+      justify-content: flex-end;
+
+      .auth-register-modal-button {
+        background: var(--auth-register-primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          filter: brightness(1.05);
+        }
+      }
+    }
+  }
+}
+
+// Two-column layout
+.auth-register-columns {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -12px;
+
+  .auth-register-column {
+    flex: 1 1 50%;
+    padding: 0 12px;
+    min-width: 250px;
+
+    @media (max-width: 768px) {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+// Animations
+@keyframes auth-register-appear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes backgroundMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes auth-register-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes auth-register-modal-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// School banner
+.auth-register-school-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--auth-register-secondary);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 25px;
+  border-left: 4px solid var(--auth-register-primary);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--auth-register-button-shadow);
+  }
+
+  .auth-register-school-icon {
+    color: var(--auth-register-primary);
+    margin-right: 10px;
+  }
+
+  .auth-register-school-link {
+    color: var(--auth-register-text-primary);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      color: var(--auth-register-primary);
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .auth-register-card {
+    padding: 30px 20px;
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+// OTP card specific styles
+.auth-otp-card {
+  max-width: 500px !important;
+  text-align: center;
+
+  h1 {
+    margin-bottom: 20px !important;
+  }
+
+  p {
+    margin-bottom: 30px !important;
+    line-height: 1.6;
+  }
+}
+
+// OTP input container
+.auth-otp-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+  ime-mode: disabled;
+}
+
+// Individual OTP input
+.auth-otp-input {
+  width: 50px;
+  height: 60px;
+  border: 2px solid var(--auth-register-input-border);
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  background: var(--auth-register-input-bg);
+  color: var(--auth-register-input-text);
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--auth-register-primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  }
+}
+
+// Resend OTP section
+.auth-otp-resend {
+  margin-top: 10px;
+
+  p {
+    color: var(--auth-register-text-secondary);
+    margin: 0 !important;
+  }
+
+  .auth-otp-resend-button {
+    background: none;
+    border: none;
+    color: var(--auth-register-primary);
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(74, 144, 226, 0.1);
+    }
+  }
+}
+
+// Mobile responsiveness for OTP inputs
+@media (max-width: 480px) {
+  .auth-otp-inputs {
+    gap: 8px;
+  }
+
+  .auth-otp-input {
+    width: 40px;
+    height: 50px;
+    font-size: 20px;
+  }
+}

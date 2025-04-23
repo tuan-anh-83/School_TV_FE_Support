@@ -1,0 +1,198 @@
+.channel-program-container {
+  padding: 90px 20px 50px 20px;
+  display: flex;
+  gap: 16px;
+  .channel-program-display {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    position: relative;
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0);
+      transition: background 0.3s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .schedule-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 16px;
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    &:hover .schedule-btn {
+      opacity: 1;
+    }
+
+    &:hover .overlay {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .schedule-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 45%;
+      height: 100%;
+      z-index: 5;
+      transform: translateX(100%);
+      transition: transform 0.4s ease, background 0.4s ease,
+        box-shadow 0.4s ease, border-left 0.4s ease;
+      padding: 16px;
+
+      background: linear-gradient(
+        135deg,
+        rgba(10, 20, 40, 0.92),
+        rgba(15, 30, 60, 0.95)
+      );
+      color: white;
+
+      border-left: none;
+      box-shadow: none;
+
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+
+      @media screen and (max-width: 768px) {
+        width: 100%;
+        transform: translateX(100%);
+        padding: 10px;
+        box-shadow: none;
+        backdrop-filter: blur(2px);
+      }
+    }
+
+    .schedule-panel.visible {
+      transform: translateX(0);
+      box-shadow: -20px 0 40px 10px rgba(0, 30, 80, 0.4),
+        -40px 0 80px 30px rgba(180, 200, 255, 0.2);
+    }
+
+    .close-btn {
+      background-color: #060a14;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      @media screen and (max-width: 768px) {
+        width: 35px;
+        height: 35px;
+      }
+    }
+
+    .date-navigator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 40px;
+      padding: 8px 16px;
+      background-color: #060a14;
+      color: white;
+      box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.05);
+      gap: 20px;
+
+      @media screen and (max-width: 768px) {
+        gap: 10px; // Reduce gap for smaller screens
+        padding: 6px 12px;
+      }
+    }
+
+    .nav-btn {
+      background-color: rgba(255, 255, 255, 0.06);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      @media screen and (max-width: 768px) {
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    .nav-btn:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .date-text {
+      font-size: 16px;
+      font-weight: 500;
+
+      @media screen and (max-width: 768px) {
+        font-size: 14px;
+      }
+    }
+
+    .schedule-panel-list {
+      margin-top: 20px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .schedule-panel {
+        width: 100%;
+        padding: 12px;
+      }
+
+      .schedule-panel-list {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .ant-timeline-item-tail {
+    background-color: #1e90ff !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .channel-program-container {
+    flex-direction: column;
+  }
+}

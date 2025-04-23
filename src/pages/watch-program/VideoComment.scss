@@ -1,0 +1,180 @@
+.video-comment-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 50%;
+  padding: 15px;
+  box-sizing: border-box; // Đảm bảo padding không làm tràn phần tử
+
+  .video-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0; // Đảm bảo header không bị thu nhỏ
+  }
+
+  .video-comment-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .video-comment-options {
+    display: flex;
+    gap: 10px;
+  }
+
+  .video-comment-option {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    font-size: 18px;
+  }
+
+  .video-comment-messages {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-grow: 1; // Cho phép phần này co giãn theo chiều dọc
+  }
+
+  .video-message {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+
+    .video-message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .video-username {
+        font-size: 14px;
+        font-weight: bold;
+        color: #333;
+        display: flex;
+        align-items: center;
+
+        .video-user-badge {
+          background-color: #007bff;
+          color: #fff;
+          font-size: 12px;
+          padding: 3px 8px;
+          margin-left: 8px;
+          border-radius: 4px;
+        }
+      }
+
+      .video-message-time {
+        font-size: 12px;
+        color: #888;
+      }
+    }
+
+    .video-message-content {
+      font-size: 14px;
+      color: #444;
+    }
+
+    &:hover {
+      background-color: #e9ecef;
+      transition: background-color 0.3s ease;
+      transform: translateY(2px);
+    }
+  }
+
+  .video-comment-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .video-input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .video-input-container input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .emoji-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    margin-left: 10px;
+  }
+
+  .send-button {
+    background-color: #007bff;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .send-button i {
+    margin-right: 5px;
+  }
+
+  // Responsive Design
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    margin-top: 20px;
+
+    .video-comment-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .video-comment-title {
+      font-size: 16px;
+    }
+
+    .video-comment-options {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .video-comment-messages {
+      max-height: 250px;
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+
+    .video-message {
+      padding: 10px;
+      font-size: 13px;
+    }
+
+    .video-input-container input {
+      margin-bottom: 10px;
+    }
+  }
+}

@@ -1,0 +1,43 @@
+.admin-menu {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+      transform-origin: left center;
+      will-change: transform, background-color;
+      
+      &:hover {
+        transform: translateX(4px);
+        background: rgba(255, 255, 255, 0.05) !important;
+      }
+    }
+  
+    .ant-menu-submenu-arrow {
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+  
+    .ant-menu-submenu-open .ant-menu-submenu-arrow {
+      transform: rotate(180deg);
+    }
+  
+    .ant-menu-item-selected {
+      background: linear-gradient(90deg, rgba(74, 144, 226, 0.15) 0%, transparent 100%) !important;
+      border-right: 3px solid var(--primary-color);
+    }
+  
+    .ant-menu-submenu {
+      transition: height 0.3s ease;
+      overflow: hidden;
+    }
+  
+    .ant-menu-submenu-popup {
+      transition: none !important;
+    }
+  
+    .ant-menu-submenu-title {
+      display: flex;
+      align-items: center;
+    }
+  }

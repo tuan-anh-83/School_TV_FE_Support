@@ -1,0 +1,203 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+  --primary-color: #4a90e2;
+  --secondary-color: #f0f4f8;
+  --text-color: #2c3e50;
+  --bg-color: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --hover-color: #357abd;
+  --border-color: #e1e8ed;
+  --gradient-1: linear-gradient(135deg, #4a90e2, #357abd);
+  --gradient-2: linear-gradient(135deg, #6ab0ff, #4a90e2);
+}
+
+[data-theme="dark"] {
+  --primary-color: #4a90e2;
+  --secondary-color: #1a2634;
+  --text-color: #e1e8ed;
+  --bg-color: #0f172a;
+  --card-bg: rgba(26, 38, 52, 0.95);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --hover-color: #5a9de2;
+  --border-color: #2a3f52;
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.payment-checkout-container {
+  max-width: 1200px;
+  margin: 5% auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+}
+
+.payment-checkout-form {
+  background: var(--bg-color);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.payment-order-summary {
+  background: var(--bg-color);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px var(--shadow-color);
+  height: fit-content;
+}
+
+.payment-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+}
+
+.payment-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.payment-form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.payment-form-input {
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.payment-form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.payment-methods {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.payment-method {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.payment-method:hover {
+  border-color: var(--primary-color);
+}
+
+.payment-method.selected {
+  border-color: var(--primary-color);
+  background: rgba(64, 135, 241, 0.05);
+}
+
+.payment-method img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.payment-order-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.payment-order-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--border-color);
+}
+
+.payment-checkout-button {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 2rem;
+  transition: background 0.2s;
+}
+
+.payment-checkout-button:hover {
+  background: #3576d3;
+}
+
+.payment-secure-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 968px) {
+  .payment-checkout-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.payment-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.payment-loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: var(--primary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

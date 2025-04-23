@@ -1,0 +1,27 @@
+.adminpackage_body {
+  margin-top: 80px;
+  margin-bottom: -65px;
+}
+
+.ant-modal-header {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.ant-modal-body .ant-form-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.ant-modal-body .ant-form-item .ant-input,
+.ant-modal-body .ant-form-item .ant-input-number {
+  width: 100%;
+}
+
+.ant-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}

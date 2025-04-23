@@ -1,0 +1,153 @@
+.community-post-container {
+  padding-top: 90px;
+}
+
+.community-post {
+  &-home {
+    padding-top: 10px;
+    margin-bottom: 20px;
+    padding-left: 50px;
+
+    .ant-breadcrumb {
+      font-size: 15px;
+      color: var(--text-color);
+
+      .ant-breadcrumb-separator {
+        font-size: 15px;
+        color: var(--secondary-text);
+      }
+    }
+  }
+
+  &-form {
+    padding-left: 370px;
+  }
+
+  &-container .ant-form {
+    background-color: var(--card-bg);
+    padding: 20px;
+    padding-top: 20px;
+    border-radius: 8px;
+    width: 1121px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+  }
+
+  &-avatar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-username {
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--text-color);
+  }
+
+  &-time {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--secondary-text);
+  }
+
+  &-content {
+    margin-top: 10px;
+    color: var(--text-color);
+
+    span {
+      display: block;
+      margin-top: 5px;
+    }
+  }
+
+  &-hashtags {
+    color: var(--primary-color) !important;
+    text-decoration: underline !important;
+  }
+
+  &-image {
+    margin-top: 20px;
+  }
+
+  &-like {
+    display: flex;
+    gap: 20px;
+
+    svg {
+      font-size: 25px;
+      color: var(--text-color);
+    }
+  }
+
+  &-save {
+    margin-left: 920px;
+  }
+
+  &-cmt-container {
+    display: flex;
+    margin-left: -12px;
+    margin-top: 15px;
+
+    span {
+      margin-left: 10px;
+      font-size: 14px;
+      color: var(--text-color);
+    }
+  }
+
+  &-view-cmt {
+    margin-top: 15px;
+    color: var(--secondary-text);
+  }
+
+  &-text-area {
+    margin-top: 10px;
+
+    .ant-input {
+      background-color: var(--secondary-color) !important;
+      border-color: var(--border-color);
+      color: var(--text-color);
+    }
+  }
+
+  &-view-more {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--primary-color);
+    background-color: var(--primary-color);
+    width: 200px;
+    margin-left: 800px;
+    margin-top: 40px;
+    border-radius: 20px;
+    height: 50px;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: var(--hover-color);
+    }
+
+    a {
+      font-size: 18px;
+      color: white;
+    }
+  }
+}
+
+.community-post-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.community-post-form {
+  margin-bottom: 25px;
+}

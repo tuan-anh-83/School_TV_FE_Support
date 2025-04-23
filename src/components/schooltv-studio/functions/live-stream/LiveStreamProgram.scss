@@ -1,0 +1,16 @@
+.stream-schedule-nav {
+  font-size: 14px;
+  margin: 16px 0;
+
+  span {
+    color: #4ea1f3;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #74c0fc;
+    }
+  }
+}
