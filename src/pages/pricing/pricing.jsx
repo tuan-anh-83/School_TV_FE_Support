@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiFetch from "../../config/baseAPI";
 import "./pricing.css";
+import { convertDurationToText } from "../../utils/time";
 
 const PricingPage = () => {
   const navigate = useNavigate();
@@ -10,24 +11,35 @@ const PricingPage = () => {
   const [error, setError] = useState(null);
 
   const featureMapping = {
-    1: [
+    1: (duration, timeDuration) => [
       "Tối đa 500 videos",
-      "50 giờ stream liên tục",
-      "Lưu trữ 30 ngày",
+      `${timeDuration} giờ stream liên tục`,
+      `Lưu trữ ${convertDurationToText(duration)}`,
       "Hỗ trợ cơ bản",
     ],
-    2: [
+    2: (duration, timeDuration) => [
       "Không giới hạn videos",
-      "20 giờ stream liên tục",
-      "Lưu trữ 90 ngày",
+      `${timeDuration} giờ stream liên tục`,
+      `Lưu trữ ${convertDurationToText(duration)}`,
       "Hỗ trợ 24/7",
     ],
-    3: [
+    3: (time) => [
       "Giải pháp tùy chỉnh",
       "API tích hợp",
       "SLA cam kết",
       "Bảo mật nâng cao",
     ],
+    4: (duration, timeDuration) => [
+      "Tất cả tính năng của các gói trước",
+      "Dung lượng & băng thông không giới hạn",
+      "Hỗ trợ chuyên viên 1:1",
+      "Truy cập trước các tính năng beta"
+    ],
+    5: (duration, timeDuration) => [
+      "Bao gồm Elite Membership trong 12 tháng",
+      "Ưu tiên trải nghiệm tính năng mới sớm",
+      "Hỗ trợ kỹ thuật ưu tiên"
+    ]
   };
 
   useEffect(() => {
@@ -54,9 +66,12 @@ const PricingPage = () => {
         setPackages(
           data.$values.map((pkg) => ({
             ...pkg,
-            features: featureMapping[pkg.packageID] || [
-              "Tính năng đang cập nhật...",
-            ],
+            features:
+              typeof featureMapping[pkg.packageID] === "function"
+                ? featureMapping[pkg.packageID](pkg.duration, pkg.timeDuration)
+                : featureMapping[pkg.packageID] || [
+                    "Tính năng đang cập nhật...",
+                  ],
           }))
         );
       } catch (err) {
@@ -120,7 +135,9 @@ const PricingPage = () => {
                   <span className="prc-amount">
                     {pkg.price.toLocaleString()}
                   </span>
-                  <span className="prc-currency">VND/tháng</span>
+                  <span className="prc-currency">
+                    VND/{convertDurationToText(pkg.duration)}
+                  </span>
                 </div>
               </div>
 
