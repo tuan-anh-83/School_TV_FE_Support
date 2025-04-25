@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Form, Input } from "antd";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import apiFetch from "../../../../config/baseAPI";
 import { toast } from "react-toastify";
@@ -10,6 +10,7 @@ function LiveStreamProgram(props) {
   const { channel } = useOutletContext();
   const [form] = Form.useForm();
   const [isBtnLoading, setIsBtnLoading] = React.useState(false);
+  const navigate = useNavigate();
   const { setIsProgramCreated } = props;
 
   const handleSubmitInitProgram = async (values) => {
@@ -31,7 +32,9 @@ function LiveStreamProgram(props) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create program!");
+        const error = new Error("Request failed");
+        error.status = response.status;
+        throw error;
       }
 
       const data = await response.json();
@@ -43,7 +46,15 @@ function LiveStreamProgram(props) {
 
       console.log("Response data:", data);
     } catch (error) {
-      console.log("Lỗi khi khởi tạo chương trình: ", error);
+      if (error.status === 400) {
+        navigate("/package");
+        toast.error("Gói của bạn đã hết hạn, vui lòng đăng ký thêm.");
+      } else if (error.status === 404) {
+        navigate("/package");
+        toast.error("Không tìm thấy gói của bạn.");
+      } else {
+        console.log("Lỗi khi khởi tạo chương trình: ", error);
+      }
     } finally {
       setIsBtnLoading(false);
     }
