@@ -96,8 +96,8 @@ function LiveStreamSchedule() {
   //Handle time and validate time
   const handleChangeTime = (dates) => {
     if (dates && dates.length === 2) {
-      const startDate = dayjs(dates[0]).utc().toISOString();
-      const endDate = dayjs(dates[1]).utc().toISOString();
+      const startDate = dayjs(dates[0]).format('YYYY-MM-DD HH:mm:ss');
+      const endDate = dayjs(dates[1]).format('YYYY-MM-DD HH:mm:ss');
 
       setSelectedRange([startDate, endDate]);
     }

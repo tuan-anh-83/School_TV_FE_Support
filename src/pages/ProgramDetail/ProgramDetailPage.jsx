@@ -25,6 +25,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
+import { ClockCircleOutlined, HeartOutlined, PlayCircleOutlined, ShareAltOutlined } from "@ant-design/icons";
+import { createAvatarText } from "../../utils/text";
 
 const ProgramDetailPage = () => {
   const { id } = useParams();
@@ -384,86 +386,54 @@ const ProgramDetailPage = () => {
       exit="exit"
     >
       {/* Hero Section */}
-      <div className={styles.heroSection}>
-        <div className={styles.heroBackground}>
-          <div className={styles.blurOverlay}></div>
+      <div className={styles.profileContainer}>
+        <div className={styles.bannerImage}>
+          <p className={styles.title}>{truncateText(program.programName, maxLength)}</p>
+          <img
+            className={styles.profileImageItem}
+            src="https://images.unsplash.com/photo-1625496015236-96a3847ccd11?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt=""
+          />
         </div>
-
-        <div className={styles.heroContent}>
-          <motion.div
-            className={styles.contentWrapper}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <motion.div
-              className={styles.truncateContainer}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h1 className={styles.truncateText} title={program.programName}>
-                {truncateText(program.programName, maxLength)}
-              </h1>
-            </motion.div>
-
-            <motion.div
-              className={styles.metaInfo}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <span className={styles.metaItem}>
-                <FontAwesomeIcon icon={faSchool} />
+        <div className={styles.profileCard}>
+          <div className={styles.profileImage}>
+            <div className={styles.profileImageBag}>
+              {createAvatarText(program.schoolChannel?.name ?? "A")}
+            </div>
+            <div className={styles.onlineStatus}></div>
+          </div>
+          <div className={styles.profileInfo}>
+            <div className={styles.profileInfoContainer}>
+              <div className={styles.profileName}>
                 {program.schoolChannel?.name}
-              </span>
-              <span className={styles.metaItem}>
-                <FontAwesomeIcon icon={faCalendarAlt} />
-                {convertUTCToGMT7(program.createdAt).toLocaleDateString(
-                  "vi-VN"
-                )}
-              </span>
-              <span className={styles.metaItem}>
-                <FontAwesomeIcon icon={faUsers} />
-                {program.followCount || 0} người theo dõi
-              </span>
-            </motion.div>
-
-            <motion.div
-              className={styles.actionButtons}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <motion.button
-                className={`${styles.followButton} ${
-                  isFollowing ? styles.following : ""
-                }`}
-                onClick={handleFollow}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              </div>
+              <div
+                className={styles.liveContainer}
               >
-                <FontAwesomeIcon
-                  icon={isFollowing ? faCheckCircle : faHeart}
-                  className={styles.buttonIcon}
-                />
-                {isFollowing ? "Đang theo dõi" : "Theo dõi"}
-              </motion.button>
-
-              <motion.button
-                className={styles.shareButton}
-                onClick={handleShare}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FontAwesomeIcon
-                  icon={faShareNodes}
-                  className={styles.buttonIcon}
-                />
-                Chia sẻ
-              </motion.button>
-            </motion.div>
-          </motion.div>
+                <span className={styles.liveDot}></span>
+                <p>Upcomming</p>-
+                <ClockCircleOutlined />
+                <p>Còn 20 giờ</p>
+              </div>
+            </div>
+            <div className={styles.profileStats}>
+              {program.followCount || 0} người theo dõi · 120 video · 35 người đang chờ
+            </div>
+          </div>
+          <div className={styles.actionButtons}>
+            <button className={styles.messageThirdBtn}>Xem live</button>
+            <button className={styles.messageBtn}>Theo dõi</button>
+            <button className={styles.messageSecondBtn} onClick={handleShare}>
+              Chia sẻ
+            </button>
+          </div>
+          <div className={styles.actionButtonsMobile}>
+            <button className={styles.messageThirdBtn}><PlayCircleOutlined /></button>
+            <button className={styles.messageBtn}><HeartOutlined /></button>
+            <button className={styles.messageSecondBtn} onClick={handleShare}>
+              <ShareAltOutlined />
+            </button>
+          </div>
         </div>
       </div>
       {/* Navigation Tabs */}

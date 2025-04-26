@@ -1,0 +1,22 @@
+export function createAvatarText(text, backgroundColor = '#4CAF50', textColor = '#000000') {
+    // Handle empty input
+    if (!text || typeof text !== 'string') {
+        return '?';
+    }
+
+    // Clean up the input text
+    text = text.trim();
+
+    // Get initials from words
+    const words = text.split(' ').filter(word => word.length > 0);
+
+    if (words.length === 0) {
+        return '?';
+    } else if (words.length === 1) {
+        // If single word, use first two letters
+        return words[0].substring(0, 2).toUpperCase();
+    } else {
+        // Use first letter of first word and first letter of last word
+        return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+    }
+}
