@@ -248,6 +248,25 @@ $max-content-width: 1440px;
   justify-content: center;
 
   @media (max-width: 768px) {
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+
+    button {
+      flex: 1;
+      max-width: 200px;
+    }
+  }
+}
+
+.actionButtonsMobile {
+  display: none;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    display: flex;
     flex-direction: row;
     justify-content: center;
 
@@ -799,5 +818,268 @@ $max-content-width: 1440px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
+  }
+}
+
+
+.profileContainer {
+  margin: 0 auto;
+  position: relative;
+  margin-bottom: 6%;
+}
+
+.title {
+  position: absolute;
+  font-size: 300%;
+  color: white;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+}
+
+.bannerImage {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 16px;
+  background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4));
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.profileCard {
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  background-color: rgba(30, 30, 40, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(102, 252, 241, 0.3);
+}
+
+.profileImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-right: 15px;
+  border: 2px solid #00f7ff;
+  box-shadow: 0 0 10px #00f7ff;
+  position: relative;
+}
+
+.profileImageBag {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #4CAF50; /* Green background like your example */
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.profileImageItem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(30%);
+}
+
+.onlineStatus {
+  position: absolute;
+  bottom: 5px;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  background-color: #0f0;
+  border-radius: 50%;
+  border: 2px solid #222;
+}
+
+.profileInfoContainer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.liveContainer {
+  display: flex;
+  align-items: center;
+  color: white;
+  border: 3px solid #F75A5A;
+  border-radius: 30px;
+  padding-block: 2px;
+  padding-inline: 15px;
+  background-color: black;
+  animation: pulse 3s infinite;
+  gap: 10px;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  background-color: red;
+  border-radius: 50%;
+  /* Animation */
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+.profileName {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.verifiedBadge {
+  width: 18px;
+  height: 18px;
+  background-color: #0f0;
+  border-radius: 50%;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verifiedBadge::after {
+  content: "✓";
+  color: #111;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.profileStats {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.messageBtn,
+.messageSecondBtn,
+.messageThirdBtn {
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.messageBtn {
+  background-color: #00d68f;
+}
+
+.messageSecondBtn {
+  background-color: #3D90D7;
+}
+
+.messageThirdBtn {
+  background-color: #EA7300;
+}
+
+.messageBtn:hover {
+  background-color: #00c482;
+  box-shadow: 0 0 15px rgba(0, 214, 143, 0.5);
+}
+
+.messageSecondBtn:hover {
+  background-color: #4c97d9;
+  box-shadow: 0 0 15px rgba(68, 113, 212, 0.5);
+}
+
+.messageThirdBtn:hover {
+  background-color: #e68021;
+  box-shadow: 0 0 15px rgba(186, 105, 29, 0.5);
+}
+
+.followBtn {
+  width: 40px;
+  height: 40px;
+  background-color: #333;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.followBtn:hover {
+  background-color: #444;
+}
+
+.followBtnText {
+  color: white;
+  font-size: 18px;
+}
+
+@media (max-width: 600px) {
+  .profileContainer {
+    margin-bottom: 25%;
+  }
+
+  .profileCard {
+      flex-direction: column;
+      text-align: center;
+      padding: 15px;
+  }
+  
+  .profileImage {
+      margin-right: 0;
+      margin-bottom: 15px;
+  }
+  
+  .actionButtons {
+      margin-top: 15px;
+  }
+
+  .title {
+    font-size: 130%;
+    width: 100%;
+    text-align: center;
+    top: 25%;
+  }
+
+  .profileName {
+    display: none;
+  }
+
+  .liveContainer {
+    margin-bottom: 1rem;
   }
 }
