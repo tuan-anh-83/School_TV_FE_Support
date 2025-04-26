@@ -33,13 +33,13 @@ const PricingPage = () => {
       "Tất cả tính năng của các gói trước",
       "Dung lượng & băng thông không giới hạn",
       "Hỗ trợ chuyên viên 1:1",
-      "Truy cập trước các tính năng beta"
+      "Truy cập trước các tính năng beta",
     ],
     5: (duration, timeDuration) => [
       "Bao gồm Elite Membership trong 12 tháng",
       "Ưu tiên trải nghiệm tính năng mới sớm",
-      "Hỗ trợ kỹ thuật ưu tiên"
-    ]
+      "Hỗ trợ kỹ thuật ưu tiên",
+    ],
   };
 
   useEffect(() => {
@@ -137,6 +137,7 @@ const PricingPage = () => {
                   </span>
                   <span className="prc-currency">
                     VND/{convertDurationToText(pkg.duration)}
+                    {pkg.timeDuration > 0 && ` + ${pkg.timeDuration} phút`}
                   </span>
                 </div>
               </div>

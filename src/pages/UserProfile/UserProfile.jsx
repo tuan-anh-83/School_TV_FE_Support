@@ -757,7 +757,7 @@ const UserProfile = () => {
                           {detail.package.name}
                         </span>
                         <span className="product-duration">
-                          {detail.package.duration} tháng
+                          {detail.package.timeDuration} ngày
                         </span>
                       </div>
                       <div className="product-price">

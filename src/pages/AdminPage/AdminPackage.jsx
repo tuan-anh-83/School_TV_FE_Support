@@ -123,6 +123,7 @@ function AdminPackage() {
         description: values.description,
         price: values.price,
         duration: values.duration,
+        timeduration: values.timeduration,
         status: values.status === "Active",
       }),
     })
@@ -190,13 +191,19 @@ function AdminPackage() {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (price) => `$${price.toLocaleString()}`,
+      render: (price) => `${price.toLocaleString()} VNĐ`,
     },
     {
       title: "Duration",
       dataIndex: "duration",
       key: "duration",
-      render: (d) => `${d} minutes`,
+      render: (d) => `${d} day(s)`,
+    },
+    {
+      title: "TimeDuration",
+      dataIndex: "timeDuration",
+      key: "timeduration",
+      render: (d) => `${d} minute(s)`,
     },
     {
       title: "Status",
@@ -278,6 +285,7 @@ function AdminPackage() {
               description: selectedPackage.description,
               price: selectedPackage.price,
               duration: selectedPackage.duration,
+              timeduration: selectedPackage.timeDuration,
               status: selectedPackage.status ? "Active" : "Inactive",
             }}
             onFinish={handleUpdate}
@@ -305,6 +313,14 @@ function AdminPackage() {
             <Form.Item
               name="duration"
               label="Duration"
+              rules={[{ required: true }]}
+            >
+              {" "}
+              <InputNumber min={1} style={{ width: "100%" }} />{" "}
+            </Form.Item>
+            <Form.Item
+              name="timeduration"
+              label="TimeDuration"
               rules={[{ required: true }]}
             >
               {" "}
