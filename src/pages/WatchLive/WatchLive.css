@@ -127,7 +127,7 @@
   margin-right: auto;
 }
 
-.content-section {
+.main-container .content-section {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -317,44 +317,6 @@
 .control-button:hover {
   background: var(--primary-color);
   transform: scale(1.1);
-}
-
-.progress-bar {
-  flex: 1;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.progress {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  background: var(--primary-color);
-  border-radius: 2px;
-  width: 50%;
-  transition: width 0.2s ease;
-}
-
-.progress::after {
-  content: "";
-  position: absolute;
-  right: -4px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  background: white;
-  border-radius: 50%;
-  display: none;
-}
-
-.progress-bar:hover .progress::after {
-  display: block;
 }
 
 .volume-control {
@@ -705,23 +667,6 @@
   gap: 1rem;
 }
 
-.content-card {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--card-bg);
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  margin-top: 10px;
-}
-
-.content-card:hover {
-  transform: translateX(5px);
-  background: var(--card-hover-bg);
-}
-
 .content-thumbnail {
   width: 180px;
   height: 100px;
@@ -735,10 +680,6 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
-}
-
-.content-card:hover .content-thumbnail img {
-  transform: scale(1.05);
 }
 
 .content-info {
@@ -766,33 +707,6 @@
   color: var(--secondary-text);
   opacity: 0.8;
   transition: color 0.3s ease;
-}
-
-.live-indicator {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  background: var(--live-indicator);
-  color: white;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  animation: pulse 1.5s infinite;
-}
-
-.duration {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.5rem;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
 }
 
 /* Update the chat-section position */
