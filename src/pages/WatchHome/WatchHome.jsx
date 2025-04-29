@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import "./WatchHome.css";
+import "swiper/css";
+import "swiper/css/effect-fade";
 import apiFetch from "../../config/baseAPI";
-import Swiper from "swiper";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import {
+  AlertOutlined,
+  ClockCircleOutlined,
+  EyeOutlined,
+  NotificationOutlined,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
+import { AlertCircleIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function WatchHome() {
   const [liveSchedules, setLiveSchedules] = useState([]);
@@ -15,6 +24,7 @@ export default function WatchHome() {
   const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [bannerSlides, setBannerSlides] = useState([]);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     const generateBannerSlides = () => {
@@ -22,7 +32,7 @@ export default function WatchHome() {
         ...(liveSchedules || []).map((item) => ({
           ...item,
           type: "Đang Phát Sóng",
-          title: item.programName,
+          title: item.program?.title,
           channel: item.schoolChannelName,
           image: `https://picsum.photos/seed/${item.scheduleID}/1920/1080`,
         })),
@@ -51,6 +61,8 @@ export default function WatchHome() {
         })),
       ];
 
+      console.log(allContent);
+
       // Shuffle array and take 5 items
       const shuffled = [...allContent].sort(() => Math.random() - 0.5);
       setBannerSlides(shuffled.slice(0, 5));
@@ -70,39 +82,6 @@ export default function WatchHome() {
     videoLoading,
     postsLoading,
   ]);
-
-  useEffect(() => {
-    if (bannerSlides.length > 0) {
-      const swiper = new Swiper(".swiper", {
-        modules: [Navigation, Pagination, Autoplay],
-        // Optional parameters
-        loop: true,
-
-        // Enable autoplay
-        autoplay: {
-          delay: 5000,
-          disableOnInteraction: false,
-        },
-
-        // Enable pagination
-        pagination: {
-          el: ".swiper-pagination",
-          clickable: true,
-        },
-
-        // Navigation arrows
-        navigation: {
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
-        },
-      });
-
-      // Cleanup
-      return () => {
-        if (swiper) swiper.destroy();
-      };
-    }
-  }, [bannerSlides]);
 
   useEffect(() => {
     const fetchLiveSchedules = async () => {
@@ -279,334 +258,307 @@ export default function WatchHome() {
         rel="stylesheet"
       />
       <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-      <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"
-      />
-      <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
-      <section className="banner-section">
-        <div className="swiper">
-          <div className="swiper-wrapper">
-            {bannerSlides.map((slide, index) => (
-              <div className="swiper-slide" key={index}>
-                <img
-                  src={slide.image}
-                  alt={slide.title}
-                  className="banner-image"
-                />
-                <div className="banner-content">
-                  <div className="banner-badge">{slide.type}</div>
-                  <h2>{slide.title || "Không có tiêu đề"}</h2>
-                  <p>{slide.channel || "Không xác định"}</p>
+      <div className="main-content">
+        <Swiper
+          spaceBetween={0}
+          slidesPerView={1}
+          onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          loop={true}
+          className="w-full h-full"
+        >
+          {bannerSlides.map((slide, index) => (
+            <SwiperSlide key={index}>
+              <div className="watch-hero">
+                <div className="watch-hero-overlay"></div>
+                <div
+                  className="watch-hero-image"
+                  style={{
+                    backgroundImage: `url("${slide.image}")`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center right",
+                    backgroundSize: "cover",
+                  }}
+                ></div>
+                <div className="watch-hero-content">
+                  <div className="subtitle">LIVE STREAMING NOW</div>
+                  <h1>{slide.title}</h1>
+                  <p>
+                    Join our Chief Market Strategist Maria Rodriguez as she
+                    breaks down this week's market movements, economic data
+                    releases, and provides actionable insights for positioning
+                    your portfolio in the coming week. Live Q&A session
+                    included.
+                  </p>
+                  <div className="streaming-stats">
+                    <span className="live-indicator">
+                      <span className="live-dot"></span> LIVE
+                    </span>
+                    <span className="viewers">
+                      <EyeOutlined /> 2.4K đang xem
+                    </span>
+                    <span className="duration">
+                      <ClockCircleOutlined /> Bắt đầu 45 phút trước
+                    </span>
+                  </div>
+                  <div className="watch-hero-buttons">
+                    <button className="btn btn-primary">
+                      <span className="icon">
+                        <PlayCircleOutlined />
+                      </span>{" "}
+                      Xem live
+                    </button>
+                    <button className="btn btn-secondary">
+                      <span className="icon">
+                        <AlertOutlined />
+                      </span>{" "}
+                      Nhận thông báo
+                    </button>
+                  </div>
                 </div>
               </div>
-            ))}
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        <div className="content-section">
+          <div className="section-header">
+            <h2>Đang phát sóng</h2>
+            <Link to="liveList" className="view-all">
+              Xem tất cả
+            </Link>
           </div>
-          <div className="swiper-pagination"></div>
-          <div className="swiper-button-next"></div>
-          <div className="swiper-button-prev"></div>
-        </div>
-      </section>
-      <section className="section">
-        <div className="section-header">
-          <h2 className="section-title">Đang Phát Sóng</h2>
-          <Link to="/liveList" className="see-all">
-            Xem tất cả <i className="fas fa-arrow-right" />
-          </Link>
-        </div>
 
-        {loading ? (
-          <div className="loading-placeholder">Đang tải...</div>
-        ) : liveSchedules.length > 0 ? (
-          <div className="horizontal-scroll-container">
-            <div className="streams-grid horizontal-scroll">
-              {liveSchedules.slice(0, 5).map((schedule) => (
-                <Link
-                  to={`/watchLive/${
-                    schedule.program?.schoolChannel?.schoolChannelID || ""
-                  }`}
-                  key={schedule.scheduleID}
-                >
-                  <div className="stream-card">
-                    <div className="stream-thumbnail">
-                      <img
-                        src={`https://picsum.photos/seed/${schedule.scheduleID}/300/180`}
-                        alt="Stream thumbnail"
-                      />
-                      <div className="live-badge-home">LIVE</div>
-                    </div>
-                    <div className="stream-info">
-                      <h3 className="stream-title">
-                        {schedule.program?.title ||
-                          "Chương trình không xác định"}
-                      </h3>
-                      <div className="stream-meta">
-                        <span>
-                          {schedule.program?.schoolChannel?.name ||
-                            "Trường không xác định"}
-                        </span>
-                        <span>
-                          <i className="fas fa-clock" />{" "}
-                          {calculateDuration(
-                            schedule.startTime,
-                            schedule.endTime
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-              <Link to="/liveList" className="see-all-card">
-                <i className="fas fa-tv" />
-                <p>Bấm vào Xem tất cả để tiếp tục khám phá bạn nhé!</p>
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="no-live-container">
-            <div className="no-live-content">
-              <i className="fas fa-satellite-dish fa-3x" />
-              <p>Không có chương trình trực tiếp nào đang hoạt động.</p>
-            </div>
-          </div>
-        )}
-      </section>
-      <section className="section">
-        <div className="section-header">
-          <h2 className="section-title">Sắp Diễn Ra</h2>
-          <Link to="/LiveList" className="see-all">
-            Xem tất cả <i className="fas fa-arrow-right" />
-          </Link>
-        </div>
+          {/* <div className="category-tabs">
+            <div className="category-tab active">All</div>
+            <div className="category-tab">Leadership</div>
+            <div className="category-tab">Finance</div>
+            <div className="category-tab">Technology</div>
+            <div className="category-tab">Strategy</div>
+          </div> */}
 
-        {upcomingLoading ? (
-          <div className="loading-placeholder">Đang tải...</div>
-        ) : upcomingSchedules.length > 0 ? (
-          <div className="horizontal-scroll-container">
-            <div className="events-grid horizontal-scroll">
-              {upcomingSchedules.map((schedule) => {
-                const startTime = convertToGMT7(schedule.startTime);
-                const endTime = convertToGMT7(schedule.endTime);
-
-                const program = schedule.program || {};
-                const programName =
-                  program.programName || "Chương trình không xác định";
-                const channelName =
-                  program.schoolChannel?.name || "Trường không xác định";
-                const programID = program.programID || "";
-
-                return (
-                  <div
-                    className="event-card"
-                    data-aos="fade-up"
-                    key={schedule.scheduleID}
-                  >
-                    <div className="event-date">
-                      <i className="far fa-calendar" />
-                      {formatDateTime(startTime)}
-                    </div>
-                    <h3 className="event-title">
-                      <div className="title-text">{programName}</div>
-                    </h3>
-                    <p>{channelName}</p>
-                    <div className="event-meta">
-                      <span>
-                        <i className="fas fa-clock" />
-                        {` ${Math.floor((endTime - startTime) / 3600000)}h 
-                        ${Math.floor(
-                          ((endTime - startTime) % 3600000) / 60000
-                        )}m`}
-                      </span>
-                    </div>
-                    {programID && (
-                      <Link to={`/program/${programID}`}>
-                        <button className="reminder-btn">
-                          <i className="fas fa-info-circle" /> Xem Chi Tiết
-                        </button>
-                      </Link>
-                    )}
-                  </div>
-                );
-              })}
-              <Link to="/LiveList" className="see-all-card">
-                <i className="fas fa-calendar-alt" />
-                <p>Bấm vào Xem tất cả để tiếp tục khám phá bạn nhé!</p>
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="no-live-container">
-            <div className="no-live-content">
-              <i className="fas fa-calendar-times fa-3x" />
-              <p>Không có lịch phát sóng nào sắp diễn ra.</p>
-            </div>
-          </div>
-        )}
-      </section>
-      <section className="section">
-        <div className="section-header">
-          <h2 className="section-title">Video Lưu Trữ</h2>
-          <Link to="/archive" className="see-all">
-            Xem tất cả <i className="fas fa-arrow-right" />
-          </Link>
-        </div>
-
-        {videoLoading ? (
-          <div className="loading-placeholder">Đang tải...</div>
-        ) : videoHistory.length > 0 ? (
-          <div className="horizontal-scroll-container">
-            <div className="videos-grid horizontal-scroll">
-              {videoHistory.map((video) => {
-                const updatedAt = convertToGMT7(video.updatedAt);
-
-                const programName =
-                  video.program?.programName || "Chương trình không xác định";
-                const channelName =
-                  video.program?.schoolChannel?.name || "Trường không xác định";
-                const channelLogo = `https://picsum.photos/seed/${video.videoHistoryID}/100/100`;
-
-                return (
-                  <div
-                    className="video-card"
-                    key={video.videoHistoryID}
-                    data-aos="fade-up"
-                  >
-                    <div className="video-thumbnail">
-                      <img
-                        src={`https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
-                        alt="Video thumbnail"
-                      />
-                    </div>
-                    <div className="video-info">
-                      <div className="video-header">
-                        <h3 className="video-title">{programName}</h3>
-                        <div className="video-meta">
-                          <div className="channel-info">
-                            <img
-                              src={channelLogo}
-                              alt="University avatar"
-                              className="university-avatar"
-                            />
-                            <span className="university-name">
-                              {channelName}
+          <div className="content-grid">
+            {loading ? (
+              <div className="loading-placeholder">Đang tải...</div>
+            ) : liveSchedules.length > 0 ? (
+              <div className="horizontal-scroll-container">
+                <div className="streams-grid horizontal-scroll">
+                  {liveSchedules.slice(0, 5).map((schedule, index) => (
+                    <Link
+                      to={`/watchLive/${
+                        schedule.program?.schoolChannel?.schoolChannelID || ""
+                      }`}
+                      data-aos="fade-up"
+                      data-aos-delay={index * 100}
+                      style={{ textDecoration: "none" }}
+                      key={schedule.scheduleID}
+                    >
+                      <div className="content-card">
+                        <div className="content-header">
+                          <img
+                            src={`https://picsum.photos/seed/${schedule.scheduleID}/300/180`}
+                            alt="Content thumbnail"
+                          />
+                          <div className="card-badge">
+                            <span className="live-indicator">
+                              <span className="live-dot"></span> LIVE
                             </span>
                           </div>
-                          <div className="video-time">
-                            <i className="far fa-clock" />
-                            {formatDateTime(updatedAt)}
+                        </div>
+                        <div className="content-info">
+                          <h3>
+                            {schedule.program?.title ||
+                              "Chương trình không xác định"}
+                          </h3>
+                          <div className="content-meta">
+                            <span>
+                              {calculateDuration(
+                                schedule.startTime,
+                                schedule.endTime
+                              )}
+                            </span>
+                            <span>April 24, 2025</span>
+                          </div>
+                          <div className="content-description">
+                            Strategic approaches to navigating volatile market
+                            conditions while maintaining growth.
+                          </div>
+                          <div className="content-tags">
+                            <span className="tag">Strategy</span>
+                            <span className="tag">Decision-making</span>
+                          </div>
+                          <div className="card-footer">
+                            <div className="author">
+                              <div className="author-avatar"></div>
+                              <span>
+                                {schedule.program?.schoolChannel?.name ||
+                                  "Trường không xác định"}
+                              </span>
+                            </div>
+                            <div className="views">3,421 views</div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
-              <Link to="/archive" className="see-all-card">
-                <i className="fas fa-video" />
-                <p>Bấm vào Xem tất cả để tiếp tục khám phá bạn nhé!</p>
-              </Link>
-            </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="no-live-container">
+                <div className="no-live-content">
+                  <i className="fas fa-satellite-dish fa-3x" />
+                  <p>Không có chương trình trực tiếp nào đang hoạt động.</p>
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="no-live-container">
-            <div className="no-live-content">
-              <i className="fas fa-video-slash fa-3x" />
-              <p>Không có Video Lưu Trữ nào.</p>
-            </div>
-          </div>
-        )}
-      </section>
-      <section className="section">
-        <div className="section-header">
-          <h2 className="section-title">Bài Viết Cộng Đồng</h2>
-          <Link to="/communityPost" className="see-all">
-            Xem tất cả <i className="fas fa-arrow-right" />
-          </Link>
         </div>
 
-        {postsLoading ? (
-          <div className="loading-placeholder">Đang tải...</div>
-        ) : posts.length > 0 ? (
-          <div className="horizontal-scroll-container">
-            <div className="posts-grid horizontal-scroll">
-              {posts.slice(0, 3).map((post) => (
-                <div className="post-card" key={post.newsID} data-aos="fade-up">
-                  <div className="post-header">
-                    <img
-                      src={
-                        post.schoolChannel?.logoUrl ||
-                        `https://picsum.photos/seed/${post.newsID}/32/32`
+        <div className="secondary-section">
+          <div className="section-header">
+            <h2>Sắp diễn ra</h2>
+            <Link to="/liveList" className="view-all">
+              Xem tất cả
+            </Link>
+          </div>
+
+          <div className="content-grid">
+            {upcomingLoading ? (
+              <div className="loading-placeholder">Đang tải...</div>
+            ) : upcomingSchedules.length > 0 ? (
+              <div className="horizontal-scroll-container">
+                <div className="events-grid horizontal-scroll">
+                  {upcomingSchedules.map((schedule, index) => (
+                    <Link
+                      data-aos="fade-up"
+                      data-aos-delay={index * 100}
+                      key={schedule.scheduleID}
+                      to={
+                        schedule?.program &&
+                        `/program/${schedule?.program?.programID}`
                       }
-                      alt="University avatar"
-                      className="university-avatar"
-                    />
-                    <div className="post-meta">
-                      <h3 className="university-name">
-                        {post.schoolChannel?.name || "Trường không xác định"}
-                      </h3>
-                      <span className="post-time">
-                        {getTimeAgo(post.createdAt)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="post-content">
-                    <div className="post-text">
-                      <h4
-                        style={{
-                          fontWeight: "600",
-                          marginBottom: "0.5rem",
-                          display: "-webkit-box",
-                          WebkitLineClamp: "1",
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {post.title}
-                      </h4>
-                      <p>{post.content}</p>
-                    </div>
-                    {post.newsPictures &&
-                      post.newsPictures.$values &&
-                      post.newsPictures.$values.length > 0 && (
-                        <div className="post-image-container">
+                    >
+                      <div className="content-card">
+                        <div className="content-header">
                           <img
-                            src={`data:image/jpeg;base64,${post.newsPictures.$values[0].fileData}`}
-                            alt={post.title}
+                            src={`https://picsum.photos/seed/${schedule.scheduleID}/300/180`}
+                            alt="Content thumbnail"
                           />
                         </div>
-                      )}
-                    <div className="post-actions">
-                      <button>
-                        <i className="far fa-heart" />{" "}
-                        {Math.floor(Math.random() * 1000)}
-                      </button>
-                      <button>
-                        <i className="far fa-comment" />{" "}
-                        {Math.floor(Math.random() * 100)}
-                      </button>
-                      <button>
-                        <i className="far fa-share-square" /> Chia sẻ
-                      </button>
-                    </div>
-                  </div>
+                        <div className="content-info">
+                          <h3>
+                            {schedule?.program?.programName ??
+                              "Chương trình không xác định"}
+                          </h3>
+                          <div className="content-meta">
+                            <span>{` ${Math.floor(
+                              (schedule.endTime - schedule.startTime) / 3600000
+                            )}h 
+                        ${Math.floor(
+                          ((schedule.endTime - schedule.startTime) % 3600000) /
+                            60000
+                        )}m`}</span>
+                            <span>
+                              {" "}
+                              {formatDateTime(
+                                schedule?.startTime ?? new Date()
+                              )}
+                            </span>
+                          </div>
+                          <div className="progress-bar">
+                            <div
+                              className="progress"
+                              style={{ width: "68%" }}
+                            ></div>
+                          </div>
+                          <div className="card-footer">
+                            <div className="author">
+                              <div className="author-avatar"></div>
+                              <span>
+                                {schedule?.program?.schoolChannel?.name ??
+                                  "Trường không xác định"}
+                              </span>
+                            </div>
+                            <div className="views">2,954 views</div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-              ))}
-              <Link to="/communityPost" className="see-all-card">
-                <i className="fas fa-newspaper" />
-                <p>Bấm vào Xem tất cả để tiếp tục khám phá bạn nhé!</p>
-              </Link>
-            </div>
+              </div>
+            ) : (
+              <div className="no-live-container">
+                <div className="no-live-content">
+                  <i className="fas fa-calendar-times fa-3x" />
+                  <p>Không có lịch phát sóng nào sắp diễn ra.</p>
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="no-live-container">
-            <div className="no-live-content">
-              <i className="fas fa-newspaper fa-3x" />
-              <p>Không có Bài Viết Cộng Đồng nào được tìm thấy.</p>
-            </div>
+        </div>
+
+        <div className="content-section">
+          <div className="section-header">
+            <h2>Video Lưu Trữ</h2>
+            <Link to="/archive" className="view-all">
+              Xem tất cả
+            </Link>
           </div>
-        )}
-      </section>
+
+          <div className="content-grid">
+            {videoLoading ? (
+              <div className="loading-placeholder">Đang tải...</div>
+            ) : videoHistory.length > 0 ? (
+              <div className="horizontal-scroll-container">
+                <div className="videos-grid horizontal-scroll">
+                  {videoHistory.map((video, index) => (
+                    <Link
+                      key={video.videoHistoryID}
+                      data-aos="fade-up"
+                      data-aos-delay={index * 100}
+                    >
+                      <div className="content-card">
+                        <div className="content-header">
+                          <img
+                            src={`https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
+                            alt="Content thumbnail"
+                          />
+                        </div>
+                        <div className="content-info">
+                          <h3>
+                            {video.program?.programName ??
+                              "Chương trình không xác định"}
+                          </h3>
+                          <div className="content-meta">
+                            <span>Series</span>
+                            <span>{formatDateTime(video.updatedAt)}</span>
+                          </div>
+                          <div className="content-description">
+                            Annual gathering of finance leaders discussing
+                            emerging market trends and opportunities.
+                          </div>
+                          <div className="content-tags">
+                            <span className="tag">Finance</span>
+                            <span className="tag">Global</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="no-live-container">
+                <div className="no-live-content">
+                  <i className="fas fa-video-slash fa-3x" />
+                  <p>Không có Video Lưu Trữ nào.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </>
   );
 }
