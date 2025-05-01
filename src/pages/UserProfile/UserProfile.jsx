@@ -463,7 +463,7 @@ const UserProfile = () => {
                       <h3>Đơn hàng #{order.orderCode || "N/A"}</h3>
                       <span className="order-date">
                         {order.createdAt
-                          ? new Date(order.createdAt).toLocaleDateString(
+                          ? new Date(order.createdAt)?.toLocaleDateString(
                               "vi-VN"
                             )
                           : "Không xác định"}
@@ -707,7 +707,7 @@ const UserProfile = () => {
                 <ClockCircleOutlined />
                 <span>
                   {selectedOrder.createdAt
-                    ? new Date(selectedOrder.createdAt).toLocaleDateString(
+                    ? new Date(selectedOrder.createdAt)?.toLocaleDateString(
                         "vi-VN",
                         {
                           year: "numeric",

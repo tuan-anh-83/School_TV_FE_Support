@@ -121,7 +121,7 @@ const PaymentSuccess = () => {
           <div className="detail-row">
             <span>Thời gian</span>
             <span>
-              {new Date(orderDetails?.createdAt).toLocaleDateString() ||
+              {new Date(orderDetails?.createdAt)?.toLocaleDateString() ||
                 "Không xác định"}
             </span>
           </div>

@@ -156,7 +156,7 @@ const StatisticsPage = () => {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       data.push({
-        date: date.toLocaleDateString("vi-VN", {
+        date: date?.toLocaleDateString("vi-VN", {
           day: "2-digit",
           month: "2-digit",
         }),

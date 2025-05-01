@@ -163,11 +163,11 @@ function AdminPackage() {
         <div style={{ lineHeight: 1.5 }}>
           <div>
             <strong>Day:</strong>{" "}
-            {date.toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" })}
+            {date? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" }) : 'N/A'}
           </div>
           <div>
             <strong>Time:</strong>{" "}
-            {date.toLocaleTimeString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" })}
+            {date? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" }) : 'N/A'}
           </div>
         </div>
       </Tooltip>
