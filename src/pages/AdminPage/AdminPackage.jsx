@@ -123,7 +123,6 @@ function AdminPackage() {
         description: values.description,
         price: values.price,
         duration: values.duration,
-        timeduration: values.timeduration,
         status: values.status === "Active",
       }),
     })
@@ -164,11 +163,11 @@ function AdminPackage() {
         <div style={{ lineHeight: 1.5 }}>
           <div>
             <strong>Day:</strong>{" "}
-            {date.toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" })}
+            {date? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" }) : 'N/A'}
           </div>
           <div>
             <strong>Time:</strong>{" "}
-            {date.toLocaleTimeString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" })}
+            {date? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" }) : 'N/A'}
           </div>
         </div>
       </Tooltip>
@@ -191,19 +190,13 @@ function AdminPackage() {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (price) => `${price.toLocaleString()} VNĐ`,
+      render: (price) => `$${price.toLocaleString()}`,
     },
     {
       title: "Duration",
       dataIndex: "duration",
       key: "duration",
-      render: (d) => `${d} day(s)`,
-    },
-    {
-      title: "TimeDuration",
-      dataIndex: "timeDuration",
-      key: "timeduration",
-      render: (d) => `${d} minute(s)`,
+      render: (d) => `${d} minutes`,
     },
     {
       title: "Status",
@@ -285,7 +278,6 @@ function AdminPackage() {
               description: selectedPackage.description,
               price: selectedPackage.price,
               duration: selectedPackage.duration,
-              timeduration: selectedPackage.timeDuration,
               status: selectedPackage.status ? "Active" : "Inactive",
             }}
             onFinish={handleUpdate}
@@ -313,14 +305,6 @@ function AdminPackage() {
             <Form.Item
               name="duration"
               label="Duration"
-              rules={[{ required: true }]}
-            >
-              {" "}
-              <InputNumber min={1} style={{ width: "100%" }} />{" "}
-            </Form.Item>
-            <Form.Item
-              name="timeduration"
-              label="TimeDuration"
               rules={[{ required: true }]}
             >
               {" "}

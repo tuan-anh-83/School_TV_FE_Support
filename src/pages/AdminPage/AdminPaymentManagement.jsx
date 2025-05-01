@@ -59,13 +59,13 @@ function AdminPaymentManagement() {
   const formatDateTime = (text) => {
     const date = new Date(text);
     return (
-      <Tooltip title={date.toLocaleString("vi-VN")}>
+      <Tooltip title={date?.toLocaleString("vi-VN")}>
         <div style={{ lineHeight: 1.5 }}>
           <div>
-            <strong>Day:</strong> {date.toLocaleDateString("en-GB")}
+            <strong>Day:</strong> {date?.toLocaleDateString("en-GB")}
           </div>
           <div>
-            <strong>Time:</strong> {date.toLocaleTimeString("en-GB")}
+            <strong>Time:</strong> {date?.toLocaleTimeString("en-GB")}
           </div>
         </div>
       </Tooltip>

@@ -480,7 +480,7 @@ const ProgramModal = ({
               }[status];
 
               // Format the date in Vietnamese locale
-              const formattedDate = schedule.startTime.toLocaleDateString(
+              const formattedDate = schedule?.startTime?.toLocaleDateString(
                 "vi-VN",
                 {
                   weekday: "long",
@@ -521,7 +521,7 @@ const ProgramModal = ({
                     </div>
                     {status === "ĐÃ PHÁT" && (
                       <div className={styles.streamDuration}>
-                        {schedule.startTime.toLocaleDateString("vi-VN")}
+                        {schedule?.startTime?.toLocaleDateString("vi-VN")}
                       </div>
                     )}
                   </div>

@@ -579,7 +579,7 @@ const StudioPrograms = () => {
                 <div className={styles.programMeta}>
                   <span>
                     <FontAwesomeIcon icon={faCalendarAlt} />
-                    {new Date(program.createdAt).toLocaleDateString("vi-VN")}
+                    {new Date(program.createdAt)?.toLocaleDateString("vi-VN")}
                   </span>
                   <span>{program.schedules.$values.length} lịch phát</span>
                 </div>
