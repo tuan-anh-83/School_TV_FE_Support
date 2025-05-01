@@ -128,12 +128,12 @@ function CreatePackage() {
                       min={0.01}
                       step={0.01}
                       style={{ width: "100%" }}
-                      placeholder="Enter price in VNĐ"
+                      placeholder="Enter price in USD"
                     />
                   </Form.Item>
 
                   <Form.Item
-                    label="Duration (days)"
+                    label="Duration (minutes)"
                     name="duration"
                     rules={[
                       {
@@ -150,29 +150,7 @@ function CreatePackage() {
                     <InputNumber
                       min={1}
                       style={{ width: "100%" }}
-                      placeholder="Enter duration in day"
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    label="TimeDuration (minutes)"
-                    name="timeduration"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input package TimeDuration!",
-                      },
-                      {
-                        type: "number",
-                        min: 1,
-                        message: "TimeDuration must be greater than 0",
-                      },
-                    ]}
-                  >
-                    <InputNumber
-                      min={1}
-                      style={{ width: "100%" }}
-                      placeholder="Enter duration in mintues"
+                      placeholder="Enter duration in minutes"
                     />
                   </Form.Item>
 
