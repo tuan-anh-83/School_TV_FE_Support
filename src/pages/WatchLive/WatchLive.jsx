@@ -31,7 +31,7 @@ const WatchLive = () => {
   const [messageInput, setMessageInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
-  const [currentDate, setCurrentDate] = useState(dayjs().tz("Asia/Bangkok"));
+  const [currentDate, setCurrentDate] = useState(dayjs().tz("Asia/Ho_Chi_Minh"));
   const [logicDate, setLogicDate] = useState(
     currentDate.format("YYYY-MM-DD") || ""
   );
@@ -360,7 +360,7 @@ const WatchLive = () => {
             badge: null,
           },
           // Explicitly parse UTC and convert to GMT+7
-          time: dayjs.utc(comment.createdAt).tz("Asia/Bangkok").format("HH:mm"),
+          time: dayjs.utc(comment.createdAt).tz("Asia/Ho_Chi_Minh").format("HH:mm"),
         }));
 
         setMessages(formattedComments);
@@ -428,7 +428,7 @@ const WatchLive = () => {
   useEffect(() => {
     // Convert the current date (which is in local time) to GMT+7 first, then to UTC
     const newLogicDate = dayjs
-      .tz(currentDate, "Asia/Bangkok")
+      .tz(currentDate, "Asia/Ho_Chi_Minh")
       .utc()
       .format("YYYY-MM-DD");
     setLogicDate(newLogicDate);
@@ -457,7 +457,7 @@ const WatchLive = () => {
         <div className="schedule-time">
           <div className="time-indicator live" />
           {/* Convert startTime to GMT+7 */}
-          {dayjs.utc(schedule.startTime).tz("Asia/Bangkok").format("HH:mm")}
+          {dayjs.utc(schedule.startTime).tz("Asia/Ho_Chi_Minh").format("HH:mm")}
         </div>
         <div className="schedule-info">
           <div className="schedule-name">{schedule.programName}</div>
@@ -472,7 +472,7 @@ const WatchLive = () => {
   const fetchScheduleProgram = async (date) => {
     try {
       // Convert the GMT+7 date to UTC before sending to API
-      const utcDate = dayjs.tz(date, "Asia/Bangkok").utc().format("YYYY-MM-DD");
+      const utcDate = dayjs.tz(date, "Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
 
       const response = await apiFetch(
         `Schedule/by-channel-and-date?channelId=${channelId}&date=${encodeURIComponent(
@@ -564,7 +564,7 @@ const WatchLive = () => {
       text,
       user,
       // Format current time in GMT+7
-      time: dayjs().tz("Asia/Bangkok").format("HH:mm"),
+      time: dayjs().tz("Asia/Ho_Chi_Minh").format("HH:mm"),
     };
     setMessages((prev) => [...prev, newMessage]);
     if (chatMessagesRef.current) {
@@ -757,7 +757,7 @@ const WatchLive = () => {
                     {isToday && "Hôm nay - "}
                     {dayjs
                       .utc(currentDate)
-                      .tz("Asia/Bangkok")
+                      .tz("Asia/Ho_Chi_Minh")
                       .format("DD/MM/YYYY")}
                   </div>
                   <div className="schedule-arrows">
