@@ -96,13 +96,13 @@ const Checkout = () => {
         localStorage.setItem("orderId", JSON.stringify(result));
       }
       console.log("Order result:", result);
-      // if (result) {
-      //   if (result?.paymentLink) {
-      //     window.location.href = result.paymentLink;
-      //   } else {
-      //     message.error(`Lỗi khi tạo đơn hàng: ${result.message}`);
-      //   }
-      // }
+      if (result) {
+        if (result?.paymentLink) {
+          window.location.href = result.paymentLink;
+        } else {
+          message.error(`Lỗi khi tạo đơn hàng: ${result.message}`);
+        }
+      }
     } catch (error) {
       console.error("Lỗi khi tạo đơn hàng:", error);
     } finally {
