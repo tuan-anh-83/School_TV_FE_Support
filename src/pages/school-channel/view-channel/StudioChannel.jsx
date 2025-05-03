@@ -9,9 +9,11 @@ import {
   UserOutlined,
   CalendarOutlined,
   FireOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import apiFetch from "../../../config/baseAPI";
 import "./StudioChannel.css";
+import { formatDecimalHours } from "../../../utils/text";
 
 const StudioChannel = () => {
   const [channel, setChannel] = useState(null);
@@ -243,6 +245,25 @@ const StudioChannel = () => {
               <div>
                 <label>Địa chỉ</label>
                 <span>{channel.address || "Chưa cập nhật"}</span>
+              </div>
+            </div>
+            <div className="studio-channel-info-item">
+              <div className="studio-channel-info-icon">
+                <ClockCircleOutlined />
+              </div>
+              <div>
+                <label>Thời gian stream còn lại</label>
+                <span>
+                  {channel.account &&
+                  channel.account.accountPackages &&
+                  channel.account.accountPackages.$values &&
+                  channel.account.accountPackages.$values.length > 0
+                    ? formatDecimalHours(
+                        channel.account.accountPackages.$values[0]
+                          .remainingHours
+                      )
+                    : "0 giờ"}
+                </span>
               </div>
             </div>
           </div>

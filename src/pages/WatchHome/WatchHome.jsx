@@ -13,6 +13,7 @@ import {
 } from "@ant-design/icons";
 import { AlertCircleIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { extractVideoId } from "../../utils/image";
 
 export default function WatchHome() {
   const [liveSchedules, setLiveSchedules] = useState([]);
@@ -117,13 +118,15 @@ export default function WatchHome() {
   };
 
   const formatDateTime = (date) => {
-    return date ? new Date(date).toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }) : 'N/A';
+    return date
+      ? new Date(date).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "N/A";
   };
 
   const calculateDuration = (start, end) => {
@@ -281,24 +284,22 @@ export default function WatchHome() {
                   }}
                 ></div>
                 <div className="watch-hero-content">
-                  <div className="subtitle">LIVE STREAMING NOW</div>
+                  <div className="subtitle">{slide.type}</div>
                   <h1>{slide.title}</h1>
-                  <p>
-                    Join our Chief Market Strategist Maria Rodriguez as she
-                    breaks down this week's market movements, economic data
-                    releases, and provides actionable insights for positioning
-                    your portfolio in the coming week. Live Q&A session
-                    included.
-                  </p>
+                  <p>{slide.content}</p>
                   <div className="streaming-stats">
-                    <span className="live-indicator">
-                      <span className="live-dot"></span> LIVE
-                    </span>
+                    {slide.type === "Đang Phát Sóng" && (
+                      <span className="live-indicator">
+                        <span className="live-dot"></span> LIVE
+                      </span>
+                    )}
                     <span className="viewers">
-                      <EyeOutlined /> 2.4K đang xem
+                      <EyeOutlined /> 2.4K lượt xem
                     </span>
                     <span className="duration">
-                      <ClockCircleOutlined /> Bắt đầu 45 phút trước
+                      <ClockCircleOutlined />{" "}
+                      {slide.type === "Đang Phát Sóng" ? "Bắt đầu" : "Đã đăng"}{" "}
+                      45 phút trước
                     </span>
                   </div>
                   <div className="watch-hero-buttons">
@@ -306,14 +307,21 @@ export default function WatchHome() {
                       <span className="icon">
                         <PlayCircleOutlined />
                       </span>{" "}
-                      Xem live
+                      Xem{" "}
+                      {slide.type === "Đang Phát Sóng"
+                        ? "live"
+                        : slide.type === "Video Lưu Trữ"
+                        ? "video"
+                        : "bài viết"}
                     </button>
-                    <button className="btn btn-secondary">
-                      <span className="icon">
-                        <AlertOutlined />
-                      </span>{" "}
-                      Nhận thông báo
-                    </button>
+                    {slide.type === "Sắp Diễn Ra" && (
+                      <button className="btn btn-secondary">
+                        <span className="icon">
+                          <AlertOutlined />
+                        </span>{" "}
+                        Nhận thông báo
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -517,11 +525,12 @@ export default function WatchHome() {
                       key={video.videoHistoryID}
                       data-aos="fade-up"
                       data-aos-delay={index * 100}
+                      style={{ textDecoration: "none" }}
                     >
                       <div className="content-card">
                         <div className="content-header">
                           <img
-                            src={`https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
+                            src={video.playbackUrl ? `https://videodelivery.net/${extractVideoId(video.playbackUrl)}/thumbnails/thumbnail.jpg` : `https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
                             alt="Content thumbnail"
                           />
                         </div>
