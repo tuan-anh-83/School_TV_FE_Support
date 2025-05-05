@@ -76,8 +76,8 @@ const Checkout = () => {
         // CustomerInfo: formData,
       };
 
-      const returnUrl = `https://school-tv-show-fe.vercel.app/checkout/success`;
-      const cancelUrl = `https://school-tv-show-fe.vercel.app/checkout/cancel`;
+      const returnUrl = `https://schooltvsupport.netlify.app/checkout/success`;
+      const cancelUrl = `https://schooltvsupport.netlify.app/checkout/cancel`;
 
       const response = await apiFetch(
         `/api/orders/create?returnUrl=${returnUrl}&cancelUrl=${cancelUrl}`,
@@ -95,14 +95,13 @@ const Checkout = () => {
       if (result) {
         localStorage.setItem("orderId", JSON.stringify(result));
       }
-      console.log("Order result:", result);
-      // if (result) {
-      //   if (result?.paymentLink) {
-      //     window.location.href = result.paymentLink;
-      //   } else {
-      //     message.error(`Lỗi khi tạo đơn hàng: ${result.message}`);
-      //   }
-      // }
+      if (result) {
+        if (result?.paymentLink) {
+          window.location.href = result.paymentLink;
+        } else {
+          message.error(`Lỗi khi tạo đơn hàng: ${result.message}`);
+        }
+      }
     } catch (error) {
       console.error("Lỗi khi tạo đơn hàng:", error);
     } finally {

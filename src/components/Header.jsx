@@ -18,6 +18,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { startHub, stopHub } from "../utils/NotificationHub";
+import { toast } from "react-toastify";
+import notificationSound from "../assets/sounds/notification.mp3"
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -159,13 +161,21 @@ const Header = () => {
 
   useEffect(() => {
     const accountId = user?.accountID;
-
     if (!accountId) return;
+
+    const audio = new Audio(notificationSound); // hoặc: new Audio('/notification.mp3')
 
     console.log("Starting SignalR hub");
 
     startHub(accountId, (data) => {
       console.log("📬 Nhận thông báo mới → fetch lại API");
+      try {
+        audio.play().catch((err) => console.error("🔇 Failed to play sound:", err));
+      } catch (err) {
+        console.error("🔇 Audio play error:", err);
+      }
+
+      toast.info(data?.content ?? '');
       fetchNotifications();
       setHasNewNotification(true);
     });

@@ -444,7 +444,7 @@ const UserProfile = () => {
           <h2>Lịch Sử Đơn Hàng</h2>
           <div className="user-profile-order-list">
             {orders?.$values?.length > 0 ? (
-              orders.$values.map((order) => (
+              orders.$values.sort(function(o){ return o.createdAt }).reverse().map((order) => (
                 <div key={order.orderID} className="user-profile-order-item">
                   <div
                     className={`order-status ${

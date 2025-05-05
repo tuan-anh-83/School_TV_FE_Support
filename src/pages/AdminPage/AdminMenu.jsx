@@ -13,6 +13,7 @@ import {
   ScheduleOutlined,
   MinusSquareOutlined,
   SnippetsOutlined,
+  VideoCameraAddOutlined,
 } from "@ant-design/icons";
 import "./AdminMenu.scss";
 
@@ -145,6 +146,11 @@ const AdminMenu = ({ onLogout }) => {
     },
     {
       key: "6",
+      icon: <VideoCameraAddOutlined />,
+      label: <Link to="/ads">Ads Management</Link>,
+    },
+    {
+      key: "7",
       icon: <LogoutOutlined />,
       label: "Log out",
       onClick: onLogout,

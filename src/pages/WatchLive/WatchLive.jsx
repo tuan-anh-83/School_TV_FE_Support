@@ -19,6 +19,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import VideoComment from "../watch-program/VideoComment";
 import { Timeline } from "antd";
+import { startAdsHub, stopAdsHub } from "../../utils/AdsHub";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -31,7 +32,9 @@ const WatchLive = () => {
   const [messageInput, setMessageInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
-  const [currentDate, setCurrentDate] = useState(dayjs().tz("Asia/Bangkok"));
+  const [currentDate, setCurrentDate] = useState(
+    dayjs().tz("Asia/Ho_Chi_Minh")
+  );
   const [logicDate, setLogicDate] = useState(
     currentDate.format("YYYY-MM-DD") || ""
   );
@@ -64,6 +67,9 @@ const WatchLive = () => {
   const [reportReason, setReportReason] = useState("");
   const [isReporting, setIsReporting] = useState(false);
   const [reportError, setReportError] = useState(null);
+  const [ads, setAds] = useState([]);
+  const [currentAd, setCurrentAd] = useState(null);
+  const [isPlayingAd, setIsPlayingAd] = useState(false);
 
   const getAccountId = () => {
     const userData = localStorage.getItem("userData");
@@ -360,7 +366,10 @@ const WatchLive = () => {
             badge: null,
           },
           // Explicitly parse UTC and convert to GMT+7
-          time: dayjs.utc(comment.createdAt).tz("Asia/Bangkok").format("HH:mm"),
+          time: dayjs
+            .utc(comment.createdAt)
+            .tz("Asia/Ho_Chi_Minh")
+            .format("HH:mm"),
         }));
 
         setMessages(formattedComments);
@@ -426,9 +435,51 @@ const WatchLive = () => {
   }, []);
 
   useEffect(() => {
+    const accountId = getAccountId();
+
+    if (!accountId) {
+      toast.error("Vui lòng đăng nhập để theo dõi chương trình");
+      return;
+    }
+
+    startAdsHub(accountId, (ads) => setAds(ads));
+
+    return () => {
+      stopAdsHub();
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = dayjs().tz("Asia/Ho_Chi_Minh");
+
+      if (ads.length > 0) {
+        ads.forEach((ad) => {
+          const adStart = dayjs(ad.startTime).tz("Asia/Ho_Chi_Minh");
+          const adEnd = dayjs(ad.endTime).tz("Asia/Ho_Chi_Minh");
+          // Nếu bây giờ nằm trong khoảng thời gian quảng cáo
+          if (now.isAfter(adStart) && now.isBefore(adEnd) && !isPlayingAd) {
+            const durationMs = adEnd.diff(adStart); // tính thời gian phát
+
+            setIsPlayingAd(true);
+            setCurrentAd(ad);
+
+            setTimeout(() => {
+              setIsPlayingAd(false);
+              setCurrentAd(null);
+            }, durationMs);
+          }
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [ads, isPlayingAd]);
+
+  useEffect(() => {
     // Convert the current date (which is in local time) to GMT+7 first, then to UTC
     const newLogicDate = dayjs
-      .tz(currentDate, "Asia/Bangkok")
+      .tz(currentDate, "Asia/Ho_Chi_Minh")
       .utc()
       .format("YYYY-MM-DD");
     setLogicDate(newLogicDate);
@@ -457,7 +508,7 @@ const WatchLive = () => {
         <div className="schedule-time">
           <div className="time-indicator live" />
           {/* Convert startTime to GMT+7 */}
-          {dayjs.utc(schedule.startTime).tz("Asia/Bangkok").format("HH:mm")}
+          {dayjs.utc(schedule.startTime).tz("Asia/Ho_Chi_Minh").format("HH:mm")}
         </div>
         <div className="schedule-info">
           <div className="schedule-name">{schedule.programName}</div>
@@ -472,7 +523,7 @@ const WatchLive = () => {
   const fetchScheduleProgram = async (date) => {
     try {
       // Convert the GMT+7 date to UTC before sending to API
-      const utcDate = dayjs.tz(date, "Asia/Bangkok").utc().format("YYYY-MM-DD");
+      const utcDate = dayjs.tz(date, "Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
 
       const response = await apiFetch(
         `Schedule/by-channel-and-date?channelId=${channelId}&date=${encodeURIComponent(
@@ -487,7 +538,7 @@ const WatchLive = () => {
 
       if (data?.data?.$values) {
         const schedules = data.data.$values
-          .filter((schedule) => schedule.status === "Live")
+          .filter((schedule) => schedule.status === "Live" || schedule.status === "LateStart")
           .map((schedule) => ({
             // Parse as UTC first, then convert to GMT+7 when displaying
             startTime: dayjs.utc(schedule.startTime),
@@ -550,7 +601,6 @@ const WatchLive = () => {
       }
 
       setChannelInfo(data); // Store channel info
-      fetchScheduleProgram(logicDate);
     } catch (error) {
       console.error("Error checking channel:", error);
       toast.error(error.message || "Có lỗi xảy ra khi kiểm tra kênh!");
@@ -564,7 +614,7 @@ const WatchLive = () => {
       text,
       user,
       // Format current time in GMT+7
-      time: dayjs().tz("Asia/Bangkok").format("HH:mm"),
+      time: dayjs().tz("Asia/Ho_Chi_Minh").format("HH:mm"),
     };
     setMessages((prev) => [...prev, newMessage]);
     if (chatMessagesRef.current) {
@@ -716,6 +766,19 @@ const WatchLive = () => {
                 onClick={() => setShowSchedule(false)}
               />
             )}
+            {/* {isPlayingAd && currentAd && (
+              <iframe
+                src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1`}
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                  zIndex: 3,
+                }}
+              />
+            )} */}
             {displayIframeUrl ? (
               <>
                 <button
@@ -724,12 +787,26 @@ const WatchLive = () => {
                 >
                   <i className="fas fa-calendar-alt" /> Lịch chiếu
                 </button>
-                <iframe
-                  src={displayIframeUrl}
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
-                  allowFullScreen
-                  className="youtube-player"
-                />
+                {isPlayingAd && currentAd ? (
+                  <iframe
+                    src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=1&rel=0&playsinline=1`}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      border: "none",
+                      zIndex: 3,
+                    }}
+                  />
+                ) : (
+                  <iframe
+                    src={displayIframeUrl}
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+                    allowFullScreen
+                    className="youtube-player"
+                  />
+                )}
               </>
             ) : (
               <div className="no-video-placeholder">
@@ -757,7 +834,7 @@ const WatchLive = () => {
                     {isToday && "Hôm nay - "}
                     {dayjs
                       .utc(currentDate)
-                      .tz("Asia/Bangkok")
+                      .tz("Asia/Ho_Chi_Minh")
                       .format("DD/MM/YYYY")}
                   </div>
                   <div className="schedule-arrows">
