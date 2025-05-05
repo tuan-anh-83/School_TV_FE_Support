@@ -303,6 +303,25 @@ const StudioChannel = () => {
                 </span>
               </div>
             </div>
+            <div className="studio-channel-info-item">
+              <div className="studio-channel-info-icon">
+                <ClockCircleOutlined />
+              </div>
+              <div>
+                <label>Thời gian stream đã sử dụng</label>
+                <span>
+                  {channel.account &&
+                  channel.account.accountPackages &&
+                  channel.account.accountPackages.$values &&
+                  channel.account.accountPackages.$values.length > 0
+                    ? formatDecimalHours(
+                        channel.account.accountPackages.$values[0]
+                          .hoursUsed
+                      )
+                    : "0 giờ"}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

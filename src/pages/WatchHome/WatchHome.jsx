@@ -84,33 +84,6 @@ export default function WatchHome() {
     postsLoading,
   ]);
 
-  useEffect(() => {
-    const fetchLiveSchedules = async () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) return;
-
-      try {
-        const response = await apiFetch("Schedule/live-now", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch live schedules");
-
-        const data = await response.json();
-        setLiveSchedules(data.$values || []);
-      } catch (error) {
-        console.error("Error fetching live schedules:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLiveSchedules();
-  }, []);
-
   const convertToGMT7 = (dateString) => {
     if (!dateString) return new Date();
     const date = new Date(dateString);
@@ -141,26 +114,7 @@ export default function WatchHome() {
   };
 
   useEffect(() => {
-    const fetchLiveSchedules = async () => {
-      try {
-        const response = await apiFetch("Schedule/live-now", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            Accept: "application/json",
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setLiveSchedules(data.$values || []);
-        }
-      } catch (error) {
-        console.error("Error fetching live schedules:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchUpcomingSchedules = async () => {
+    const fetchSchedules = async () => {
       try {
         const response = await apiFetch("Schedule/timeline", {
           headers: {
@@ -170,44 +124,23 @@ export default function WatchHome() {
         });
         if (response.ok) {
           const data = await response.json();
+
+          console.log(data.data);
+
           setUpcomingSchedules(data.data.Upcoming.$values || []);
+          setVideoHistory(data.data.Replay.$values || []);
+          setLiveSchedules(data.data.LiveNow.$values || []);
         }
       } catch (error) {
         console.error("Error fetching upcoming schedules:", error);
       } finally {
         setUpcomingLoading(false);
-      }
-    };
-
-    fetchLiveSchedules();
-    fetchUpcomingSchedules();
-  }, []);
-
-  useEffect(() => {
-    const fetchVideoHistory = async () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) return;
-
-      try {
-        const response = await apiFetch("VideoHistory/active", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch video history");
-
-        const data = await response.json();
-        setVideoHistory(data.$values.slice(0, 6) || []);
-      } catch (error) {
-        console.error("Error fetching video history:", error);
-      } finally {
         setVideoLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchVideoHistory();
+    fetchSchedules();
   }, []);
 
   const getTimeAgo = (dateString) => {
@@ -345,13 +278,30 @@ export default function WatchHome() {
             <div className="category-tab">Strategy</div>
           </div> */}
 
-          <div className="content-grid">
-            {loading ? (
-              <div className="loading-placeholder">Đang tải...</div>
-            ) : liveSchedules.length > 0 ? (
-              <div className="horizontal-scroll-container">
-                <div className="streams-grid horizontal-scroll">
-                  {liveSchedules.slice(0, 5).map((schedule, index) => (
+          {loading ? (
+            <div className="loading-placeholder">Đang tải...</div>
+          ) : liveSchedules.length > 0 ? (
+            <div className="swiper-container">
+              <Swiper
+                spaceBetween={20}
+                slidesPerView={1}
+                breakpoints={{
+                  640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                  },
+                  1024: {
+                    slidesPerView: 4,
+                    spaceBetween: 20,
+                  },
+                }}
+              >
+                {liveSchedules.slice(0, 5).map((schedule, index) => (
+                  <SwiperSlide key={schedule.scheduleID}>
                     <Link
                       to={`/watchLive/${
                         schedule.program?.schoolChannel?.schoolChannelID || ""
@@ -359,7 +309,6 @@ export default function WatchHome() {
                       data-aos="fade-up"
                       data-aos-delay={index * 100}
                       style={{ textDecoration: "none" }}
-                      key={schedule.scheduleID}
                     >
                       <div className="content-card">
                         <div className="content-header">
@@ -408,18 +357,18 @@ export default function WatchHome() {
                         </div>
                       </div>
                     </Link>
-                  ))}
-                </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          ) : (
+            <div className="no-live-container">
+              <div className="no-live-content">
+                <i className="fas fa-satellite-dish fa-3x" />
+                <p>Không có chương trình trực tiếp nào đang hoạt động.</p>
               </div>
-            ) : (
-              <div className="no-live-container">
-                <div className="no-live-content">
-                  <i className="fas fa-satellite-dish fa-3x" />
-                  <p>Không có chương trình trực tiếp nào đang hoạt động.</p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="secondary-section">
@@ -430,21 +379,38 @@ export default function WatchHome() {
             </Link>
           </div>
 
-          <div className="content-grid">
-            {upcomingLoading ? (
-              <div className="loading-placeholder">Đang tải...</div>
-            ) : upcomingSchedules.length > 0 ? (
-              <div className="horizontal-scroll-container">
-                <div className="events-grid horizontal-scroll">
-                  {upcomingSchedules.map((schedule, index) => (
+          {upcomingLoading ? (
+            <div className="loading-placeholder">Đang tải...</div>
+          ) : upcomingSchedules.length > 0 ? (
+            <div className="swiper-container">
+              <Swiper
+                spaceBetween={20}
+                slidesPerView={1}
+                breakpoints={{
+                  640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                  },
+                  1024: {
+                    slidesPerView: 4,
+                    spaceBetween: 20,
+                  },
+                }}
+              >
+                {upcomingSchedules.map((schedule, index) => (
+                  <SwiperSlide key={schedule.scheduleID}>
                     <Link
                       data-aos="fade-up"
                       data-aos-delay={index * 100}
-                      key={schedule.scheduleID}
                       to={
                         schedule?.program &&
                         `/program/${schedule?.program?.programID}`
                       }
+                      style={{ textDecoration: "none" }}
                     >
                       <div className="content-card">
                         <div className="content-header">
@@ -460,10 +426,14 @@ export default function WatchHome() {
                           </h3>
                           <div className="content-meta">
                             <span>{` ${Math.floor(
-                              (schedule.endTime - schedule.startTime) / 3600000
+                              (new Date(schedule.endTime).getTime() -
+                                new Date(schedule.startTime).getTime()) /
+                                3600000
                             )}h 
                         ${Math.floor(
-                          ((schedule.endTime - schedule.startTime) % 3600000) /
+                          ((new Date(schedule.endTime).getTime() -
+                            new Date(schedule.startTime).getTime()) %
+                            3600000) /
                             60000
                         )}m`}</span>
                             <span>
@@ -492,18 +462,18 @@ export default function WatchHome() {
                         </div>
                       </div>
                     </Link>
-                  ))}
-                </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          ) : (
+            <div className="no-live-container">
+              <div className="no-live-content">
+                <i className="fas fa-calendar-times fa-3x" />
+                <p>Không có lịch phát sóng nào sắp diễn ra.</p>
               </div>
-            ) : (
-              <div className="no-live-container">
-                <div className="no-live-content">
-                  <i className="fas fa-calendar-times fa-3x" />
-                  <p>Không có lịch phát sóng nào sắp diễn ra.</p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="content-section">
@@ -514,15 +484,31 @@ export default function WatchHome() {
             </Link>
           </div>
 
-          <div className="content-grid">
-            {videoLoading ? (
-              <div className="loading-placeholder">Đang tải...</div>
-            ) : videoHistory.length > 0 ? (
-              <div className="horizontal-scroll-container">
-                <div className="videos-grid horizontal-scroll">
-                  {videoHistory.map((video, index) => (
+          {videoLoading ? (
+            <div className="loading-placeholder">Đang tải...</div>
+          ) : videoHistory.length > 0 ? (
+            <div className="swiper-container">
+              <Swiper
+                spaceBetween={20}
+                slidesPerView={1}
+                breakpoints={{
+                  640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                  },
+                  1024: {
+                    slidesPerView: 4,
+                    spaceBetween: 20,
+                  },
+                }}
+              >
+                {videoHistory.map((video, index) => (
+                  <SwiperSlide key={video.scheduleID}>
                     <Link
-                      key={video.videoHistoryID}
                       data-aos="fade-up"
                       data-aos-delay={index * 100}
                       style={{ textDecoration: "none" }}
@@ -530,7 +516,13 @@ export default function WatchHome() {
                       <div className="content-card">
                         <div className="content-header">
                           <img
-                            src={video.playbackUrl ? `https://videodelivery.net/${extractVideoId(video.playbackUrl)}/thumbnails/thumbnail.jpg` : `https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
+                            src={
+                              video.playbackUrl
+                                ? `https://videodelivery.net/${extractVideoId(
+                                    video.playbackUrl
+                                  )}/thumbnails/thumbnail.jpg`
+                                : `https://picsum.photos/seed/${video.videoHistoryID}/300/180`
+                            }
                             alt="Content thumbnail"
                           />
                         </div>
@@ -540,32 +532,32 @@ export default function WatchHome() {
                               "Chương trình không xác định"}
                           </h3>
                           <div className="content-meta">
-                            <span>Series</span>
-                            <span>{formatDateTime(video.updatedAt)}</span>
+                            <span>Replay</span>
+                            <span>{formatDateTime(video.startTime)}</span>
                           </div>
                           <div className="content-description">
-                            Annual gathering of finance leaders discussing
-                            emerging market trends and opportunities.
+                            A preserved recording showcasing highlights from a
+                            previous event.
                           </div>
                           <div className="content-tags">
-                            <span className="tag">Finance</span>
-                            <span className="tag">Global</span>
+                            <span className="tag">{video.program?.title ?? ''}</span>
+                            <span className="tag">Streaming</span>
                           </div>
                         </div>
                       </div>
                     </Link>
-                  ))}
-                </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          ) : (
+            <div className="no-live-container">
+              <div className="no-live-content">
+                <i className="fas fa-video-slash fa-3x" />
+                <p>Không có Video Lưu Trữ nào.</p>
               </div>
-            ) : (
-              <div className="no-live-container">
-                <div className="no-live-content">
-                  <i className="fas fa-video-slash fa-3x" />
-                  <p>Không có Video Lưu Trữ nào.</p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </>
