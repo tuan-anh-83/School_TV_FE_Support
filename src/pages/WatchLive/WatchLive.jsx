@@ -35,6 +35,7 @@ const WatchLive = () => {
   const [currentDate, setCurrentDate] = useState(
     dayjs().tz("Asia/Ho_Chi_Minh")
   );
+
   const [logicDate, setLogicDate] = useState(
     currentDate.format("YYYY-MM-DD") || ""
   );
@@ -370,6 +371,7 @@ const WatchLive = () => {
             .utc(comment.createdAt)
             .tz("Asia/Ho_Chi_Minh")
             .format("HH:mm"),
+
         }));
 
         setMessages(formattedComments);
