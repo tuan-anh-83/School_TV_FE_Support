@@ -11,35 +11,24 @@ const PricingPage = () => {
   const [error, setError] = useState(null);
 
   const featureMapping = {
-    1: (duration, timeDuration) => [
+    1: [
       "Tối đa 500 videos",
-      `${timeDuration} giờ stream liên tục`,
-      `Lưu trữ ${convertDurationToText(duration)}`,
+      "50 giờ stream liên tục",
+      "Lưu trữ 30 ngày",
       "Hỗ trợ cơ bản",
     ],
-    2: (duration, timeDuration) => [
+    2: [
       "Không giới hạn videos",
-      `${timeDuration} giờ stream liên tục`,
-      `Lưu trữ ${convertDurationToText(duration)}`,
+      "20 giờ stream liên tục",
+      "Lưu trữ 90 ngày",
       "Hỗ trợ 24/7",
     ],
-    3: (time) => [
+    3: [
       "Giải pháp tùy chỉnh",
       "API tích hợp",
       "SLA cam kết",
       "Bảo mật nâng cao",
     ],
-    4: (duration, timeDuration) => [
-      "Tất cả tính năng của các gói trước",
-      "Dung lượng & băng thông không giới hạn",
-      "Hỗ trợ chuyên viên 1:1",
-      "Truy cập trước các tính năng beta"
-    ],
-    5: (duration, timeDuration) => [
-      "Bao gồm Elite Membership trong 12 tháng",
-      "Ưu tiên trải nghiệm tính năng mới sớm",
-      "Hỗ trợ kỹ thuật ưu tiên"
-    ]
   };
 
   useEffect(() => {
@@ -66,12 +55,9 @@ const PricingPage = () => {
         setPackages(
           data.$values.map((pkg) => ({
             ...pkg,
-            features:
-              typeof featureMapping[pkg.packageID] === "function"
-                ? featureMapping[pkg.packageID](pkg.duration, pkg.timeDuration)
-                : featureMapping[pkg.packageID] || [
-                    "Tính năng đang cập nhật...",
-                  ],
+            features: pkg.description
+              ? pkg.description.split("\n").filter((line) => line.trim() !== "")
+              : ["Tính năng đang cập nhật..."],
           }))
         );
       } catch (err) {
@@ -137,6 +123,7 @@ const PricingPage = () => {
                   </span>
                   <span className="prc-currency">
                     VND/{convertDurationToText(pkg.duration)}
+                    {pkg.timeDuration > 0 && ` + ${pkg.timeDuration} phút`}
                   </span>
                 </div>
               </div>
@@ -162,12 +149,12 @@ const PricingPage = () => {
                     <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                   </svg>
                 </button>
-                <button
+                {/* <button
                   onClick={() => handleLearnMore(pkg.packageID)}
                   className="prc-secondary-btn"
                 >
                   Khám phá tính năng
-                </button>
+                </button> */}
               </div>
             </div>
           ))

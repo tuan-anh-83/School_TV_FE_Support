@@ -212,7 +212,11 @@ const Checkout = () => {
           <div>
             <div className="package-name">{selectedPackage.name}</div>
             <div className="package-duration">
-              <b> Thời hạn: {selectedPackage.duration} phút</b>
+              <b>
+                {" "}
+                Thời hạn: {selectedPackage.timeDuration} phút/
+                {selectedPackage.duration} ngày
+              </b>
             </div>
           </div>
           <div className="package-price">

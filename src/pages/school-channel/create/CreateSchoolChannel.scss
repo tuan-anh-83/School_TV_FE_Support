@@ -96,7 +96,10 @@
           }
         }
 
-        animation: fadeInUp 0.6s ease-out;
+        // ✅ Đã sửa lỗi mixed-decls
+        & {
+          animation: fadeInUp 0.6s ease-out;
+        }
       }
 
       @media (max-width: 768px) {
