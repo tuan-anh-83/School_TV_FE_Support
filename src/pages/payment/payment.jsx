@@ -76,8 +76,8 @@ const Checkout = () => {
         // CustomerInfo: formData,
       };
 
-      const returnUrl = `https://schooltvsupport.netlify.app/checkout/success`;
-      const cancelUrl = `https://schooltvsupport.netlify.app/checkout/cancel`;
+      const returnUrl = `https://schooltvsp.netlify.app/checkout/success`;
+      const cancelUrl = `https://schooltvsp.netlify.app/checkout/cancel`;
 
       const response = await apiFetch(
         `/api/orders/create?returnUrl=${returnUrl}&cancelUrl=${cancelUrl}`,
