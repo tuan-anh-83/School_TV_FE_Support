@@ -127,11 +127,7 @@
   margin-right: auto;
 }
 
-<<<<<<< HEAD
-.main-container .content-section {
-=======
 .content-section {
->>>>>>> ui
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -323,8 +319,6 @@
   transform: scale(1.1);
 }
 
-<<<<<<< HEAD
-=======
 .progress-bar {
   flex: 1;
   height: 4px;
@@ -363,7 +357,6 @@
   display: block;
 }
 
->>>>>>> ui
 .volume-control {
   display: flex;
   align-items: center;
@@ -712,8 +705,6 @@
   gap: 1rem;
 }
 
-<<<<<<< HEAD
-=======
 .content-card {
   display: flex;
   gap: 1rem;
@@ -731,7 +722,6 @@
   background: var(--card-hover-bg);
 }
 
->>>>>>> ui
 .content-thumbnail {
   width: 180px;
   height: 100px;
@@ -747,13 +737,10 @@
   transition: transform 0.3s ease;
 }
 
-<<<<<<< HEAD
-=======
 .content-card:hover .content-thumbnail img {
   transform: scale(1.05);
 }
 
->>>>>>> ui
 .content-info {
   flex: 1;
   display: flex;
@@ -781,8 +768,6 @@
   transition: color 0.3s ease;
 }
 
-<<<<<<< HEAD
-=======
 .live-indicator {
   position: absolute;
   top: 0.5rem;
@@ -810,7 +795,6 @@
   font-size: 0.8rem;
 }
 
->>>>>>> ui
 /* Update the chat-section position */
 .chat-section {
   background: var(--chat-bg);
