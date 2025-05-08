@@ -11,9 +11,11 @@ const startHub = (accountId, onReceive) => {
 
   const hubUrl = `${baseUrl}/hubs/notification?accountId=${accountId}`;
 
+  console.log("🔗 Connecting to SignalR hub:", hubUrl);
+
   connection = new signalR.HubConnectionBuilder()
     .withUrl(hubUrl)
-    .withAutomaticReconnect()
+    .withAutomaticReconnect([0, 2000, 10000])
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
@@ -37,10 +39,15 @@ const startHub = (accountId, onReceive) => {
 
 const stopHub = () => {
   if (connection) {
-    connection.stop();
-    connection = null;
-    isStarted = false; // Đánh dấu là kết nối đã ngừng
-    console.log("🛑 SignalR hub stopped");
+    connection.stop()
+      .then(() => {
+        connection = null;
+        isStarted = false; // Đánh dấu kết nối đã ngừng
+        console.log("🛑 SignalR hub stopped");
+      })
+      .catch((err) => {
+        console.error("❌ Error stopping SignalR hub:", err);
+      });
   }
 };
 
