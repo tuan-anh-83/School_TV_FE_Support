@@ -18,6 +18,7 @@ function SchoolRegister() {
     fullname: "",
     phoneNumber: "",
     address: "",
+    roleType: "Schoolowner"
   });
 
   // OTP verification states

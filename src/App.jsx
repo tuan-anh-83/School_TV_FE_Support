@@ -48,6 +48,10 @@ import StudioChannel from "./pages/school-channel/view-channel/StudioChannel";
 import StudioPrograms from "./pages/school-channel/program-manage/StudioPrograms";
 import AdminPaymentManagement from "./pages/AdminPage/AdminPaymentManagement";
 import AdsList from "./pages/AdminPage/AdsList";
+import AdsLogin from "./pages/AdsLogin/AdsLogin";
+import AdsRegister from "./pages/AdsRegister/AdsRegister";
+import AdsManagement from "./pages/Ads-Management/AdsManagement";
+import AdsPost from "./components/ads-studio/functions/post/AdsPost";
 
 const ScrollToTopWrapper = () => {
   const { pathname } = useLocation();
@@ -111,11 +115,29 @@ function App() {
       ),
     },
     {
+      path: "/ads-register",
+      element: (
+        <ThemeProvider>
+          <ScrollToTopWrapper />
+          <AdsRegister />
+        </ThemeProvider>
+      ),
+    },
+    {
       path: "/school-login",
       element: (
         <ThemeProvider>
           <ScrollToTopWrapper />
           <SchoolLogin />
+        </ThemeProvider>
+      ),
+    },
+    {
+      path: "/ads-login",
+      element: (
+        <ThemeProvider>
+          <ScrollToTopWrapper />
+          <AdsLogin />
         </ThemeProvider>
       ),
     },
@@ -165,6 +187,46 @@ function App() {
         {
           path: "your-channel",
           element: <StudioChannel />,
+        },
+        {
+          path: "program-manage",
+          children: [
+            {
+              index: true,
+              element: <StudioPrograms />,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: "ads-management",
+      element: (
+        <ThemeProvider>
+          <ScrollToTopWrapper />
+          <AdsManagement />
+        </ThemeProvider>
+      ),
+      children: [
+        {
+          index: true,
+          element: <StatisticsPage />,
+        },
+        {
+          path: "statistics",
+          element: <StatisticsPage />,
+        },
+        {
+          path: "post",
+          element: <AdsPost />,
+        },
+        {
+          path: "video",
+          element: <StudioVideo />,
+        },
+        {
+          path: "live-stream",
+          element: <StudioLiveStream />,
         },
         {
           path: "program-manage",

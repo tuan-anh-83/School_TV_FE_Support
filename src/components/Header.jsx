@@ -19,7 +19,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { startHub, stopHub } from "../utils/NotificationHub";
 import { toast } from "react-toastify";
-import notificationSound from "../assets/sounds/notification.mp3"
+import notificationSound from "../assets/sounds/notification.mp3";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -130,6 +130,7 @@ const Header = () => {
   const isSchoolOwner = user && user.roleName === "SchoolOwner";
   const isAdmin = user && user.roleName === "Admin";
   const isUser = user && user.roleName === "User";
+  const isAdvertiser = user && user.roleName === "Advertiser";
 
   const [pageNoti, setPageNoti] = useState(1);
   const [pageSizeNoti, setPageSizeNoti] = useState(3);
@@ -162,6 +163,15 @@ const Header = () => {
   useEffect(() => {
     const accountId = user?.accountID;
     if (!accountId) return;
+    let userInteracted = false;
+
+    window.addEventListener(
+      "click",
+      () => {
+        userInteracted = true;
+      },
+      { once: true }
+    );
 
     const audio = new Audio(notificationSound); // hoặc: new Audio('/notification.mp3')
 
@@ -169,13 +179,13 @@ const Header = () => {
 
     startHub(accountId, (data) => {
       console.log("📬 Nhận thông báo mới → fetch lại API");
-      try {
-        audio.play().catch((err) => console.error("🔇 Failed to play sound:", err));
-      } catch (err) {
-        console.error("🔇 Audio play error:", err);
+      if (userInteracted) {
+        audio
+          .play()
+          .catch((err) => console.error("🔇 Failed to play sound:", err));
       }
 
-      toast.info(data?.content ?? '');
+      toast.info(data?.content ?? "");
       fetchNotifications();
       setHasNewNotification(true);
     });
@@ -382,6 +392,20 @@ const Header = () => {
                       className="dropdown-item studio-link"
                     >
                       <i className="fas fa-tv"></i> SchoolTV Studio
+                    </a>
+                    <a href="/package" className="dropdown-item studio-link">
+                      <i className="fas fa-cart-shopping"></i> Mua Gói
+                    </a>
+                    <div className="dropdown-divider"></div>
+                  </>
+                )}
+                {isAdvertiser && (
+                  <>
+                    <a
+                      href="/ads-management/statistics"
+                      className="dropdown-item studio-link"
+                    >
+                      <i className="fas fa-tv"></i> Ads Management
                     </a>
                     <a href="/package" className="dropdown-item studio-link">
                       <i className="fas fa-cart-shopping"></i> Mua Gói
