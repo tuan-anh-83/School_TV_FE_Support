@@ -444,55 +444,60 @@ const UserProfile = () => {
           <h2>Lịch Sử Đơn Hàng</h2>
           <div className="user-profile-order-list">
             {orders?.$values?.length > 0 ? (
-              orders.$values.sort(function(o){ return o.createdAt }).reverse().map((order) => (
-                <div key={order.orderID} className="user-profile-order-item">
-                  <div
-                    className={`order-status ${
-                      order.status?.toLowerCase() || "pending"
-                    }`}
-                  >
-                    <span className="status-dot"></span>
-                    {order.status === "Pending"
-                      ? "Đang xử lý"
-                      : order.status === "Completed"
-                      ? "Hoàn thành"
-                      : "Đã hủy"}
+              orders.$values
+                .sort(function (o) {
+                  return o.createdAt;
+                })
+                .reverse()
+                .map((order) => (
+                  <div key={order.orderID} className="user-profile-order-item">
+                    <div
+                      className={`order-status ${
+                        order.status?.toLowerCase() || "pending"
+                      }`}
+                    >
+                      <span className="status-dot"></span>
+                      {order.status === "Pending"
+                        ? "Đang xử lý"
+                        : order.status === "Completed"
+                        ? "Hoàn thành"
+                        : "Đã hủy"}
+                    </div>
+                    <div className="order-details">
+                      <div className="order-header">
+                        <h3>Đơn hàng #{order.orderCode || "N/A"}</h3>
+                        <span className="order-date">
+                          {order.createdAt
+                            ? new Date(order.createdAt)?.toLocaleDateString(
+                                "vi-VN"
+                              )
+                            : "Không xác định"}
+                        </span>
+                      </div>
+                      <div className="order-products">
+                        {order.orderDetails?.$values?.map((detail) => (
+                          <p key={detail.orderDetailID}>
+                            {detail.package?.name || "Không xác định"} x 1
+                          </p>
+                        ))}
+                      </div>
+                      <div className="order-footer">
+                        <span className="order-amount">
+                          {order.totalPrice
+                            ? order.totalPrice.toLocaleString()
+                            : "0"}{" "}
+                          ₫
+                        </span>
+                        <button
+                          className="order-detail-btn"
+                          onClick={() => handleOrderDetailClick(order)}
+                        >
+                          Chi tiết
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="order-details">
-                    <div className="order-header">
-                      <h3>Đơn hàng #{order.orderCode || "N/A"}</h3>
-                      <span className="order-date">
-                        {order.createdAt
-                          ? new Date(order.createdAt)?.toLocaleDateString(
-                              "vi-VN"
-                            )
-                          : "Không xác định"}
-                      </span>
-                    </div>
-                    <div className="order-products">
-                      {order.orderDetails?.$values?.map((detail) => (
-                        <p key={detail.orderDetailID}>
-                          {detail.package?.name || "Không xác định"} x 1
-                        </p>
-                      ))}
-                    </div>
-                    <div className="order-footer">
-                      <span className="order-amount">
-                        {order.totalPrice
-                          ? order.totalPrice.toLocaleString()
-                          : "0"}{" "}
-                        ₫
-                      </span>
-                      <button
-                        className="order-detail-btn"
-                        onClick={() => handleOrderDetailClick(order)}
-                      >
-                        Chi tiết
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
+                ))
             ) : (
               <p>Không có đơn hàng nào.</p>
             )}
@@ -755,6 +760,9 @@ const UserProfile = () => {
                       <div className="product-info">
                         <span className="product-name">
                           {detail.package.name}
+                        </span>
+                        <span className="product-duration">
+                          {detail.package.timeDuration} phút
                         </span>
                         <span className="product-duration">
                           {detail.package.duration} tháng
