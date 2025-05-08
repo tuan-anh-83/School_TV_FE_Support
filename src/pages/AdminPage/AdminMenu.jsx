@@ -110,11 +110,11 @@ const AdminMenu = ({ onLogout }) => {
           icon: <UserDeleteOutlined />,
           label: <Link to="/userlist">User List</Link>,
         },
-        {
-          key: "3.2",
-          icon: <UsergroupDeleteOutlined />,
-          label: <Link to="/adminlist">Admin List</Link>,
-        },
+        // {
+        //   key: "3.2",
+        //   icon: <UsergroupDeleteOutlined />,
+        //   label: <Link to="/adminlist">Admin List</Link>,
+        // },
         {
           key: "3.3",
           icon: <HomeOutlined />,

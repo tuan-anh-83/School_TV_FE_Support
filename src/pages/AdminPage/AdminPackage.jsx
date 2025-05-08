@@ -31,6 +31,9 @@ function AdminPackage() {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [packageToDelete, setPackageToDelete] = useState(null);
 
+  // ✅ CHỈNH SỬA: Thêm form instance
+  const [form] = Form.useForm();
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
@@ -48,6 +51,20 @@ function AdminPackage() {
       })
       .catch((error) => console.error("Error fetching packages:", error));
   }, []);
+
+  // ✅ CHỈNH SỬA: Cập nhật giá trị form khi chọn gói
+  useEffect(() => {
+    if (selectedPackage) {
+      form.setFieldsValue({
+        name: selectedPackage.name,
+        description: selectedPackage.description,
+        price: selectedPackage.price,
+        duration: selectedPackage.duration,
+        timeduration: selectedPackage.timeDuration,
+        status: selectedPackage.status ? "Active" : "Inactive",
+      });
+    }
+  }, [selectedPackage, form]);
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -123,6 +140,7 @@ function AdminPackage() {
         description: values.description,
         price: values.price,
         duration: values.duration,
+        timeduration: values.timeduration,
         status: values.status === "Active",
       }),
     })
@@ -141,6 +159,7 @@ function AdminPackage() {
         setPackages(data.$values);
         setFilteredPackages(data.$values);
         setIsModalVisible(false);
+        form.resetFields(); // ✅ CHỈNH SỬA: reset form khi đóng modal
       })
       .catch((error) => console.error("Error updating package:", error));
   };
@@ -163,11 +182,11 @@ function AdminPackage() {
         <div style={{ lineHeight: 1.5 }}>
           <div>
             <strong>Day:</strong>{" "}
-            {date? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" }) : 'N/A'}
+            {date.toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" })}
           </div>
           <div>
             <strong>Time:</strong>{" "}
-            {date? new Date(date).toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" }) : 'N/A'}
+            {date.toLocaleTimeString("en-GB", { timeZone: "Asia/Ho_Chi_Minh" })}
           </div>
         </div>
       </Tooltip>
@@ -185,18 +204,25 @@ function AdminPackage() {
       title: "Description",
       dataIndex: "description",
       key: "description",
+      render: (text) => <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>,
     },
     {
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (price) => `$${price.toLocaleString()}`,
+      render: (price) => `${price.toLocaleString()} VNĐ`,
     },
     {
       title: "Duration",
       dataIndex: "duration",
       key: "duration",
-      render: (d) => `${d} minutes`,
+      render: (d) => `${d} day(s)`,
+    },
+    {
+      title: "TimeDuration",
+      dataIndex: "timeDuration",
+      key: "timeduration",
+      render: (d) => `${d} minute(s)`,
     },
     {
       title: "Status",
@@ -265,68 +291,65 @@ function AdminPackage() {
         </Layout.Content>
       </Layout>
 
+      {/* ✅ CHỈNH SỬA: Form Edit sử dụng Form instance */}
       <Modal
         title="Edit Package"
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          setIsModalVisible(false);
+          form.resetFields();
+        }}
         footer={null}
       >
         {selectedPackage && (
-          <Form
-            initialValues={{
-              name: selectedPackage.name,
-              description: selectedPackage.description,
-              price: selectedPackage.price,
-              duration: selectedPackage.duration,
-              status: selectedPackage.status ? "Active" : "Inactive",
-            }}
-            onFinish={handleUpdate}
-          >
+          <Form form={form} onFinish={handleUpdate} layout="vertical">
             <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-              {" "}
-              <Input />{" "}
+              <Input />
             </Form.Item>
+
             <Form.Item
               name="description"
               label="Description"
               rules={[{ required: true }]}
             >
-              {" "}
-              <Input />{" "}
+              <Input.TextArea rows={4} />
             </Form.Item>
+
             <Form.Item name="price" label="Price" rules={[{ required: true }]}>
-              {" "}
-              <InputNumber
-                min={0.01}
-                step={0.01}
-                style={{ width: "100%" }}
-              />{" "}
+              <InputNumber min={0.01} step={0.01} style={{ width: "100%" }} />
             </Form.Item>
+
             <Form.Item
               name="duration"
               label="Duration"
               rules={[{ required: true }]}
             >
-              {" "}
-              <InputNumber min={1} style={{ width: "100%" }} />{" "}
+              <InputNumber min={1} style={{ width: "100%" }} />
             </Form.Item>
+
+            <Form.Item
+              name="timeduration"
+              label="TimeDuration"
+              rules={[{ required: true }]}
+            >
+              <InputNumber min={1} style={{ width: "100%" }} />
+            </Form.Item>
+
             <Form.Item
               name="status"
               label="Status"
               rules={[{ required: true }]}
             >
-              {" "}
               <Select>
-                {" "}
-                <Select.Option value="Active">Active</Select.Option>{" "}
-                <Select.Option value="Inactive">Inactive</Select.Option>{" "}
-              </Select>{" "}
+                <Select.Option value="Active">Active</Select.Option>
+                <Select.Option value="Inactive">Inactive</Select.Option>
+              </Select>
             </Form.Item>
+
             <Form.Item>
-              {" "}
               <Button type="primary" htmlType="submit">
                 Update
-              </Button>{" "}
+              </Button>
             </Form.Item>
           </Form>
         )}
