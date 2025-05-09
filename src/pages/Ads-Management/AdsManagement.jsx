@@ -1,11 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./AdsManagement.scss";
-import StudioHeader from "../../components/schooltv-studio/StudioHeader";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import StudioNavbar from "../../components/schooltv-studio/StudioNavbar";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
-import { checkExistChannel } from "../school-channel/check-channel/CheckExistChannel";
 import AdsHeader from "../../components/ads-studio/AdsHeader";
 import AdsNavbar from "../../components/ads-studio/AdsNavbar";
 

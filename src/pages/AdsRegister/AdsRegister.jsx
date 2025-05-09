@@ -17,8 +17,7 @@ function AdsRegister() {
     confirmPassword: "",
     fullname: "",
     phoneNumber: "",
-    address: "",
-    roleType: "Advertiser",
+    address: ""
   });
 
   // OTP verification states
@@ -326,7 +325,7 @@ function AdsRegister() {
     setLoading(true);
 
     try {
-      const response = await apiFetch("accounts/schoolowner/signup", {
+      const response = await apiFetch("accounts/advertiser/signup", {
         method: "POST",
         body: JSON.stringify(formData),
         headers: {

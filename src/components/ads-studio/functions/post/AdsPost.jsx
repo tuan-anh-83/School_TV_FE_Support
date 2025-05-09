@@ -12,7 +12,6 @@ const { RangePicker } = DatePicker;
 
 function AdsPost() {
   const user = useSelector((state) => state.userData.user);
-  const [postStatus, setPostStatus] = useState(null);
   const [form] = Form.useForm();
   const [previewPostData, setPreviewPostData] = useState({
     owner: user?.fullname ?? "Not found advertiser",
@@ -76,12 +75,23 @@ function AdsPost() {
     };
   };
 
+  const formatDate = (dates) => {
+    if (dates && dates.length === 2) {
+      const startDate = dayjs(dates[0]).format("YYYY-MM-DD HH:mm:ss");
+      const endDate = dayjs(dates[1]).format("YYYY-MM-DD HH:mm:ss");
+
+      return [startDate, endDate];
+    }
+    return null;
+  };
+
   //Cập nhật text xem trước
   const handleFormChange = (_, allValues) => {
     setPreviewPostData((prev) => ({
       ...prev,
       Title: allValues.Title || "",
       VideoUrl: allValues.VideoUrl || "",
+      SelectedDate: formatDate(allValues.SelectedDate) || null,
     }));
   };
 
@@ -90,38 +100,36 @@ function AdsPost() {
   const onFinish = async (values) => {
     try {
       setLoadingUploadBtn(true);
-      const formData = new FormData();
+      const requestBody = {
+        title: values.Title,
+        startTime: formatDate(values.SelectedDate)[0],
+        endTime: formatDate(values.SelectedDate)[1],
+        videoUrl: values.VideoUrl,
+      };
 
-      formData.append("Title", values.Title);
-      formData.append("Content", values.Content);
-      formData.append("FollowerMode", values.FollowerMode);
-      formData.append("CategoryNewsID", selectedCategory);
-
-      if (values.ImageFiles && values.ImageFiles.length > 0) {
-        values.ImageFiles.forEach((file) => {
-          formData.append("ImageFiles", file.originFileObj || file);
-        });
-      }
-
-      const response = await apiFetch("News/CreateNews", {
+      const response = await apiFetch("AdSchedule/ads", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
       });
-      if (!response.ok) {
-        throw new Error(data.message || "Có lỗi xảy ra!");
-      }
+
       const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data?.error || "Có lỗi xảy ra!");
+        throw new Error(data?.error || "Có lỗi xảy ra!");
+      }
 
       if (data) {
         toast.success("Tạo quảng cáo thành công!");
         form.resetFields();
-        setPostStatus(null);
         setPreviewPostData({
           owner: user?.fullname ?? "Not found advertiser",
-          Title: "",
-          Content: "",
-          FollowerMode: null,
-          ImageFiles: null,
+          Title: values.Title,
+          VideoUrl: values.VideoUrl,
+          SelectedDate: values.SelectedDate
         });
         setIsOpenPreview(false);
       }
@@ -130,8 +138,6 @@ function AdsPost() {
     } finally {
       setLoadingUploadBtn(false);
     }
-
-    // console.log(values);
   };
 
   //Handle menu xem trước bài viết
@@ -146,8 +152,6 @@ function AdsPost() {
       }
     }
   };
-
-  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");

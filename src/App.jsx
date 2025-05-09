@@ -34,6 +34,7 @@ import UserList from "./pages/AdminPage/UserList";
 import StudioVideo from "./components/schooltv-studio/functions/up-video/StudioVideo";
 import AdminList from "./pages/AdminPage/AdminList";
 import SchoolOwnerPending from "./pages/AdminPage/SchoolOwnerPending";
+import AdvertiserPending from "./pages/AdminPage/AdvertiserPending";
 import SchoolOwnerAccount from "./pages/AdminPage/SchoolOwnerAccount";
 import { UserProvider } from "./context/UserContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -339,6 +340,14 @@ function App() {
           element: (
             <ProtectedRoute allowedRoles={["admin"]}>
               <SchoolOwnerPending />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/adpending",
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdvertiserPending />
             </ProtectedRoute>
           ),
         },

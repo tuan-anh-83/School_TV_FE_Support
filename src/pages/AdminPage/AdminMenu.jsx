@@ -102,11 +102,16 @@ const AdminMenu = ({ onLogout }) => {
     },
     {
       key: "3",
+      icon: <SettingOutlined />,
+      label: <Link to="/adpending">Advertiser Pending</Link>,
+    },
+    {
+      key: "4",
       icon: <UserOutlined />,
       label: "User Management",
       children: [
         {
-          key: "3.1",
+          key: "4.1",
           icon: <UserDeleteOutlined />,
           label: <Link to="/userlist">User List</Link>,
         },
@@ -116,41 +121,41 @@ const AdminMenu = ({ onLogout }) => {
         //   label: <Link to="/adminlist">Admin List</Link>,
         // },
         {
-          key: "3.3",
+          key: "4.3",
           icon: <HomeOutlined />,
           label: <Link to="/soaccount">School Owner Account</Link>,
         },
       ],
     },
     {
-      key: "4",
+      key: "5",
       icon: <ScheduleOutlined />,
       label: "Package Management",
       children: [
         {
-          key: "4.1",
+          key: "5.1",
           icon: <ProfileOutlined />,
           label: <Link to="/adminpackage">Admin Package</Link>,
         },
         {
-          key: "4.2",
+          key: "5.2",
           icon: <MinusSquareOutlined />,
           label: <Link to="/createpackage">Create Package</Link>,
         },
       ],
     },
     {
-      key: "5",
+      key: "6",
       icon: <SnippetsOutlined />,
       label: <Link to="/adminpayment">Admin Payment Management</Link>,
     },
     {
-      key: "6",
+      key: "7",
       icon: <VideoCameraAddOutlined />,
       label: <Link to="/ads">Ads Management</Link>,
     },
     {
-      key: "7",
+      key: "8",
       icon: <LogoutOutlined />,
       label: "Log out",
       onClick: onLogout,

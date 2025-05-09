@@ -14,6 +14,7 @@ import {
 import apiFetch from "../../../config/baseAPI";
 import "./StudioChannel.css";
 import { formatDecimalHours } from "../../../utils/text";
+import { useOutletContext } from "react-router";
 
 const StudioChannel = () => {
   const [channel, setChannel] = useState(null);
@@ -21,56 +22,14 @@ const StudioChannel = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [form] = Form.useForm();
   const initialValuesRef = useRef({});
+  const params = useOutletContext();
 
   useEffect(() => {
-    const fetchChannelData = async () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        notification.error({
-          message: "Lỗi xác thực!",
-          description: "Bạn cần đăng nhập để xem thông tin kênh.",
-          placement: "topRight",
-        });
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const params = new URLSearchParams();
-        params.append(
-          "accountId",
-          JSON.parse(localStorage.getItem("userData")).accountID
-        );
-        const response = await apiFetch(
-          `/api/schoolchannels/search?${params.toString()}`
-        );
-
-        if (response.status === 404) {
-          setChannel(null);
-          return;
-        }
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || "Có lỗi xảy ra!");
-        }
-
-        const data = await response.json();
-        setChannel(data.$values[0]);
-      } catch (error) {
-        console.error("Error fetching channel data:", error);
-        notification.error({
-          message: "Lỗi!",
-          description: "Không thể tải thông tin kênh.",
-          placement: "topRight",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchChannelData();
-  }, []);
+    if (params && params.channel) {
+      setChannel(params.channel.$values[0]);
+      setLoading(false);
+    }
+  }, [params]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Chưa cập nhật";
@@ -260,7 +219,7 @@ const StudioChannel = () => {
                   channel.account.accountPackages.$values.length > 0
                     ? formatDecimalHours(
                         channel.account.accountPackages.$values[0]
-                          .remainingHours
+                          .remainingMinutes
                       )
                     : "0 giờ"}
                 </span>
@@ -315,8 +274,7 @@ const StudioChannel = () => {
                   channel.account.accountPackages.$values &&
                   channel.account.accountPackages.$values.length > 0
                     ? formatDecimalHours(
-                        channel.account.accountPackages.$values[0]
-                          .hoursUsed
+                        channel.account.accountPackages.$values[0].minutesUsed
                       )
                     : "0 giờ"}
                 </span>

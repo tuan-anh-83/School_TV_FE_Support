@@ -3,6 +3,7 @@ import apiFetch from "../../../config/baseAPI";
 export const checkExistChannel = async (accountID) => {
   const params = new URLSearchParams();
   params.append("accountId", accountID || null);
+  console.log("fetch from function");
   const url = `/api/schoolchannels/search?${params.toString()}`;
 
   try {

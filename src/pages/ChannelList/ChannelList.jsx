@@ -185,6 +185,8 @@ const ChannelList = () => {
         [searchType === "name" ? "keyword" : "address"]: searchTerm,
       });
 
+      console.log("fetch from channel list");
+
       const response = await apiFetch(`schoolchannels/search?${params}`, {
         headers: {
           accept: "*/*",
