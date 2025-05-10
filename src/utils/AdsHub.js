@@ -5,37 +5,36 @@ let connection = null;
 let isStarted = false;
 
 const baseUrl = import.meta.env.VITE_SERVER_API_PREFIX;
-const hubUrl = `${baseUrl}/hubs/livestream`;
+const hubUrl = `${baseUrl}/hubs`;
 
 /**
  * Bắt đầu kết nối SignalR đến LiveStreamHub và xử lý quảng cáo realtime.
  * @param {string} accountId - ID tài khoản.
- * @param {function} onAdsReceived - Hàm callback để xử lý danh sách ads khi server gửi về.
+ * @param {function} onAdReceived - Hàm callback để xử lý danh sách ads khi server gửi về.
  */
-const startAdsHub = (accountId, onAdsReceived) => {
+const startAdsHub = (accountId, onAdReceived) => {
   if (connection && isStarted) return;
 
   connection = new signalR.HubConnectionBuilder()
-    .withUrl(`${hubUrl}?accountId=${accountId}`)
+    .withUrl(`${hubUrl}/notification?accountId=${accountId}`)
     .withAutomaticReconnect()
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
-  connection.on("Ads", (adsData) => {
-    console.log("🎯 Ads received:", adsData);
-    if (onAdsReceived) onAdsReceived(adsData);
+  connection.on("Ad", (adData) => {
+    console.log("🎯 Ad received:", adData);
+    if (onAdReceived) onAdReceived(adData);
   });
 
   connection
     .start()
     .then(() => {
       isStarted = true;
-      console.log("✅ Connected to LiveStreamHub for Ads");
 
       // Gọi hàm bên server để lấy quảng cáo ban đầu
-      connection.invoke("ReceiveAdsVideos").catch((err) => {
-        console.error("❌ Failed to invoke ReceiveAdsVideos:", err);
-      });
+      // connection.invoke("ReceiveAdsVideos").catch((err) => {
+      //   console.error("❌ Failed to invoke ReceiveAdsVideos:", err);
+      // });
     })
     .catch((err) => {
       console.error("❌ Failed to connect to LiveStreamHub:", err);

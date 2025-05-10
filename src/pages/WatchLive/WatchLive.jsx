@@ -371,7 +371,6 @@ const WatchLive = () => {
             .utc(comment.createdAt)
             .tz("Asia/Ho_Chi_Minh")
             .format("HH:mm"),
-
         }));
 
         setMessages(formattedComments);
@@ -444,39 +443,40 @@ const WatchLive = () => {
       return;
     }
 
-    startAdsHub(accountId, (ads) => setAds(ads));
+    startAdsHub(accountId, (ad) => {
+      const now = dayjs().tz("Asia/Ho_Chi_Minh");
+      const adStart = dayjs(ad.startTime).tz("Asia/Ho_Chi_Minh");
+      const adEnd = dayjs(ad.endTime).tz("Asia/Ho_Chi_Minh");
+
+      const delayMs = adStart.diff(now);
+
+      if (delayMs > 0) {
+        // ⏳ Chưa tới giờ → delay phát
+        setTimeout(() => {
+          setCurrentAd(ad);
+          setIsPlayingAd(true);
+
+          setTimeout(() => {
+            setIsPlayingAd(false);
+            setCurrentAd(null);
+          }, adEnd.diff(adStart));
+        }, delayMs);
+      } else {
+        // ✅ Đã tới giờ hoặc trễ rồi → phát ngay
+        setCurrentAd(ad);
+        setIsPlayingAd(true);
+
+        setTimeout(() => {
+          setIsPlayingAd(false);
+          setCurrentAd(null);
+        }, adEnd.diff(now));
+      }
+    });
 
     return () => {
       stopAdsHub();
     };
   }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = dayjs().tz("Asia/Ho_Chi_Minh");
-
-      if (ads.length > 0) {
-        ads.forEach((ad) => {
-          const adStart = dayjs(ad.startTime).tz("Asia/Ho_Chi_Minh");
-          const adEnd = dayjs(ad.endTime).tz("Asia/Ho_Chi_Minh");
-          // Nếu bây giờ nằm trong khoảng thời gian quảng cáo
-          if (now.isAfter(adStart) && now.isBefore(adEnd) && !isPlayingAd) {
-            const durationMs = adEnd.diff(adStart); // tính thời gian phát
-
-            setIsPlayingAd(true);
-            setCurrentAd(ad);
-
-            setTimeout(() => {
-              setIsPlayingAd(false);
-              setCurrentAd(null);
-            }, durationMs);
-          }
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [ads, isPlayingAd]);
 
   useEffect(() => {
     // Convert the current date (which is in local time) to GMT+7 first, then to UTC
@@ -485,7 +485,6 @@ const WatchLive = () => {
       .utc()
       .format("YYYY-MM-DD");
     setLogicDate(newLogicDate);
-    fetchScheduleProgram(newLogicDate);
   }, [currentDate]);
 
   const handlePrevDay = () => {
@@ -526,7 +525,7 @@ const WatchLive = () => {
     try {
       // Convert the GMT+7 date to UTC before sending to API
       const utcDate = dayjs.tz(date, "Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
-
+   console.log("Call from watch live");
       const response = await apiFetch(
         `Schedule/by-channel-and-date?channelId=${channelId}&date=${encodeURIComponent(
           utcDate
@@ -540,7 +539,10 @@ const WatchLive = () => {
 
       if (data?.data?.$values) {
         const schedules = data.data.$values
-          .filter((schedule) => schedule.status === "Live" || schedule.status === "LateStart")
+          .filter(
+            (schedule) =>
+              schedule.status === "Live" || schedule.status === "LateStart"
+          )
           .map((schedule) => ({
             // Parse as UTC first, then convert to GMT+7 when displaying
             startTime: dayjs.utc(schedule.startTime),
@@ -768,9 +770,9 @@ const WatchLive = () => {
                 onClick={() => setShowSchedule(false)}
               />
             )}
-            {/* {isPlayingAd && currentAd && (
+            {isPlayingAd && currentAd && (
               <iframe
-                src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1`}
+                src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=1&rel=0&playsinline=1`}
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 style={{
@@ -780,7 +782,7 @@ const WatchLive = () => {
                   zIndex: 3,
                 }}
               />
-            )} */}
+            )}
             {displayIframeUrl ? (
               <>
                 <button
