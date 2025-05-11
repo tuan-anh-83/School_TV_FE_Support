@@ -425,6 +425,19 @@ const WatchLive = () => {
     }
   };
 
+  const callAdsHook = async (accountID, duration) => {
+    try {
+      const response = await apiFetch(`AdLiveStream/ads-hook?accountID=${accountID}&duration=${duration}`, {
+        method: "POST",
+      });
+
+      if (!response.ok) throw new Error("Lỗi khi xử lý quảng cáo!");
+
+    } catch (error) {
+      console.error("Error fetching ads hook:", error);
+    }
+  };
+
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -466,9 +479,10 @@ const WatchLive = () => {
         setCurrentAd(ad);
         setIsPlayingAd(true);
 
-        setTimeout(() => {
+        setTimeout(async () => {
           setIsPlayingAd(false);
           setCurrentAd(null);
+          await callAdsHook(ad.accountId, adEnd.diff(adStart));
         }, adEnd.diff(now));
       }
     });
@@ -525,7 +539,7 @@ const WatchLive = () => {
     try {
       // Convert the GMT+7 date to UTC before sending to API
       const utcDate = dayjs.tz(date, "Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
-   console.log("Call from watch live");
+      console.log("Call from watch live");
       const response = await apiFetch(
         `Schedule/by-channel-and-date?channelId=${channelId}&date=${encodeURIComponent(
           utcDate

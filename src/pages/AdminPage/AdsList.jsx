@@ -83,40 +83,7 @@ function AdsList() {
   };
 
   const handleCreateAd = async (values) => {
-    const requestBody = {
-      title: values.title,
-      startTime: selectedRange[0],
-      endTime: selectedRange[1],
-      videoUrl: values.videoUrl,
-    };
-
-    try {
-      setIsBtnLoading(true);
-      const response = await apiFetch("AdSchedule", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const error = new Error("Request failed");
-        error.status = response.status;
-        throw error;
-      }
-
-      const data = await response.json();
-      if (data) {
-        form.resetFields();
-        toast.success("Khởi tạo quảng cáo thành công!");
-        await fetchData();
-      }
-    } catch (error) {
-      console.log("Lỗi khi khởi tạo chương trình: ", error);
-    } finally {
-      setIsBtnLoading(false);
-    }
+    
   };
 
   const fetchData = async () => {

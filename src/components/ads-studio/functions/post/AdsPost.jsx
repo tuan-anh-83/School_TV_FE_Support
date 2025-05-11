@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
 import "./AdsPost.scss";
-import { Button, DatePicker, Flex, Form, Input, Switch } from "antd";
+import {
+  Button,
+  DatePicker,
+  Flex,
+  Form,
+  Input,
+  InputNumber,
+  Switch,
+  Upload,
+} from "antd";
 import { useSelector } from "react-redux";
 import "@mdxeditor/editor/style.css";
+import { InboxOutlined } from "@ant-design/icons";
 
 import AdsPostPreview from "./AdsPostPreview";
 import apiFetch from "../../../../config/baseAPI";
@@ -16,73 +26,65 @@ function AdsPost() {
   const [previewPostData, setPreviewPostData] = useState({
     owner: user?.fullname ?? "Not found advertiser",
     Title: "",
-    VideoUrl: "",
-    SelectedDate: null,
+    VideoFile: null,
+    VideoPreviewUrl: "",
+    DurationSeconds: 0,
   });
   const [isOpenPreview, setIsOpenPreview] = useState(false);
   const [isMobile, setIsMobile] = useState(
     window.matchMedia("(max-width: 767px)").matches
   );
+  const [videoFile, setVideoFile] = useState(null);
 
-  const disabledDate = (current) => {
-    // Không cho phép chọn ngày trước ngày hiện tại
-    return current && current < dayjs().startOf("day");
-  };
+  const handleVideoUpload = (info) => {
+    // Check if we have a file from different possible sources
+    const file =
+      info.file || (info.fileList && info.fileList[0]?.originFileObj) || info;
 
-  const disabledTime = (current) => {
-    if (!current) {
-      return {
-        disabledHours: () => [],
-        disabledMinutes: () => [],
-        disabledSeconds: () => [],
-      };
+    // Verify it's a real file object
+    if (!file || typeof file !== "object" || !file.type) {
+      console.error("Invalid file object:", file);
+      message.error("Invalid file. Please try again.");
+      return;
     }
 
-    const now = dayjs();
-    const currentDateTime = dayjs(current);
+    const isVideo = file.type.startsWith("video/");
 
-    //không cần đợi
-    if (currentDateTime.isSame(now, "day")) {
-      const currentHour = now.hour();
-      const currentMinute = now.minute();
-
-      return {
-        disabledHours: () => {
-          const hours = [];
-          for (let i = 0; i < currentHour; i++) {
-            hours.push(i);
-          }
-          return hours;
-        },
-        disabledMinutes: (selectedHour) => {
-          if (selectedHour === currentHour) {
-            const minutes = [];
-            for (let i = 0; i <= currentMinute; i++) {
-              minutes.push(i);
-            }
-            return minutes;
-          }
-          return [];
-        },
-        disabledSeconds: () => [],
-      };
+    if (!isVideo) {
+      message.error("You can only upload video files!");
+      return;
     }
 
-    return {
-      disabledHours: () => [],
-      disabledMinutes: () => [],
-      disabledSeconds: () => [],
-    };
-  };
+    const fileSizeMB = file.size / 1024 / 1024;
+    console.log("File size (MB):", fileSizeMB);
 
-  const formatDate = (dates) => {
-    if (dates && dates.length === 2) {
-      const startDate = dayjs(dates[0]).format("YYYY-MM-DD HH:mm:ss");
-      const endDate = dayjs(dates[1]).format("YYYY-MM-DD HH:mm:ss");
-
-      return [startDate, endDate];
+    const isLt100M = fileSizeMB < 100;
+    if (!isLt100M) {
+      message.error("Video must be smaller than 100MB!");
+      return;
     }
-    return null;
+
+    setVideoFile(file);
+
+    // Create object URL for preview
+    try {
+      const videoPreviewUrl = URL.createObjectURL(file);
+      console.log("Created preview URL:", videoPreviewUrl);
+
+      setPreviewPostData((prev) => ({
+        ...prev,
+        VideoFile: file,
+        VideoPreviewUrl: videoPreviewUrl,
+      }));
+
+      // Need to manually update form since this happens outside normal form event
+      form.setFieldsValue({
+        VideoFile: file,
+      });
+    } catch (error) {
+      console.error("Error creating object URL:", error);
+      message.error("Error previewing video. Please try another file.");
+    }
   };
 
   //Cập nhật text xem trước
@@ -90,8 +92,7 @@ function AdsPost() {
     setPreviewPostData((prev) => ({
       ...prev,
       Title: allValues.Title || "",
-      VideoUrl: allValues.VideoUrl || "",
-      SelectedDate: formatDate(allValues.SelectedDate) || null,
+      DurationSeconds: allValues.DurationSeconds || 0,
     }));
   };
 
@@ -99,20 +100,21 @@ function AdsPost() {
   const [loadingUploadBtn, setLoadingUploadBtn] = useState(false);
   const onFinish = async (values) => {
     try {
+      if (!videoFile) {
+        toast.error("Vui lòng tải lên video quảng cáo!");
+        return;
+      }
+
       setLoadingUploadBtn(true);
-      const requestBody = {
-        title: values.Title,
-        startTime: formatDate(values.SelectedDate)[0],
-        endTime: formatDate(values.SelectedDate)[1],
-        videoUrl: values.VideoUrl,
-      };
+
+      const formData = new FormData();
+      formData.append("title", values.Title);
+      formData.append("durationSeconds", values.DurationSeconds);
+      formData.append("videoFile", videoFile);
 
       const response = await apiFetch("AdSchedule/ads", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
+        body: formData,
       });
 
       const data = await response.json();
@@ -125,11 +127,13 @@ function AdsPost() {
       if (data) {
         toast.success("Tạo quảng cáo thành công!");
         form.resetFields();
+        setVideoFile(null);
         setPreviewPostData({
           owner: user?.fullname ?? "Not found advertiser",
           Title: values.Title,
-          VideoUrl: values.VideoUrl,
-          SelectedDate: values.SelectedDate
+          VideoFile: null,
+          VideoPreviewUrl: "",
+          DurationSeconds: values.DurationSeconds,
         });
         setIsOpenPreview(false);
       }
@@ -247,6 +251,22 @@ function AdsPost() {
     };
   }, [isOpenPreview, isMobile]);
 
+  // Clean up object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      if (previewPostData.VideoPreviewUrl) {
+        URL.revokeObjectURL(previewPostData.VideoPreviewUrl);
+      }
+    };
+  }, []);
+
+  const uploadButton = (
+    <div className="upload-button-container">
+      <InboxOutlined style={{ fontSize: "32px", color: "#1890ff" }} />
+      <div style={{ marginTop: 8 }}>Nhấp hoặc kéo tệp để tải lên video</div>
+    </div>
+  );
+
   return (
     <div style={{ marginTop: "50px" }}>
       {/* Class applied from main title of SChoolChannelStudio.scss */}
@@ -288,32 +308,58 @@ function AdsPost() {
                   },
                 ]}
               >
-                <Input
-                  className="studio-post-input"
-                  placeholder="Nhập video liên kết"
-                />
+                <Upload.Dragger
+                  name="videoFile"
+                  className="video-uploader"
+                  showUploadList={false}
+                  beforeUpload={(file) => {
+                    console.log("beforeUpload called with file:", file);
+                    return false; // Prevent auto upload
+                  }}
+                  onChange={(info) => {
+                    console.log("Upload onChange event:", info);
+                    if (info.file.originFileObj) {
+                      handleVideoUpload(info.file.originFileObj);
+                    } else {
+                      handleVideoUpload(info.file);
+                    }
+                  }}
+                  accept="video/*"
+                >
+                  {previewPostData.VideoFile ? (
+                    <div style={{ marginBottom: 16 }}>
+                      <p>File: {previewPostData.VideoFile.name}</p>
+                      <p>
+                        Size:{" "}
+                        {(
+                          previewPostData.VideoFile.size /
+                          (1024 * 1024)
+                        ).toFixed(2)}{" "}
+                        MB
+                      </p>
+                    </div>
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload.Dragger>
               </Form.Item>
 
               <Form.Item
-                label={<h2 className="studio-post-des">Thời gian phát sóng</h2>}
-                name="SelectedDate"
+                label={
+                  <h2 className="studio-post-des">Thời lượng phát sóng (giây)</h2>
+                }
+                name="DurationSeconds"
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn thời gian phát sóng!",
+                    message: "Vui lòng chọn thời lượng phát sóng!",
                   },
                 ]}
               >
-                <RangePicker
-                  placeholder={["Thời gian bắt đầu", "Thời gian kết thúc"]}
-                  value={previewPostData.SelectedDate ?? null}
-                  format="YYYY-MM-DD HH:mm:ss"
-                  onChange={handleFormChange}
-                  showTime={{
-                    format: "HH:mm:ss",
-                  }}
-                  disabledDate={disabledDate}
-                  disabledTime={disabledTime}
+                <InputNumber
+                  className="studio-post-input w-100"
+                  style={{ width: "100%" }}
+                  placeholder="Nhập thời lượng phát sóng"
                 />
               </Form.Item>
 

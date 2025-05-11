@@ -11,6 +11,7 @@ import {
   Row,
   Col,
   Card,
+  Select,
 } from "antd";
 import Sider from "antd/es/layout/Sider";
 import AdminMenu from "./AdminMenu";
@@ -174,6 +175,26 @@ function CreatePackage() {
                       style={{ width: "100%" }}
                       placeholder="Enter duration in mintues"
                     />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="For Type"
+                    name="forType"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input package ForType!",
+                      }
+                    ]}
+                  >
+                    <Select
+                      min={1}
+                      style={{ width: "100%" }}
+                      placeholder="Choose the role of the package"
+                    >
+                      <Select.Option value="SchoolOwner">SchoolOwner</Select.Option>
+                      <Select.Option value="Advertiser">Advertiser</Select.Option>
+                    </Select>
                   </Form.Item>
 
                   <Form.Item style={{ marginTop: 20 }}>

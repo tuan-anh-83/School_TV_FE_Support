@@ -62,6 +62,7 @@ function AdminPackage() {
         duration: selectedPackage.duration,
         timeduration: selectedPackage.timeDuration,
         status: selectedPackage.status ? "Active" : "Inactive",
+        forType: selectedPackage.forType,
       });
     }
   }, [selectedPackage, form]);
@@ -142,6 +143,7 @@ function AdminPackage() {
         duration: values.duration,
         timeduration: values.timeduration,
         status: values.status === "Active",
+        forType: values.forType,
       }),
     })
       .then((response) => {
@@ -343,6 +345,17 @@ function AdminPackage() {
               <Select>
                 <Select.Option value="Active">Active</Select.Option>
                 <Select.Option value="Inactive">Inactive</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="forType"
+              label="For Type"
+              rules={[{ required: true }]}
+            >
+              <Select>
+                <Select.Option value="SchoolOwner">SchoolOwner</Select.Option>
+                <Select.Option value="Advertiser">Advertiser</Select.Option>
               </Select>
             </Form.Item>
 
