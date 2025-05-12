@@ -75,11 +75,10 @@ function ScheduleList() {
     fetchData();
   }, [navigate]);
 
-  const handleSubmit = async (selectedAds, scheduleID, accountID) => {
+  const handleSubmit = async (selectedAds, scheduleID) => {
     // Format the request body according to AdLiveStream model properties
     const requestBody = {
       scheduleId: scheduleID,
-      accountId: accountID,
       ads: selectedAds.map((ad) => ({
         adScheduleId: ad.adScheduleId,
         playAt: ad.playAt,
@@ -442,13 +441,11 @@ const AdsSelectionModal = ({
       playAt: ad.playAt,
       isPlayed: false,
       duration: ad.duration,
-      accountID: schedule?.program?.schoolChannel?.accountID,
     }));
 
     onAddAds(
       adLiveStreamData,
       schedule?.scheduleID,
-      schedule?.program?.schoolChannel?.accountID
     );
 
     // Reset selections
