@@ -427,7 +427,7 @@ const WatchLive = () => {
 
   const callAdsHook = async (accountID, duration, adLiveStreamId) => {
     try {
-      const response = await apiFetch(`AdLiveStream/ads-hook?accountID=${accountID}&duration=${duration}&adLiveStreamID=${adLiveStreamId}`,`, {
+      const response = await apiFetch(`AdLiveStream/ads-hook?accountID=${accountID}&duration=${duration}&adLiveStreamID=${adLiveStreamId}`, {
         method: "POST",
       });
 
