@@ -784,7 +784,7 @@ const WatchLive = () => {
                 onClick={() => setShowSchedule(false)}
               />
             )}
-            {isPlayingAd && currentAd && (
+            {/* {isPlayingAd && currentAd && (
               <iframe
                 src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=1&rel=0&playsinline=1`}
                 allow="autoplay; encrypted-media"
@@ -796,7 +796,7 @@ const WatchLive = () => {
                   zIndex: 3,
                 }}
               />
-            )}
+            )} */}
             {displayIframeUrl ? (
               <>
                 <button
