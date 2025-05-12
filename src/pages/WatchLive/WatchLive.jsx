@@ -482,7 +482,7 @@ const WatchLive = () => {
         setTimeout(async () => {
           setIsPlayingAd(false);
           setCurrentAd(null);
-          await callAdsHook(ad.accountId, adEnd.diff(adStart));
+          await callAdsHook(ad.accountId, adEnd.diff(adStart), ad.adLiveStreamId);
         }, adEnd.diff(now));
       }
     });
@@ -760,7 +760,7 @@ const WatchLive = () => {
       }
 
       const data = await response.json();
-      console.log("Report submitted:", data);
+
       toast.success("Báo cáo đã được gửi thành công");
       setIsReportModalOpen(false);
       setReportReason("");
