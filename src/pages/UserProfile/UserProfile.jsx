@@ -17,6 +17,7 @@ import {
 } from "@ant-design/icons";
 import "./UserProfile.css";
 import apiFetch from "../../config/baseAPI";
+import { useOutletContext } from "react-router";
 
 const UserProfile = () => {
   // Add these to your existing state declarations
@@ -31,91 +32,26 @@ const UserProfile = () => {
   const initialValuesRef = useRef({});
   const [orders, setOrders] = useState({ $values: [] });
   const [errorOrders, setErrorOrders] = useState(null);
+  const params = useOutletContext();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem("authToken");
-      const storedUserData = localStorage.getItem("userData");
-
-      if (!token) {
-        setLoading(false);
-        notification.error({
-          message: "Lỗi xác thực!",
-          description: "Bạn cần đăng nhập để xem thông tin người dùng.",
-          placement: "topRight",
-        });
-        return;
-      }
-
-      if (storedUserData) {
-        setUser(JSON.parse(storedUserData));
-      }
-
-      try {
-        const response = await apiFetch("accounts/info", {
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to fetch user data");
-        }
-
-        const data = await response.json();
-        const userData = JSON.parse(localStorage.getItem("userData")) || {};
-
-        const updatedUserData = {
-          ...data,
-          roleName: userData.roleName || "User",
-        };
-
-        setUser(updatedUserData);
-        localStorage.setItem("userData", JSON.stringify(updatedUserData));
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        if (error.message.includes("401")) {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("userData");
-          notification.error({
-            message: "Phiên đăng nhập hết hạn!",
-            description: "Vui lòng đăng nhập lại để tiếp tục.",
-            placement: "topRight",
-          });
-        } else {
-          notification.error({
-            message: "Lỗi!",
-            description: "Không thể tải thông tin người dùng.",
-            placement: "topRight",
-          });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
+    if(params && params.user) {
+      setUser(params.user);
+    }
+  }, [params]);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
       // Check if user is not SchoolOwner, skip the API call
-      if (user?.roleName?.toLowerCase() !== "schoolowner") {
+      if (user?.roleName?.toLowerCase() !== "schoolowner" && user?.roleName?.toLowerCase() !== "advertiser") {
         setOrders({ $values: [] });
         setLoading(false);
         return;
       }
 
       try {
-        const dataOrderId = JSON.parse(localStorage.getItem("orderId"));
-        const orderId = dataOrderId?.orderId;
-
-        if (!orderId) {
-          throw new Error("Không tìm thấy mã đơn hàng");
-        }
-
         const response = await apiFetch(`orders/history`);
         const data = await response.json();
-        console.log("Order details:", data);
 
         if (!response.ok) {
           throw new Error(`Lỗi khi lấy thông tin đơn hàng: ${response.status}`);
@@ -419,6 +355,15 @@ const UserProfile = () => {
                 <span>{user.address || "Chưa cập nhật"}</span>
               </div>
             </div>
+            <div className="user-profile-info-item">
+              <div className="info-icon">
+                <ClockCircleOutlined />
+              </div>
+              <div>
+                <label>Thời gian còn lại</label>
+                <span>{user.accountPackage ? user.accountPackage.remainingMinutes : 0} phút</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -438,7 +383,7 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
-      {user?.roleName?.toLowerCase() === "schoolowner" && (
+      {user?.roleName?.toLowerCase() === "schoolowner" || user?.roleName?.toLowerCase() === "advertiser" && (
         <div className="user-profile-info-card order-history">
           <div className="order-background"></div>
           <h2>Lịch Sử Đơn Hàng</h2>

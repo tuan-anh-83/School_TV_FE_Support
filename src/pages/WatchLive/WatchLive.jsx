@@ -482,7 +482,7 @@ const WatchLive = () => {
         setTimeout(async () => {
           setIsPlayingAd(false);
           setCurrentAd(null);
-          await callAdsHook(ad.accountId, adEnd.diff(adStart, "second"), ad.adLiveStreamId);
+          await callAdsHook(ad.ownerId, adEnd.diff(adStart, "second"), ad.adLiveStreamId);
         }, adEnd.diff(now));
       }
     });
