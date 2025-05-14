@@ -877,7 +877,7 @@ const WatchLive = () => {
                   {displaySchedule.find((s) => s.iframeUrl === displayIframeUrl)
                     ?.programName || "Chương trình đang phát sóng"}
                 </h1>
-                <div className="live-badge">LIVE</div>
+                {videoHistoryId && <div className="live-badge">LIVE</div>}
               </div>
 
               <div className="stream-actions">
@@ -916,6 +916,11 @@ const WatchLive = () => {
                       toast.error("Vui lòng đăng nhập để báo cáo");
                       return;
                     }
+                    else if(!currentProgram)
+                    {
+                      toast.warning("Không có chương trình để báo cáo.");
+                      return;
+                    }
                     setIsReportModalOpen(true);
                   }}
                 >
@@ -936,21 +941,27 @@ const WatchLive = () => {
                   {channelInfo?.name || "Đang tải..."}
                 </div>
               </div>
-              <button
-                className={`subscribe-button ${
-                  isProgramFollowed(currentProgram?.programID)
-                    ? "subscribed"
-                    : ""
-                }`}
-                onClick={() => handleFollow(currentProgram?.programID)}
-                disabled={isLoadingFollow}
-              >
-                <i className="fas fa-bell" />
-                {isLoadingFollow
-                  ? "Đang xử lý..."
-                  : isProgramFollowed(currentProgram?.programID)
-                  ? "Đang theo dõi"
-                  : "Theo dõi"}
+              <div>
+                <button
+                  className={`subscribe-button ${
+                    !currentProgram
+                      ? "cantSubscribed"
+                      : isProgramFollowed(currentProgram?.programID)
+                      ? "subscribed"
+                      : ""
+                  }`}
+                  onClick={() => handleFollow(currentProgram?.programID)}
+                  disabled={isLoadingFollow || !currentProgram}
+                >
+                  <i className="fas fa-bell" />
+                  {isLoadingFollow
+                    ? "Đang xử lý..."
+                    : !currentProgram
+                    ? "Chưa có chương trình"
+                    : isProgramFollowed(currentProgram?.programID)
+                    ? "Đang theo dõi"
+                    : "Theo dõi"}
+                </button>
                 {followError && (
                   <div
                     className="error-message"
@@ -959,7 +970,7 @@ const WatchLive = () => {
                     {followError}
                   </div>
                 )}
-              </button>
+              </div>
             </div>
 
             <div className="stream-description">

@@ -584,6 +584,10 @@
   background: #218838;
 }
 
+.subscribe-button.cantSubscribed {
+  background:rgb(167, 172, 168)
+}
+
 /* Comments section - YouTube style */
 .comments-section {
   background: var(--card-bg);
