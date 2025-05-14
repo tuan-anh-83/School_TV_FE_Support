@@ -238,14 +238,16 @@ const WatchLive = () => {
 
   // Add this function to handle like/unlike actions
   const handleLike = async () => {
-    if (!videoHistoryId) return;
+    if (!videoHistoryId || !getAccountId()) return;
 
     setIsLoadingLike(true);
     setLikeError(null);
 
     try {
       const existingLike = likes.find(
-        (like) => like.videoHistoryID === videoHistoryId
+        (like) =>
+          like.videoHistoryID === videoHistoryId &&
+          like.accountID === getAccountId()
       );
 
       if (existingLike) {
@@ -275,6 +277,7 @@ const WatchLive = () => {
           },
           body: JSON.stringify({
             videoHistoryID: videoHistoryId,
+            accountID: getAccountId(),
           }),
         });
 
@@ -293,7 +296,10 @@ const WatchLive = () => {
     }
   };
 
-  const isLiked = likes.some((like) => like.videoHistoryID === videoHistoryId);
+  const isLiked = likes.some(
+    (like) =>
+      like.videoHistoryID === videoHistoryId && like.accountID == getAccountId()
+  );
 
   useEffect(() => {
     const chatContainer = chatMessagesRef.current;
@@ -334,8 +340,8 @@ const WatchLive = () => {
     // Fetch comments when videoHistoryId changes
     if (videoHistoryId) {
       fetchComments();
-      // Set up interval to fetch comments every 5 seconds
-      const commentInterval = setInterval(fetchComments, 5000);
+      // Set up interval to fetch comments every 2 seconds
+      const commentInterval = setInterval(fetchComments, 2000);
       return () => clearInterval(commentInterval);
     }
   }, [videoHistoryId]);
@@ -393,13 +399,6 @@ const WatchLive = () => {
     }
   };
 
-  useEffect(() => {
-    if (videoHistoryId) {
-      setIsInitialLoad(true); // Reset loading state for new video
-      fetchComments();
-    }
-  }, [videoHistoryId]);
-
   const postComment = async (content) => {
     try {
       const response = await apiFetch(`Comment`, {
@@ -415,13 +414,18 @@ const WatchLive = () => {
         }),
       });
 
-      if (!response.ok) throw new Error("Không thể đăng bình luận!");
+      if (!response.ok) {
+        const errData = await response.json();
+        console.log(errData);
+        throw new Error(
+          errData.message || "Không thể đăng bình luận. Vui lòng thử lại sau."
+        );
+      }
 
       // After posting, fetch latest comments
       await fetchComments();
     } catch (error) {
-      console.error("Error posting comment:", error);
-      toast.error("Không thể đăng bình luận. Vui lòng thử lại sau.");
+      toast.error(error.message);
     }
   };
 
@@ -545,8 +549,8 @@ const WatchLive = () => {
           )
           .map((schedule) => ({
             // Parse as UTC first, then convert to GMT+7 when displaying
-            startTime: dayjs.utc(schedule.startTime),
-            endTime: dayjs.utc(schedule.endTime),
+            startTime: dayjs(schedule.startTime),
+            endTime: dayjs(schedule.endTime),
             programName: schedule.program.programName,
             title: schedule.program.title,
             status: true,
@@ -654,6 +658,9 @@ const WatchLive = () => {
     if (!videoHistoryId) {
       toast.error("Không có chương trình nào để chia sẻ");
       return;
+    } else if (!getAccountId()) {
+      toast.error("Người dùng chưa đăng nhập");
+      return;
     }
 
     setIsSharing(true);
@@ -685,6 +692,7 @@ const WatchLive = () => {
         },
         body: JSON.stringify({
           videoHistoryID: videoHistoryId,
+          accountID: getAccountId(),
         }),
       });
 
