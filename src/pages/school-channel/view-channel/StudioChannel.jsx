@@ -13,7 +13,7 @@ import {
 } from "@ant-design/icons";
 import apiFetch from "../../../config/baseAPI";
 import "./StudioChannel.css";
-import { formatDecimalHours } from "../../../utils/text";
+import { formatDecimalHours, formatMinutesAndSeconds } from "../../../utils/text";
 import { useOutletContext } from "react-router";
 
 const StudioChannel = () => {
@@ -217,7 +217,7 @@ const StudioChannel = () => {
                   channel.account.accountPackages &&
                   channel.account.accountPackages.$values &&
                   channel.account.accountPackages.$values.length > 0
-                    ? formatDecimalHours(
+                    ? formatMinutesAndSeconds (
                         channel.account.accountPackages.$values[0]
                           .remainingMinutes
                       )
@@ -273,7 +273,7 @@ const StudioChannel = () => {
                   channel.account.accountPackages &&
                   channel.account.accountPackages.$values &&
                   channel.account.accountPackages.$values.length > 0
-                    ? formatDecimalHours(
+                    ? formatMinutesAndSeconds(
                         channel.account.accountPackages.$values[0].minutesUsed
                       )
                     : "0 giờ"}

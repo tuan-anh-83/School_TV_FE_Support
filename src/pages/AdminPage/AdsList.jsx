@@ -10,6 +10,7 @@ import {
   Form,
   Segmented,
   DatePicker,
+  InputNumber,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -36,55 +37,97 @@ const formItemLayout = {
 
 function AdsList() {
   const [data, setData] = useState([]);
+  const [filteredAds, setFilteredAds] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-  const [deleteKey, setDeleteKey] = useState(null);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [initialData, setInitialData] = useState([]);
   const [isBtnLoading, setIsBtnLoading] = useState(false);
   const [selectedRange, setSelectedRange] = useState(null);
+  const [selectedAd, setSelectedAd] = useState(null);
+  const [adToDelete, setAdToDelete] = useState(null);
   const navigate = useNavigate();
 
   const [form] = Form.useForm();
-
-  const showDeleteModal = (key) => {
-    setDeleteKey(key);
-    setIsModalVisible(true);
-  };
-
   const handleDelete = async () => {
-    // try {
-    //   const response = await apiFetch(`accounts/admin/delete/${deleteKey}`, {
-    //     method: "DELETE",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //   });
-    //   if (!response.ok) {
-    //     throw new Error(`Failed to delete account: ${response.status}`);
-    //   }
-    //   const updatedData = data.filter((item) => item.key !== deleteKey);
-    //   setData(updatedData);
-    //   notification.success({
-    //     message: "Tài khoản đã được xóa thành công",
-    //     description: `Tài khoản có ID ${deleteKey} đã được xóa.`,
-    //   });
-    // } catch (error) {
-    //   console.error("Error deleting account:", error);
-    //   notification.error({
-    //     message: "Xóa tài khoản thất bại",
-    //     description: "Có lỗi xảy ra khi xóa tài khoản.",
-    //   });
-    // }
-    // setIsModalVisible(false);
+    const token = localStorage.getItem("authToken");
+
+    apiFetch(`/api/AdSchedule/${adToDelete.adScheduleID}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          setIsDeleteModalVisible(false);
+          setAdToDelete(null);
+          return apiFetch("/api/AdSchedule", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+        }
+        throw new Error("Delete failed");
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data?.data?.$values);
+        setFilteredAds(data?.data?.$values);
+      })
+      .catch((error) => console.error("Error deleting ad:", error));
   };
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
+  // ✅ CHỈNH SỬA: Cập nhật giá trị form khi chọn gói
+  useEffect(() => {
+    if (selectedAd) {
+      form.setFieldsValue({
+        title: selectedAd.title,
+        durationSeconds: selectedAd.durationSeconds,
+        videoUrl: selectedAd.videoUrl,
+      });
+    }
+  }, [selectedAd, form]);
+
+  const handleUpdate = (values) => {
+    const token = localStorage.getItem("authToken");
+
+    apiFetch(`/api/AdSchedule/${selectedAd.adScheduleID}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: values.title,
+        durationSeconds: values.durationSeconds,
+        videoUrl: values.videoUrl,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Update failed");
+        return apiFetch("/api/AdSchedule", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data?.data?.$values);
+        setFilteredAds(data?.data?.$values);
+        setIsModalVisible(false);
+        form.resetFields(); // ✅ CHỈNH SỬA: reset form khi đóng modal
+      })
+      .catch((error) => console.error("Error updating ad:", error));
   };
 
-  const handleCreateAd = async (values) => {
-    
-  };
+  const handleCreateAd = async (values) => {};
 
   const fetchData = async () => {
     try {
@@ -114,6 +157,16 @@ function AdsList() {
         navigate("/login");
       }
     }
+  };
+
+  const handleEditClick = (adData) => {
+    setSelectedAd(adData);
+    setIsModalVisible(true);
+  };
+
+  const handleDeleteClick = (adData) => {
+    setAdToDelete(adData);
+    setIsDeleteModalVisible(true);
   };
 
   useEffect(() => {
@@ -239,18 +292,10 @@ function AdsList() {
       ),
     },
     {
-      title: "Start Time",
-      dataIndex: "startTime",
-      key: "startTime",
-      render: (value) =>
-        value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
-    },
-    {
-      title: "End Time",
-      dataIndex: "endTime",
-      key: "endTime",
-      render: (value) =>
-        value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+      title: "Duration",
+      dataIndex: "durationSeconds",
+      key: "durationSeconds",
+      render: (value) => value + " giây",
     },
     {
       title: "Video Url",
@@ -262,14 +307,14 @@ function AdsList() {
       key: "action",
       render: (_, record) => (
         <>
-          <Button type="primary" onClick={() => handleDelete()}>
+          <Button type="primary" onClick={() => handleEditClick(record)}>
             Edit
           </Button>
           <Button
             type="primary"
             danger
             style={{ marginLeft: 10, width: "60px" }}
-            onClick={() => showDeleteModal(record.key)}
+            onClick={() => handleDeleteClick(record)}
           >
             Delete
           </Button>
@@ -319,11 +364,55 @@ function AdsList() {
         </Layout>
       </Layout>
 
+      {/* ✅ CHỈNH SỬA: Form Edit sử dụng Form instance */}
+      <Modal
+        title="Edit Ad"
+        open={isModalVisible}
+        onCancel={() => {
+          setIsModalVisible(false);
+          form.resetFields();
+        }}
+        footer={null}
+      >
+        {selectedAd && (
+          <Form form={form} onFinish={handleUpdate} layout="vertical">
+            <Form.Item name="title" label="Title" rules={[{ required: true }]}>
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="durationSeconds"
+              label="Duration"
+              rules={[{ required: true }]}
+            >
+              <InputNumber min={1} style={{ width: "100%" }} />
+            </Form.Item>
+
+            <Form.Item
+              name="videoUrl"
+              label="Video Url"
+              rules={[{ required: true }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Update
+              </Button>
+            </Form.Item>
+          </Form>
+        )}
+      </Modal>
+
       <Modal
         title="Xác nhận xóa quảng cáo"
-        visible={isModalVisible}
+        visible={isDeleteModalVisible}
         onOk={handleDelete}
-        onCancel={handleCancel}
+        onCancel={() => {
+          setAdToDelete(null);
+          setIsDeleteModalVisible(false);
+        }}
         okText="OK"
         cancelText="Cancel"
         okButtonProps={{ danger: true }}

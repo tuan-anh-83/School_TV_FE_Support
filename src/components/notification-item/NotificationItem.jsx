@@ -21,7 +21,7 @@ function NotificationItem(props) {
   } = props;
 
   // Convert to UTC+7
-  const createdTime = dayjs.utc(createdAt).tz("Asia/Ho_Chi_Minh");
+  const createdTime = dayjs(createdAt).tz("Asia/Ho_Chi_Minh");
   const now = dayjs().tz("Asia/Ho_Chi_Minh");
 
   const diffMinutes = now.diff(createdTime, "minute");

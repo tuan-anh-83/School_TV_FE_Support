@@ -23,7 +23,6 @@ const Checkout = () => {
           headers: { "Content-Type": "application/json" },
         });
         const userInfo = await response.json();
-        console.log("User info:", userInfo);
 
         if (userInfo) {
           setFormData({

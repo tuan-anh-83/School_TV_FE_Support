@@ -425,19 +425,6 @@ const WatchLive = () => {
     }
   };
 
-  const callAdsHook = async (accountID, duration, adLiveStreamId) => {
-    try {
-      const response = await apiFetch(`AdLiveStream/ads-hook?accountID=${accountID}&duration=${duration}&adLiveStreamID=${adLiveStreamId}`, {
-        method: "POST",
-      });
-
-      if (!response.ok) throw new Error("Lỗi khi xử lý quảng cáo!");
-
-    } catch (error) {
-      console.error("Error fetching ads hook:", error);
-    }
-  };
-
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -469,10 +456,10 @@ const WatchLive = () => {
           setCurrentAd(ad);
           setIsPlayingAd(true);
 
-          setTimeout(() => {
+          setTimeout(async () => {
             setIsPlayingAd(false);
             setCurrentAd(null);
-          }, adEnd.diff(adStart));
+          }, adEnd.diff(adStart) + 5000);
         }, delayMs);
       } else {
         // ✅ Đã tới giờ hoặc trễ rồi → phát ngay
@@ -482,8 +469,7 @@ const WatchLive = () => {
         setTimeout(async () => {
           setIsPlayingAd(false);
           setCurrentAd(null);
-          await callAdsHook(ad.ownerId, adEnd.diff(adStart, "second"), ad.adLiveStreamId);
-        }, adEnd.diff(now));
+        }, adEnd.diff(now) + 5000);
       }
     });
 

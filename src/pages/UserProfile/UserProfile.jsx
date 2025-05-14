@@ -18,6 +18,7 @@ import {
 import "./UserProfile.css";
 import apiFetch from "../../config/baseAPI";
 import { useOutletContext } from "react-router";
+import { formatMinutesAndSeconds } from "../../utils/text";
 
 const UserProfile = () => {
   // Add these to your existing state declarations
@@ -35,51 +36,52 @@ const UserProfile = () => {
   const params = useOutletContext();
 
   useEffect(() => {
-    if(params && params.user) {
+    if (params && params.user) {
       setUser(params.user);
     }
   }, [params]);
 
-  useEffect(() => {
-    const fetchOrderDetails = async () => {
-      // Check if user is not SchoolOwner, skip the API call
-      if (user?.roleName?.toLowerCase() !== "schoolowner" && user?.roleName?.toLowerCase() !== "advertiser") {
-        setOrders({ $values: [] });
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await apiFetch(`orders/history`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(`Lỗi khi lấy thông tin đơn hàng: ${response.status}`);
-        }
-
-        // Add validation for the response structure
-        if (!data || !data.$values) {
-          throw new Error("Dữ liệu đơn hàng không hợp lệ");
-        }
-
-        setOrders(data);
-      } catch (err) {
-        setErrorOrders(err.message);
-        notification.error({
-          message: "Lỗi",
-          description: err.message,
-        });
-        setOrders({ $values: [] }); // Set empty array if error occurs
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Only fetch orders if user data is available
-    if (user) {
-      fetchOrderDetails();
+  const fetchOrderDetails = async () => {
+    // Check if user is not SchoolOwner, skip the API call
+    if (
+      user?.roleName?.toLowerCase() !== "schoolowner" &&
+      user?.roleName?.toLowerCase() !== "advertiser"
+    ) {
+      setOrders({ $values: [] });
+      setLoading(false);
+      return;
     }
-  }, [user]); // Add user as dependency
+
+    try {
+      const response = await apiFetch(`orders/history`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(`Lỗi khi lấy thông tin đơn hàng: ${response.status}`);
+      }
+
+      // Add validation for the response structure
+      if (!data || !data.$values) {
+        throw new Error("Dữ liệu đơn hàng không hợp lệ");
+      }
+
+      setOrders(data);
+    } catch (err) {
+      setErrorOrders(err.message);
+      notification.error({
+        message: "Lỗi",
+        description: err.message,
+      });
+      setOrders({ $values: [] }); // Set empty array if error occurs
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Only fetch orders if user data is available
+    fetchOrderDetails();
+  }, [user?.roleName]); // Add user as dependency
 
   const handleUpdateInfo = async (values) => {
     try {
@@ -361,7 +363,13 @@ const UserProfile = () => {
               </div>
               <div>
                 <label>Thời gian còn lại</label>
-                <span>{user.accountPackage ? user.accountPackage.remainingMinutes : 0} phút</span>
+                <span>
+                  {user.accountPackage
+                    ? formatMinutesAndSeconds(
+                        user.accountPackage.remainingMinutes
+                      )
+                    : 0 + " phút"}
+                </span>
               </div>
             </div>
           </div>
@@ -383,7 +391,8 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
-      {user?.roleName?.toLowerCase() === "schoolowner" || user?.roleName?.toLowerCase() === "advertiser" && (
+      {(user?.roleName?.toLowerCase() === "schoolowner" ||
+        user?.roleName?.toLowerCase() === "advertiser") && (
         <div className="user-profile-info-card order-history">
           <div className="order-background"></div>
           <h2>Lịch Sử Đơn Hàng</h2>

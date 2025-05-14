@@ -67,6 +67,7 @@ function PageLayout() {
                 roleName:
                   data.roleName ||
                   (storedUserData ? JSON.parse(storedUserData).roleName : null),
+                accountPackage: data.accountPackage
               };
 
           setUser(userData);

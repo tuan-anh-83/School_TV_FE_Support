@@ -26,3 +26,9 @@ export function formatDecimalHours(decimalHours) {
     const minutes = Math.round((decimalHours - hours) * 60);
     return `${hours} giờ ${minutes} phút`;
 }
+
+export function formatMinutesAndSeconds(decimalMinutes) {
+  const minutes = Math.floor(decimalMinutes);
+  const seconds = Math.round((decimalMinutes - minutes) * 60);
+  return `${minutes} phút ${seconds} giây`;
+}
