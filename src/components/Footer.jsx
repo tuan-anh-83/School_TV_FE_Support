@@ -25,6 +25,7 @@ const Footer = () => {
               <i className="fab fa-youtube" />
             </a>
           </div>
+          <p style={{color: "rgb(189 211 225)"}}>Version code: v1.10</p>
         </div>
         <div className="footer-section">
           <h3>Liên Kết</h3>

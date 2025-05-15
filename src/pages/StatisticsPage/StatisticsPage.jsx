@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart,
@@ -43,6 +43,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import "./StatisticsPage.css";
+import { toast } from "react-toastify";
+import { LoadingOutlined } from "@ant-design/icons";
+import apiFetch from "../../config/baseAPI";
 
 const StatisticsPage = () => {
   const navigate = useNavigate();
@@ -50,13 +53,36 @@ const StatisticsPage = () => {
   const [selectedMetric, setSelectedMetric] = useState("views");
   const [isLoading, setIsLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [dateRange, setDateRange] = useState("7");
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [audienceTimeFilter, setAudienceTimeFilter] = useState("hour");
   const [contentDistFilter, setContentDistFilter] = useState("type");
+  const [summaryStats, setSummaryStats] = React.useState([
+    {
+      icon: Eye,
+      label: "Tổng lượt xem",
+      value: "45.2K",
+      trend: "+12.5%",
+      isPositive: true,
+    },
+    {
+      icon: Clock,
+      label: "Thời gian xem",
+      value: "1.2K giờ",
+      trend: "+8.3%",
+      isPositive: true,
+    },
+    {
+      icon: Users,
+      label: "Người theo dõi mới",
+      value: "2.5K",
+      trend: "-2.1%",
+      isPositive: false,
+    },
+  ]);
+  const { channel } = useOutletContext();
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setIsLoading(false), 1500);
     // Apply dark mode class
     document.body.classList.toggle("dark-mode", isDarkMode);
   }, [isDarkMode]);
@@ -146,8 +172,6 @@ const StatisticsPage = () => {
 
   const COLORS = ["#4a90e2", "#ff4757", "#28a745"];
 
-  const [dateRange, setDateRange] = useState({ start: null, end: null });
-
   const generateMockData = (days) => {
     const data = [];
     const today = new Date();
@@ -175,21 +199,69 @@ const StatisticsPage = () => {
     setTimeRange(range);
     switch (range) {
       case "7days":
+        setDateRange("7");
         setViewData(generateMockData(7));
         break;
       case "30days":
+        setDateRange("30");
         setViewData(generateMockData(30));
         break;
       case "90days":
+        setDateRange("90");
         setViewData(generateMockData(90));
         break;
       case "custom":
+        setDateRange("custom");
         // Add custom date picker logic here
         break;
       default:
         break;
     }
   };
+
+  const analytics = async (channelId, dateRange) => {
+    if (!channelId) {
+      toast.error("ID kênh không hợp lệ!");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const response = await apiFetch(
+        `Analytics/analys-by-channel?channelId=${channelId}&dateRange=${dateRange}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Kênh không tồn tại!");
+      }
+      const data = await response.json();
+      if (!data) {
+        throw new Error("Không có dữ liệu kênh!");
+      }
+      const formattedStats = formatSummaryStats(data);
+      setSummaryStats(formattedStats);
+    } catch (error) {
+      console.error("Error checking channel:", error);
+      toast.error(error.message || "Có lỗi xảy ra khi kiểm tra kênh!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (channel && channel.$values) {
+      analytics(channel.$values[0].schoolChannelID, dateRange);
+    }
+    else {
+      setIsLoading(false);
+    }
+  }, [channel, dateRange]);
 
   const popularContent = [
     // Livestreams
@@ -315,27 +387,36 @@ const StatisticsPage = () => {
     { key: "likes", label: "Lượt thích", color: "#28a745" },
   ];
 
-  const summaryStats = [
+  const formatSummaryStats = (data) => [
     {
       icon: Eye,
       label: "Tổng lượt xem",
-      value: "45.2K",
-      trend: "+12.5%",
-      isPositive: true,
+      value: data.totalViews.toLocaleString(), // hoặc format theo ý bạn
+      trend:
+        (data.viewsComparisonPercent > 0 ? "+" : "") +
+        data.viewsComparisonPercent +
+        "%",
+      isPositive: data.viewsComparisonPercent >= 0,
     },
     {
       icon: Clock,
       label: "Thời gian xem",
-      value: "1.2K giờ",
-      trend: "+8.3%",
-      isPositive: true,
+      value: data.watchTimeHours + " giờ",
+      trend:
+        (data.watchTimeComparisonPercent > 0 ? "+" : "") +
+        data.watchTimeComparisonPercent +
+        "%",
+      isPositive: data.watchTimeComparisonPercent >= 0,
     },
     {
       icon: Users,
       label: "Người theo dõi mới",
-      value: "2.5K",
-      trend: "-2.1%",
-      isPositive: false,
+      value: data.newFollowers.toLocaleString(),
+      trend:
+        (data.followersComparisonPercent > 0 ? "+" : "") +
+        data.followersComparisonPercent +
+        "%",
+      isPositive: data.followersComparisonPercent >= 0,
     },
   ];
 
@@ -351,7 +432,11 @@ const StatisticsPage = () => {
         <span className="stats-label">{label}</span>
       </div>
       <div className="stats-card-content">
-        <span className="stats-value">{value}</span>
+        {isLoading ? (
+          <LoadingOutlined />
+        ) : (
+          <span className="stats-value">{value}</span>
+        )}
         <span className={`stats-trend ${isPositive ? "positive" : "negative"}`}>
           {trend}
         </span>

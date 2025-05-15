@@ -579,10 +579,6 @@ const WatchLive = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("videoHistoryId updated:", videoHistoryId);
-  }, [videoHistoryId]);
-
   const handleExistChannel = async () => {
     if (!channelId) {
       toast.error("ID kênh không hợp lệ!");
@@ -767,6 +763,38 @@ const WatchLive = () => {
     }
   };
 
+  const addViewCount = async () => {
+    if (!videoHistoryId || !getAccountId()) return;
+
+    try {
+      const response = await apiFetch("VideoView", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          videoHistoryID: videoHistoryId,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to count view");
+    } catch (error) {
+      console.error("Error in adding view count:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (videoHistoryId) {
+      const timeoutId = setTimeout(() => {
+        addViewCount();
+      }, 10000);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [videoHistoryId]);
+
   return (
     <div className="main-container" style={{ background: "var(--bg-color)" }}>
       <div className="content-section">
@@ -915,9 +943,7 @@ const WatchLive = () => {
                     if (!localStorage.getItem("authToken")) {
                       toast.error("Vui lòng đăng nhập để báo cáo");
                       return;
-                    }
-                    else if(!currentProgram)
-                    {
+                    } else if (!currentProgram) {
                       toast.warning("Không có chương trình để báo cáo.");
                       return;
                     }
