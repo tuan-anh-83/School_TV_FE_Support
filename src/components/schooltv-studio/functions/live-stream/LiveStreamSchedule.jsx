@@ -1,6 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./LiveStreamSchedule.scss";
-import { Form, Select, DatePicker, message, Button } from "antd";
+import { Form, Select, DatePicker, Button, Upload, message } from "antd";
+import { FiPlus } from "react-icons/fi";
+import { InboxOutlined } from "@ant-design/icons";
 import apiFetch from "../../../../config/baseAPI";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -8,13 +10,13 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import isBetween from "dayjs/plugin/isBetween";
-import { FiPlus } from "react-icons/fi";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isBetween);
 
 const { RangePicker } = DatePicker;
+const { Dragger } = Upload;
 
 function LiveStreamSchedule() {
   const [form] = Form.useForm();
@@ -22,8 +24,9 @@ function LiveStreamSchedule() {
   const { channel } = useOutletContext();
   const [program, setProgram] = React.useState([]);
   const [programID, setProgramID] = React.useState(null);
-  // const [existingSchedule, setExistingSchedule] = React.useState([]);
   const [selectedRange, setSelectedRange] = React.useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleChangeProgram = (value) => {
     setProgramID(value);
@@ -58,40 +61,9 @@ function LiveStreamSchedule() {
     }
   };
 
-  // const fetchExistingSchedule = async () => {
-  //   try {
-  //     const response = await apiFetch(`Schedule/by-program/${programID}`, {
-  //       method: "GET",
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Không kiểm tra được thời gian nào phù hợp!");
-  //     }
-
-  //     const data = await response.json();
-
-  //     if (data) {
-  //       const mapScheduleTime = data.data.$values.map((schedule) => {
-  //         return {
-  //           startTime: dayjs.utc(schedule.startTime).format(),
-  //           endTime: dayjs.utc(schedule.endTime).format(),
-  //         };
-  //       });
-  //     }
-  //   } catch (error) {
-  //     toast.error("Lỗi khi kiểm tra thời gian đã có!");
-  //   }
-  // };
-
   useEffect(() => {
     fetchProgramByChannel();
   }, []);
-
-  // useEffect(() => {
-  //   if (programID) {
-  //     fetchExistingSchedule();
-  //   }
-  // }, [programID]);
 
   //Handle time and validate time
   const handleChangeTime = (dates) => {
@@ -119,34 +91,6 @@ function LiveStreamSchedule() {
 
     const now = dayjs();
     const currentDateTime = dayjs(current);
-
-    // Nếu là ngày hôm nay
-    //đợi 10p
-    // if (currentDateTime.isSame(now, "day")) {
-    //   const currentHour = now.hour();
-    //   const currentMinute = now.minute();
-
-    //   return {
-    //     disabledHours: () => {
-    //       const hours = [];
-    //       for (let i = 0; i < currentHour; i++) {
-    //         hours.push(i);
-    //       }
-    //       return hours;
-    //     },
-    //     disabledMinutes: (selectedHour) => {
-    //       if (selectedHour === currentHour) {
-    //         const minutes = [];
-    //         for (let i = 0; i <= currentMinute + 10; i++) {
-    //           minutes.push(i);
-    //         }
-    //         return minutes;
-    //       }
-    //       return [];
-    //     },
-    //     disabledSeconds: () => [],
-    //   };
-    // }
 
     //không cần đợi
     if (currentDateTime.isSame(now, "day")) {
@@ -182,7 +126,48 @@ function LiveStreamSchedule() {
     };
   };
 
-  console.log("selectedRange", selectedRange);
+  // Handle image upload
+  const handleImageUpload = (info) => {
+    const { status, originFileObj } = info.file;
+    
+    if (status !== 'uploading') {
+      console.log(info.file, info.fileList);
+    }
+    
+    if (status === 'done') {
+      message.success(`${info.file.name} tải lên thành công.`);
+      setImageFile(originFileObj);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(originFileObj);
+    } else if (status === 'error') {
+      message.error(`${info.file.name} tải lên thất bại.`);
+    }
+  };
+
+  // Custom request to prevent actual upload until form submission
+  const customRequest = ({ file, onSuccess }) => {
+    setTimeout(() => {
+      onSuccess("ok");
+    }, 0);
+  };
+
+  const uploadProps = {
+    name: 'thumbnail',
+    multiple: false,
+    maxCount: 1,
+    accept: 'image/png, image/jpeg, image/jpg',
+    onChange: handleImageUpload,
+    customRequest,
+    onRemove: () => {
+      setImageFile(null);
+      setImagePreview(null);
+    },
+  };
 
   const handleCreateSchedule = async () => {
     const errors = [];
@@ -194,10 +179,17 @@ function LiveStreamSchedule() {
       });
     }
 
-    if (selectedRange.length === 0) {
+    if (!selectedRange || selectedRange.length === 0) {
       errors.push({
-        name: "range",
+        name: "timeRange",
         errors: ["Vui lòng chọn khoảng thời gian."],
+      });
+    }
+
+    if (!imageFile) {
+      errors.push({
+        name: "thumbnail",
+        errors: ["Vui lòng tải lên hình ảnh thumbnail."],
       });
     }
 
@@ -206,21 +198,22 @@ function LiveStreamSchedule() {
       return;
     }
 
-    const requestBody = {
-      programID: programID,
-      startTime: selectedRange[0],
-      endTime: selectedRange[1],
-      isReplay: false,
-    };
+    const formData = new FormData();
+    formData.append("programID", programID);
+    formData.append("startTime", selectedRange[0]);
+    formData.append("endTime", selectedRange[1]);
+    formData.append("isReplay", false);
+    
+    // Append image file
+    if (imageFile) {
+      formData.append("thumbnailFile", imageFile);
+    }
 
     try {
       setIsBtnLoading(true);
       const response = await apiFetch("Schedule", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
+        body: formData,
       });
       if (response.status === 409) {
         toast.error("Lịch trình đã tồn tại trong khoảng thời gian này!");
@@ -237,6 +230,8 @@ function LiveStreamSchedule() {
         form.resetFields();
         setSelectedRange([]);
         setProgramID(null);
+        setImageFile(null);
+        setImagePreview(null);
         toast.success("Tạo lịch trình thành công!");
       }
     } catch (error) {
@@ -254,10 +249,10 @@ function LiveStreamSchedule() {
         <Form layout="vertical" form={form} onFinish={handleCreateSchedule}>
           <Form.Item
             label={<h2 className="studio-stream__title">Chương trình</h2>}
-            name={"program"}
+            name="program"
           >
             <Select
-              defaultValue={{ value: "none", label: "Chọn chương trình" }}
+              placeholder="Chọn chương trình"
               onChange={handleChangeProgram}
               options={program}
             />
@@ -280,6 +275,43 @@ function LiveStreamSchedule() {
               disabledTime={disabledTime}
             />
           </Form.Item>
+
+          <Form.Item
+            label={<h2 className="studio-stream__title">Hình ảnh Thumbnail</h2>}
+            name="thumbnail"
+            rules={[
+              {
+                required: true,
+                message: 'Vui lòng tải lên hình ảnh thumbnail!',
+              },
+            ]}
+          >
+            <Dragger {...uploadProps}>
+              {imagePreview ? (
+                <img 
+                  src={imagePreview} 
+                  alt="Thumbnail preview" 
+                  style={{ 
+                    width: '100%', 
+                    maxHeight: '200px', 
+                    objectFit: 'contain',
+                    padding: '10px' 
+                  }} 
+                />
+              ) : (
+                <>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">Nhấp hoặc kéo thả file vào khu vực này để tải lên</p>
+                  <p className="ant-upload-hint">
+                    Hỗ trợ tệp JPG, JPEG, PNG. Kích thước khuyến nghị: 1280x720px.
+                  </p>
+                </>
+              )}
+            </Dragger>
+          </Form.Item>
+
           <Form.Item>
             <Button
               htmlType="submit"

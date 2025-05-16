@@ -12,8 +12,8 @@ const hubUrl = `${baseUrl}/hubs`;
  * @param {string} accountId - ID tài khoản.
  * @param {function} onAdReceived - Hàm callback để xử lý danh sách ads khi server gửi về.
  */
-const startAdsHub = (accountId, onAdReceived) => {
-  if (connection && isStarted) return;
+const startAdsHub = async (accountId, onAdReceived) => {
+  if (connection && isStarted) return connection;
 
   connection = new signalR.HubConnectionBuilder()
     .withUrl(`${hubUrl}/notification?accountId=${accountId}`)
@@ -26,20 +26,17 @@ const startAdsHub = (accountId, onAdReceived) => {
     if (onAdReceived) onAdReceived(adData);
   });
 
-  connection
-    .start()
-    .then(() => {
-      isStarted = true;
-
-      // Gọi hàm bên server để lấy quảng cáo ban đầu
-      // connection.invoke("ReceiveAdsVideos").catch((err) => {
-      //   console.error("❌ Failed to invoke ReceiveAdsVideos:", err);
-      // });
-    })
-    .catch((err) => {
-      console.error("❌ Failed to connect to LiveStreamHub:", err);
-    });
+  try {
+    await connection.start();
+    isStarted = true;
+    console.log("✅ Connection established successfully");
+    return connection;
+  } catch (err) {
+    console.error("❌ Failed to connect to NotificationHub:", err);
+    throw err;
+  }
 };
+
 
 /**
  * Ngắt kết nối SignalR nếu có.
@@ -53,4 +50,46 @@ const stopAdsHub = () => {
   }
 };
 
-export { startAdsHub, stopAdsHub };
+const joinScheduleGroup = async (scheduleId) => {
+  console.log("Attempting to join group with scheduleId:", scheduleId);
+
+  // Validate scheduleId before sending to server
+  if (!scheduleId) {
+    return;
+  }
+
+  // Wait for connection if not connected yet
+  if (connection.state !== signalR.HubConnectionState.Connected) {
+    return;
+  }
+
+  try {
+    await connection.invoke("JoinNotiGroup", scheduleId.toString());
+    console.log(`Successfully joined group ${scheduleId}`);
+  } catch (error) {
+    console.error(`Failed to join group ${scheduleId}:`, error);
+  }
+};
+
+const leaveScheduleGroup = async (scheduleId) => {
+  console.log("Attempting to leave group with scheduleId:", scheduleId);
+
+  // Validate scheduleId before sending to server
+  if (!scheduleId) {
+    return;
+  }
+
+  // Wait for connection if not connected yet
+  if (connection.state !== signalR.HubConnectionState.Connected) {
+    return;
+  }
+
+  try {
+    await connection.invoke("LeaveNotiGroup", scheduleId.toString());
+    console.log(`Successfully leaved group ${scheduleId}`);
+  } catch (error) {
+    console.error(`Failed to leave group ${scheduleId}:`, error);
+  }
+};
+
+export { startAdsHub, stopAdsHub, joinScheduleGroup, leaveScheduleGroup, connection };

@@ -133,6 +133,7 @@ const ChannelList = () => {
         const channels = schoolData.$values.map((channel) => ({
           id: channel.schoolChannelID,
           name: channel.name,
+          logoUrl: channel.logoUrl,
           isLive: liveChannelIds.includes(channel.schoolChannelID),
           isSubscribed: followedData.$values.some(
             (f) => f.schoolChannelID === channel.schoolChannelID
@@ -142,6 +143,7 @@ const ChannelList = () => {
         const followed = followedData.$values.map((channel) => ({
           id: channel.schoolChannelID,
           name: channel.name,
+          logoUrl: channel.logoUrl,
           isLive: liveChannelIds.includes(channel.schoolChannelID),
           isSubscribed: true,
         }));
@@ -205,6 +207,7 @@ const ChannelList = () => {
         const results = data.$values.map((channel) => ({
           id: channel.schoolChannelID,
           name: channel.name,
+          logoUrl: channel.logoUrl,
           isLive: Math.random() < 0.5,
           isSubscribed: followedChannels.some(
             (f) => f.id === channel.schoolChannelID
@@ -406,7 +409,7 @@ const ChannelList = () => {
           )}
           <div className={styles.chnl_logo}>
             <img
-              src={`https://picsum.photos/80/80?random=${channel.id}`}
+              src={channel.logoUrl || `https://picsum.photos/80/80?random=${channel.id}`}
               alt={channel.name}
             />
           </div>

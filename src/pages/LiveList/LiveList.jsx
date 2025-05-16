@@ -902,8 +902,15 @@ const LiveList = () => {
         viewers: Math.floor(Math.random() * 10000),
         duration: "1:00:00",
         timestamp: new Date(video.streamAt).getTime(),
-        thumbnail: `https://picsum.photos/800/450?random=${Math.random()}`,
-        universityAvatar: `https://picsum.photos/24/24?random=${Math.random()}`,
+        thumbnail:
+          video.schedules &&
+          video.schedules.$values.length > 0 &&
+          video.schedules.$values[0].thumbnail !== ""
+            ? video.schedules.$values[0].thumbnail
+            : `https://picsum.photos/800/450?random=${Math.random()}`,
+        universityAvatar:
+          video.program?.schoolChannel?.logoUrl ||
+          `https://picsum.photos/24/24?random=${Math.random()}`,
       }));
 
       setVideos(videos);
@@ -1115,7 +1122,7 @@ const LiveList = () => {
                       <div className={styles.streamUniversity}>
                         <img
                           src={
-                            program.schoolChannel?.universityAvatar ||
+                            program.schoolChannel?.logoUrl ||
                             `https://picsum.photos/24/24?${program.id}`
                           }
                           className={styles.universityAvatar}

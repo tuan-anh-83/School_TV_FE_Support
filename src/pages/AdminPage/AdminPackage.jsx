@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./AdminPackage.scss";
 import apiFetch from "../../config/baseAPI";
+import { toast } from "react-toastify";
 
 const { Search } = Input;
 const { Title } = Typography;
@@ -61,7 +62,7 @@ function AdminPackage() {
         price: selectedPackage.price,
         duration: selectedPackage.duration,
         timeduration: selectedPackage.timeDuration,
-        status: selectedPackage.status ? "Active" : "Inactive",
+        status: selectedPackage.status,
         forType: selectedPackage.forType,
       });
     }
@@ -142,7 +143,7 @@ function AdminPackage() {
         price: values.price,
         duration: values.duration,
         timeduration: values.timeduration,
-        status: values.status === "Active",
+        status: values.status,
         forType: values.forType,
       }),
     })
@@ -161,6 +162,7 @@ function AdminPackage() {
         setPackages(data.$values);
         setFilteredPackages(data.$values);
         setIsModalVisible(false);
+        toast.success(`Cập nhật thành công cho gói: ${values.name}`);
         form.resetFields(); // ✅ CHỈNH SỬA: reset form khi đóng modal
       })
       .catch((error) => console.error("Error updating package:", error));
@@ -231,8 +233,8 @@ function AdminPackage() {
       dataIndex: "status",
       key: "status",
       render: (status) => (
-        <Tag color={status ? "green" : "red"}>
-          {status ? "Active" : "Inactive"}
+        <Tag color={status === "Active" ? "green" : "gray"}>
+          {status === "Active" ? "Active" : "Inactive"}
         </Tag>
       ),
     },

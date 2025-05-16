@@ -31,3 +31,11 @@ export function getThumbnailUrl(videoId, timeInSeconds = 1) {
   if (!videoId) return null;
   return `https://videodelivery.net/${videoId}/thumbnails/thumbnail.jpg?time=${timeInSeconds}`;
 }
+
+export const getBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });

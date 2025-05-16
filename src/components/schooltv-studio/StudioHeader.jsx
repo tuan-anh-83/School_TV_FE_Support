@@ -18,10 +18,8 @@ const StudioHeader = ({ channel }) => {
     { id: 3, text: "Upcoming schedule reminder", time: "3 giờ trước" },
   ];
 
-  const avatarSrc = channel?.$values?.[0]?.name
-    ? `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        channel.$values[0].name
-      )}&background=random`
+  const avatarSrc = channel?.$values?.[0]?.logoUrl
+    ? channel?.$values?.[0]?.logoUrl
     : `https://ui-avatars.com/api/?name=SchoolTV&background=random`;
 
   const handleOutsideClick = (e, dropdownSetter) => {

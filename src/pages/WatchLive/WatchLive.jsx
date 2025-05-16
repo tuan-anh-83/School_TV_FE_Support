@@ -5,32 +5,34 @@ import React, {
   useContext,
   useCallback,
 } from "react";
-import YouTube from "react-youtube";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./WatchLive.css";
-import { ThemeContext } from "../../context/ThemeContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../config/baseAPI";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import VideoComment from "../watch-program/VideoComment";
 import { Timeline } from "antd";
-import { startAdsHub, stopAdsHub } from "../../utils/AdsHub";
+import {
+  connection,
+  joinScheduleGroup,
+  leaveScheduleGroup,
+  startAdsHub,
+  stopAdsHub,
+} from "../../utils/AdsHub";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const WatchLive = () => {
-  const { theme } = useContext(ThemeContext);
   const { channelId } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [setShowEmojiPicker] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [currentDate, setCurrentDate] = useState(
     dayjs().tz("Asia/Ho_Chi_Minh")
@@ -41,17 +43,11 @@ const WatchLive = () => {
   );
   const [displaySchedule, setDisplaySchedule] = useState([]);
   const [displayIframeUrl, setDisplayIframeUrl] = useState("");
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [volume, setVolume] = useState(100);
-  const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [videoHistoryId, setVideoHistoryId] = useState(null);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [commentError, setCommentError] = useState(null);
-  const playerRef = useRef(null);
   const chatMessagesRef = useRef(null);
   const isToday = currentDate.isSame(dayjs(), "day");
-  const displayDate = currentDate.format("DD/MM/YYYY");
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
   const [likes, setLikes] = useState([]);
@@ -68,9 +64,9 @@ const WatchLive = () => {
   const [reportReason, setReportReason] = useState("");
   const [isReporting, setIsReporting] = useState(false);
   const [reportError, setReportError] = useState(null);
-  const [ads, setAds] = useState([]);
   const [currentAd, setCurrentAd] = useState(null);
   const [isPlayingAd, setIsPlayingAd] = useState(false);
+  const [currentScheduleId, setCurrentScheduleId] = useState(null);
 
   const getAccountId = () => {
     const userData = localStorage.getItem("userData");
@@ -549,6 +545,7 @@ const WatchLive = () => {
           )
           .map((schedule) => ({
             // Parse as UTC first, then convert to GMT+7 when displaying
+            scheduleID: schedule.scheduleID,
             startTime: dayjs(schedule.startTime),
             endTime: dayjs(schedule.endTime),
             programName: schedule.program.programName,
@@ -566,10 +563,12 @@ const WatchLive = () => {
         if (schedules.length > 0) {
           setDisplayIframeUrl(schedules[0].iframeUrl);
           setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
+          setCurrentScheduleId(schedules[0].scheduleID);
           setCurrentProgram(schedules[0].program);
         } else {
           setDisplayIframeUrl("");
           setVideoHistoryId(null);
+          setCurrentScheduleId(null);
           setCurrentProgram(null);
         }
       }
@@ -578,6 +577,17 @@ const WatchLive = () => {
       toast.error("Có lỗi xảy ra khi lấy lịch phát sóng!");
     }
   };
+
+  useEffect(() => {
+    if (currentScheduleId) {
+      joinScheduleGroup(currentScheduleId);
+    }
+    return () => {
+      if (currentScheduleId) {
+        leaveScheduleGroup(currentScheduleId);
+      }
+    };
+  }, [currentScheduleId, connection?.state]);
 
   const handleExistChannel = async () => {
     if (!channelId) {
@@ -829,7 +839,7 @@ const WatchLive = () => {
                 </button>
                 {isPlayingAd && currentAd ? (
                   <iframe
-                    src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=1&rel=0&playsinline=1`}
+                    src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1`}
                     allow="autoplay; encrypted-media"
                     allowFullScreen
                     style={{
@@ -958,7 +968,7 @@ const WatchLive = () => {
             <div className="watchlive-channel-info">
               <div className="channel-avatar">
                 <img
-                  src="https://picsum.photos/200/200"
+                  src={channelInfo?.logoUrl || "https://picsum.photos/200/200"}
                   alt={channelInfo?.name || "Channel Avatar"}
                 />
               </div>

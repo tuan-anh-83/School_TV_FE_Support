@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import "./CreateSchoolChannel.scss";
 import { useSelector } from "react-redux";
-import { Avatar, Button, Form, Input } from "antd";
+import { Avatar, Button, Form, Input, Upload, message } from "antd";
+import { UploadOutlined, PlusOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import apiFetch from "../../../config/baseAPI";
 import { useNavigate } from "react-router-dom";
@@ -9,20 +10,104 @@ import { useNavigate } from "react-router-dom";
 function CreateSchoolChannel() {
   const user = useSelector((state) => state.userData.user);
   const [form] = Form.useForm();
-  const [isSendingData, setIsSendingData] = React.useState(false);
+  const [isSendingData, setIsSendingData] = useState(false);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmitChannel = async (value) => {
+  const getBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleLogoChange = async ({ fileList }) => {
+    if (fileList.length > 0) {
+      const file = fileList[0].originFileObj;
+      
+      // Validate file type and size
+      const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      
+      if (!isJpgOrPng) {
+        message.error("Bạn chỉ có thể tải lên file JPG/PNG!");
+        return;
+      }
+      
+      if (!isLt2M) {
+        message.error("Ảnh phải nhỏ hơn 2MB!");
+        return;
+      }
+      
+      // Set the file for form submission
+      setLogoFile(file);
+      
+      // Generate preview
+      try {
+        const previewUrl = await getBase64(file);
+        setLogoPreview(previewUrl);
+      } catch (error) {
+        console.error("Error generating preview:", error);
+      }
+    } else {
+      setLogoFile(null);
+      setLogoPreview(null);
+    }
+  };
+
+  const handleCoverChange = ({ fileList }) => {
+    if (fileList.length > 0) {
+      const file = fileList[0].originFileObj;
+      
+      // Validate file type and size
+      const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      
+      if (!isJpgOrPng) {
+        message.error("Bạn chỉ có thể tải lên file JPG/PNG!");
+        return;
+      }
+      
+      if (!isLt5M) {
+        message.error("Ảnh phải nhỏ hơn 5MB!");
+        return;
+      }
+      
+      // Set the file for form submission
+      setCoverFile(file);
+    } else {
+      setCoverFile(null);
+    }
+  };
+
+  const handleSubmitChannel = async (values) => {
     try {
       setIsSendingData(true);
-      value.website = value.website || "";
+      
+      // Create FormData
+      const formData = new FormData();
+      
+      // Add text fields to FormData
+      formData.append("name", values.name);
+      formData.append("description", values.description);
+      formData.append("website", values.website || "");
+      formData.append("email", values.email);
+      formData.append("address", values.address || "");
+      
+      // Add image files to FormData
+      if (logoFile) {
+        formData.append("logoFile", logoFile);
+      }
 
       const response = await apiFetch("schoolchannels", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(value),
+        // Don't set Content-Type header when using FormData
+        // The browser will set it automatically with the correct boundary
+        body: formData,
       });
 
       if (!response.ok) {
@@ -32,14 +117,25 @@ function CreateSchoolChannel() {
 
       const result = await response.json();
       form.resetFields();
+      setLogoFile(null);
+      setLogoPreview(null);
+      setCoverFile(null);
       toast.success("Tạo kênh thành công, hãy trải nghiệm thôi nào!");
       navigate("/school-studio/statistics");
     } catch (error) {
+      console.error("Error submitting form:", error);
       toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
     } finally {
       setIsSendingData(false);
     }
   };
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Tải lên</div>
+    </div>
+  );
 
   return (
     <div className="create-channel-container">
@@ -104,6 +200,37 @@ function CreateSchoolChannel() {
               <div className="create-channel__form-row">
                 <Form.Item
                   className="create-channel__form-item"
+                  name="logo"
+                  label="Logo kênh"
+                  rules={[
+                    { required: true, message: "Vui lòng tải lên logo kênh!" },
+                  ]}
+                >
+                  <Upload
+                    name="logo"
+                    listType="picture-card"
+                    className="avatar-uploader"
+                    showUploadList={false}
+                    onChange={handleLogoChange}
+                    beforeUpload={() => false} // Prevent auto upload
+                    maxCount={1}
+                  >
+                    {logoPreview ? (
+                      <img 
+                        src={logoPreview} 
+                        alt="avatar" 
+                        style={{ width: "100%" }} 
+                      />
+                    ) : (
+                      uploadButton
+                    )}
+                  </Upload>
+                </Form.Item>
+              </div>
+
+              <div className="create-channel__form-row">
+                <Form.Item
+                  className="create-channel__form-item"
                   name="description"
                   label="Mô tả"
                   rules={[
@@ -152,7 +279,7 @@ function CreateSchoolChannel() {
                 >
                   <Input placeholder="Địa chỉ chi tiết" />
                 </Form.Item>
-              </div>
+              </div>      
 
               <div className="create-channel__form-actions">
                 <Form.Item>

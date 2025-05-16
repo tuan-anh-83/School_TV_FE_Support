@@ -117,8 +117,6 @@ export default function WatchHome() {
         if (response.ok) {
           const data = await response.json();
 
-          console.log(data.data);
-
           setUpcomingSchedules(data.data.Upcoming.$values || []);
           setVideoHistory(data.data.Replay.$values || []);
           setLiveSchedules(data.data.LiveNow.$values || []);
@@ -270,7 +268,7 @@ export default function WatchHome() {
                   <div className="stream-card">
                     <div className="stream-thumbnail">
                       <img
-                        src={`https://picsum.photos/seed/${schedule.scheduleID}/300/180`}
+                        src={schedule.thumbnail || `https://picsum.photos/seed/${schedule.scheduleID}/300/180`}
                         alt="Stream thumbnail"
                       />
                       <div className="live-badge-home">LIVE</div>
@@ -325,7 +323,7 @@ export default function WatchHome() {
         ) : upcomingSchedules.length > 0 ? (
           <div className="horizontal-scroll-container">
             <div className="events-grid horizontal-scroll">
-              {upcomingSchedules.map((schedule) => {
+              {upcomingSchedules.map((schedule, index) => {
                 const startTime = convertToGMT7(schedule.startTime);
                 const endTime = convertToGMT7(schedule.endTime);
 
@@ -340,7 +338,7 @@ export default function WatchHome() {
                   <div
                     className="event-card"
                     data-aos="fade-up"
-                    key={schedule.scheduleID}
+                    key={index}
                   >
                     <div className="event-date">
                       <i className="far fa-calendar" />
@@ -397,24 +395,24 @@ export default function WatchHome() {
         ) : videoHistory.length > 0 ? (
           <div className="horizontal-scroll-container">
             <div className="videos-grid horizontal-scroll">
-              {videoHistory.map((video) => {
+              {videoHistory.sort((a, b) => new Date(b.startTime) - new Date(a.startTime)).map((video, index) => {
                 const updatedAt = convertToGMT7(video.updatedAt);
 
                 const programName =
                   video.program?.programName || "Chương trình không xác định";
                 const channelName =
                   video.program?.schoolChannel?.name || "Trường không xác định";
-                const channelLogo = `https://picsum.photos/seed/${video.videoHistoryID}/100/100`;
+                const channelLogo = video.program?.schoolChannel?.logoUrl || `https://picsum.photos/seed/${video.videoHistoryID}/100/100`;
 
                 return (
                   <div
                     className="video-card"
-                    key={video.videoHistoryID}
+                    key={index}
                     data-aos="fade-up"
                   >
                     <div className="video-thumbnail">
                       <img
-                        src={`https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
+                        src={video.thumbnail || `https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
                         alt="Video thumbnail"
                       />
                     </div>
@@ -470,8 +468,8 @@ export default function WatchHome() {
         ) : posts.length > 0 ? (
           <div className="horizontal-scroll-container">
             <div className="posts-grid horizontal-scroll">
-              {posts.slice(0, 3).map((post) => (
-                <div className="post-card" key={post.newsID} data-aos="fade-up">
+              {posts.slice(0, 3).map((post, index) => (
+                <div className="post-card" key={index} data-aos="fade-up">
                   <div className="post-header">
                     <img
                       src={
