@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "./StudioVideo.scss";
-import { Button, Flex, Form, Input, Select, Space, TimePicker } from "antd";
+import { Button, Flex, Form, Input, Select, Space, DatePicker, TimePicker } from "antd";
 import { MdOutlineOndemandVideo } from "react-icons/md";
 import { message, Upload } from "antd";
-import { DatePicker } from "antd";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../../../config/baseAPI";
 import ScheduleManualVideo from "./ScheduleManualVideo";
+import dayjs from "dayjs";
 
 const { Dragger } = Upload;
 const { TextArea } = Input;
@@ -20,6 +20,7 @@ function StudioVideo() {
   const [videFileObject, setVideoFileObject] = useState(null);
   const [isBtnLoading, setIsBtnLoading] = useState(false);
   const [isDisplayVideoSetting, setIsDisplayVideoSetting] = useState(true);
+  const [streamDateTime, setStreamDateTime] = useState(null);
 
   const fetchProgramByChannel = async () => {
     try {
@@ -82,12 +83,36 @@ function StudioVideo() {
     setVideoFileObject(info.fileList[0].originFileObj);
   };
 
+  // Helper function to format date for API
+  const formatDateTime = (date, time) => {
+    if (!date || !time) return null;
+    
+    // Combine date and time
+    const year = date.year();
+    const month = (date.month() + 1).toString().padStart(2, '0'); // month is 0-indexed in dayjs
+    const day = date.date().toString().padStart(2, '0');
+    const hour = time.hour().toString().padStart(2, '0');
+    const minute = time.minute().toString().padStart(2, '0');
+    
+    // Format as string in yyyy-MM-dd HH:mm:ss format
+    return `${year}-${month}-${day} ${hour}:${minute}:00`;
+  };
+
   const handleCreateVideo = async (values) => {
+    // Get the date and time values from form
+    const date = values.streamDate;
+    const time = values.streamTime;
+    
+    // Format the stream date and time or use default
+    const streamAt = date && time 
+      ? formatDateTime(date, time) 
+      : "2100-09-09"; // Default fallback
+    
     const formData = new FormData();
     formData.append("VideoFile", videFileObject);
     formData.append("ProgramID", values.ProgramID);
     formData.append("Description", values.Description);
-    formData.append("StreamAt", "2100-09-09");
+    formData.append("StreamAt", streamAt);
     formData.append("Type", "Recorded");
 
     try {
@@ -112,6 +137,7 @@ function StudioVideo() {
       setIsBtnLoading(false);
     }
   };
+  
   return (
     <div className="studio-video-container">
       {isDisplayVideoSetting ? (
@@ -184,6 +210,38 @@ function StudioVideo() {
                   rows={4}
                 />
               </Form.Item>
+              
+              {/* New Date and Time picker fields */}
+              <Form.Item
+                label={<h2 className="studio-video-des">Thời gian phát</h2>}
+              >
+                <Space>
+                  <Form.Item
+                    name="streamDate"
+                    noStyle
+                  >
+                    <DatePicker 
+                      placeholder="Chọn ngày"
+                      format="DD/MM/YYYY"
+                      style={{ width: '100%' }}
+                    />
+                  </Form.Item>
+                  
+                  <Form.Item
+                    name="streamTime"
+                    noStyle
+                  >
+                    <TimePicker 
+                      placeholder="Chọn giờ"
+                      format="HH:mm"
+                      style={{ width: '100%' }}
+                    />
+                  </Form.Item>
+                </Space>
+                <div style={{ marginTop: 8, color: '#888' }}>
+                  Nếu không chọn, video sẽ được lưu trữ mà không phát sóng
+                </div>
+              </Form.Item>
 
               <Button
                 className="studio-video-button"
@@ -194,10 +252,10 @@ function StudioVideo() {
               </Button>
             </Form>
 
-            <p class="video-manual-ask">
+            <p className="video-manual-ask">
               Đã dựng video trước đó?{" "}
               <span
-                class="video-manual-nav"
+                className="video-manual-nav"
                 onClick={() => setIsDisplayVideoSetting(false)}
               >
                 Tạo lịch trình chiếu video

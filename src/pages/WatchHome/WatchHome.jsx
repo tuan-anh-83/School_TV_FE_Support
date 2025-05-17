@@ -6,6 +6,7 @@ import apiFetch from "../../config/baseAPI";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { Link } from "react-router-dom";
 import Swiper from "swiper";
+import dayjs from "dayjs";
 
 export default function WatchHome() {
   const [liveSchedules, setLiveSchedules] = useState([]);
@@ -324,8 +325,8 @@ export default function WatchHome() {
           <div className="horizontal-scroll-container">
             <div className="events-grid horizontal-scroll">
               {upcomingSchedules.map((schedule, index) => {
-                const startTime = convertToGMT7(schedule.startTime);
-                const endTime = convertToGMT7(schedule.endTime);
+                const startTime = schedule.startTime;
+                const endTime = schedule.endTime;
 
                 const program = schedule.program || {};
                 const programName =
@@ -351,10 +352,7 @@ export default function WatchHome() {
                     <div className="event-meta">
                       <span>
                         <i className="fas fa-clock" />
-                        {` ${Math.floor((endTime - startTime) / 3600000)}h 
-                        ${Math.floor(
-                          ((endTime - startTime) % 3600000) / 60000
-                        )}m`}
+                        {`${Math.floor(dayjs(endTime).diff(dayjs(startTime), "seconds") / 60)}m ${dayjs(endTime).diff(dayjs(startTime), "seconds")}s`}
                       </span>
                     </div>
                     {programID && (

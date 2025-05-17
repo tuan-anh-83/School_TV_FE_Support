@@ -13,7 +13,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../config/baseAPI";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { Timeline } from "antd";
 import {
@@ -24,7 +23,6 @@ import {
   stopAdsHub,
 } from "../../utils/AdsHub";
 
-dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const WatchLive = () => {
@@ -333,6 +331,139 @@ const WatchLive = () => {
   }, [logicDate, channelId]);
 
   useEffect(() => {
+    // Only set up auto-switching if we're viewing today's schedule
+    const now = dayjs().tz("Asia/Ho_Chi_Minh");
+    const today = now.format("YYYY-MM-DD");
+    const selectedDate = dayjs
+      .tz(logicDate, "Asia/Ho_Chi_Minh")
+      .format("YYYY-MM-DD");
+
+    if (selectedDate !== today) {
+      // Don't set up auto-switching for non-today schedules
+      return;
+    }
+
+    // Find the current active program
+    const currentActiveProgram = displaySchedule.find(
+      (s) => s.startTime.isBefore(now) && s.endTime.isAfter(now)
+    );
+
+    // If there's a current active program, set timer to switch when it ends
+    if (currentActiveProgram) {
+      const timeUntilEnd = currentActiveProgram.endTime.diff(now);
+
+      if (timeUntilEnd > 0 && timeUntilEnd < 24 * 60 * 60 * 1000) {
+        // Less than 24 hours
+        console.log(
+          `Current program "${currentActiveProgram.programName}" ends in ${
+            timeUntilEnd / 60000
+          } minutes`
+        );
+
+        const timerId = setTimeout(() => {
+          console.log("Program ended, switching to next program");
+
+          // Find the next program
+          const nextProgram = displaySchedule.find((s) =>
+            s.startTime.isAfter(currentActiveProgram.endTime)
+          );
+
+          if (nextProgram) {
+            // Switch to the next program
+            console.log(
+              `Switching to next program: ${nextProgram.programName}`
+            );
+            setDisplayIframeUrl(nextProgram.iframeUrl);
+            setVideoHistoryId(nextProgram.videoHistoryIdFromSchedule);
+            setCurrentScheduleId(nextProgram.scheduleID);
+            setCurrentProgram(nextProgram.program);
+          } else {
+            // If no next program, re-fetch schedule (in case there are updates)
+            fetchScheduleProgram(logicDate);
+          }
+        }, timeUntilEnd + 1000); // Add 1 second buffer
+
+        return () => clearTimeout(timerId);
+      }
+    } else {
+      // If there's no current program, check if there's an upcoming one today
+      const nextUpcomingProgram = displaySchedule.find((s) =>
+        s.startTime.isAfter(now)
+      );
+
+      if (nextUpcomingProgram) {
+        const timeUntilStart = nextUpcomingProgram.startTime.diff(now);
+
+        if (timeUntilStart > 0 && timeUntilStart < 24 * 60 * 60 * 1000) {
+          // Less than 24 hours
+          console.log(
+            `Next program "${nextUpcomingProgram.programName}" starts in ${
+              timeUntilStart / 60000
+            } minutes`
+          );
+
+          const timerId = setTimeout(() => {
+            console.log(
+              `Time to start program: ${nextUpcomingProgram.programName}`
+            );
+            setDisplayIframeUrl(nextUpcomingProgram.iframeUrl);
+            setVideoHistoryId(nextUpcomingProgram.videoHistoryIdFromSchedule);
+            setCurrentScheduleId(nextUpcomingProgram.scheduleID);
+            setCurrentProgram(nextUpcomingProgram.program);
+          }, timeUntilStart + 1000); // Add 1 second buffer
+
+          return () => clearTimeout(timerId);
+        }
+      }
+    }
+  }, [displaySchedule, logicDate]);
+
+  // Safety check interval every minute to ensure programs switch even if setTimeout fails
+  useEffect(() => {
+    // Only run for today's schedule
+    const checkInterval = setInterval(() => {
+      const now = dayjs().tz("Asia/Ho_Chi_Minh");
+      const today = now.format("YYYY-MM-DD");
+      const selectedDate = dayjs
+        .tz(logicDate, "Asia/Ho_Chi_Minh")
+        .format("YYYY-MM-DD");
+
+      if (selectedDate !== today) {
+        return; // Don't check for non-today schedules
+      }
+
+      // Check if the currently displayed program has ended
+      if (currentScheduleId) {
+        const currentSchedule = displaySchedule.find(
+          (s) => s.scheduleID === currentScheduleId
+        );
+
+        if (currentSchedule && currentSchedule.endTime.isBefore(now)) {
+          // Current program has ended, find the next one
+          const nextProgram = displaySchedule.find((s) =>
+            s.startTime.isAfter(currentSchedule.endTime)
+          );
+
+          if (nextProgram) {
+            console.log(
+              `Current program has ended. Switching to: ${nextProgram.programName}`
+            );
+            setDisplayIframeUrl(nextProgram.iframeUrl);
+            setVideoHistoryId(nextProgram.videoHistoryIdFromSchedule);
+            setCurrentScheduleId(nextProgram.scheduleID);
+            setCurrentProgram(nextProgram.program);
+          }
+        } else if (!currentSchedule) {
+          // If currentSchedule is not found, refresh the schedule
+          fetchScheduleProgram(logicDate);
+        }
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkInterval);
+  }, [currentScheduleId, displaySchedule, logicDate]);
+
+  useEffect(() => {
     // Fetch comments when videoHistoryId changes
     if (videoHistoryId) {
       fetchComments();
@@ -368,11 +499,8 @@ const WatchLive = () => {
             name: "Người xem",
             badge: null,
           },
-          // Explicitly parse UTC and convert to GMT+7
-          time: dayjs
-            .utc(comment.createdAt)
-            .tz("Asia/Ho_Chi_Minh")
-            .format("HH:mm"),
+          // Explicitly parse and convert to GMT+7
+          time: dayjs(comment.createdAt).tz("Asia/Ho_Chi_Minh").format("HH:mm"),
         }));
 
         setMessages(formattedComments);
@@ -482,7 +610,6 @@ const WatchLive = () => {
     // Convert the current date (which is in local time) to GMT+7 first, then to UTC
     const newLogicDate = dayjs
       .tz(currentDate, "Asia/Ho_Chi_Minh")
-      .utc()
       .format("YYYY-MM-DD");
     setLogicDate(newLogicDate);
   }, [currentDate]);
@@ -501,15 +628,22 @@ const WatchLive = () => {
       <div
         className="schedule-item live"
         onClick={() => {
-          setDisplayIframeUrl(schedule.iframeUrl);
+          // When user clicks on a schedule item, display that video
+          setDisplayIframeUrl(schedule.isReplay && schedule.videoHistoryPlaybackUrl ? schedule.videoHistoryPlaybackUrl : schedule.iframeUrl);
           setVideoHistoryId(schedule.videoHistoryIdFromSchedule);
+          setCurrentScheduleId(schedule.scheduleID);
           setCurrentProgram(schedule.program);
+
+          // Optional: Close the schedule panel after selecting a program
+          setShowSchedule(false);
+
+          console.log(`User selected program: ${schedule.programName}`);
         }}
       >
         <div className="schedule-time">
           <div className="time-indicator live" />
           {/* Convert startTime to GMT+7 */}
-          {dayjs.utc(schedule.startTime).tz("Asia/Ho_Chi_Minh").format("HH:mm")}
+          {dayjs(schedule.startTime).tz("Asia/Ho_Chi_Minh").format("HH:mm")}
         </div>
         <div className="schedule-info">
           <div className="schedule-name">{schedule.programName}</div>
@@ -539,15 +673,11 @@ const WatchLive = () => {
 
       if (data?.data?.$values) {
         const schedules = data.data.$values
-          .filter(
-            (schedule) =>
-              schedule.status === "Live" || schedule.status === "LateStart"
-          )
           .map((schedule) => ({
             // Parse as UTC first, then convert to GMT+7 when displaying
             scheduleID: schedule.scheduleID,
-            startTime: dayjs(schedule.startTime),
-            endTime: dayjs(schedule.endTime),
+            startTime: dayjs(schedule.startTime).tz("Asia/Ho_Chi_Minh"),
+            endTime: dayjs(schedule.endTime).tz("Asia/Ho_Chi_Minh"),
             programName: schedule.program.programName,
             title: schedule.program.title,
             status: true,
@@ -555,16 +685,82 @@ const WatchLive = () => {
             isReplay: schedule.isReplay,
             videoHistoryIdFromSchedule: schedule.videoHistoryIdFromSchedule,
             program: schedule.program,
+            videoHistoryPlaybackUrl: schedule.videoHistoryPlaybackUrl
           }))
           .sort((a, b) => a.startTime.valueOf() - b.startTime.valueOf());
 
         setDisplaySchedule(schedules);
 
         if (schedules.length > 0) {
-          setDisplayIframeUrl(schedules[0].iframeUrl);
-          setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
-          setCurrentScheduleId(schedules[0].scheduleID);
-          setCurrentProgram(schedules[0].program);
+          // Get current time in GMT+7
+          const now = dayjs().tz("Asia/Ho_Chi_Minh");
+          const today = now.format("YYYY-MM-DD");
+          const selectedDate = dayjs
+            .tz(date, "Asia/Ho_Chi_Minh")
+            .format("YYYY-MM-DD");
+
+          // Check if we're looking at today's schedule or a past/future day
+          const isToday = selectedDate === today;
+
+          if (isToday) {
+            // For today's schedule, find the current or upcoming program
+            let currentProgram = null;
+
+            // First try to find a program that's currently live
+            currentProgram = schedules.find(
+              (s) => s.startTime.isBefore(now) && s.endTime.isAfter(now)
+            );
+
+            // If no current program, find the next upcoming program
+            if (!currentProgram) {
+              currentProgram = schedules.find((s) => s.startTime.isAfter(now));
+            }
+
+            // If still no program found (all programs already ended), use the last one
+            if (!currentProgram && schedules.length > 0) {
+              currentProgram = schedules[schedules.length - 1];
+            }
+
+            // If we found a program to display, set it
+            if (currentProgram) {
+              const hasStarted =
+                now.isAfter(currentProgram.startTime) ||
+                now.isSame(currentProgram.startTime);
+              const hasEnded = now.isAfter(currentProgram.endTime);
+
+              if (hasStarted && !hasEnded) {
+                setDisplayIframeUrl(currentProgram.iframeUrl);
+                setVideoHistoryId(currentProgram.videoHistoryIdFromSchedule);
+              } else {
+                setDisplayIframeUrl(""); // Hoặc null tùy UI
+                setVideoHistoryId(null);
+              }
+
+              setCurrentScheduleId(currentProgram.scheduleID);
+              setCurrentProgram(currentProgram.program);
+
+              console.log(
+                `Selected program: ${
+                  currentProgram.programName
+                } (${currentProgram.startTime.format(
+                  "HH:mm"
+                )} - ${currentProgram.endTime.format("HH:mm")})`
+              );
+            } else {
+              // Fallback to first program if something went wrong in our logic
+              setDisplayIframeUrl(schedules[0].iframeUrl);
+              setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
+              setCurrentScheduleId(schedules[0].scheduleID);
+              setCurrentProgram(schedules[0].program);
+            }
+          } else {
+            // For past or future days, just show the first program in the list
+            // (User can click on specific programs to view them)
+            setDisplayIframeUrl(schedules[0].iframeUrl);
+            setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
+            setCurrentScheduleId(schedules[0].scheduleID);
+            setCurrentProgram(schedules[0].program);
+          }
         } else {
           setDisplayIframeUrl("");
           setVideoHistoryId(null);
@@ -816,6 +1012,12 @@ const WatchLive = () => {
                 onClick={() => setShowSchedule(false)}
               />
             )}
+            <button
+              className={`schedule-button ${showSchedule ? "active" : ""}`}
+              onClick={() => setShowSchedule(!showSchedule)}
+            >
+              <i className="fas fa-calendar-alt" /> Lịch chiếu
+            </button>
             {/* {isPlayingAd && currentAd && (
               <iframe
                 src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=1&rel=0&playsinline=1`}
@@ -882,8 +1084,7 @@ const WatchLive = () => {
                   <div className="schedule-date">
                     <i className="fas fa-calendar" />
                     {isToday && "Hôm nay - "}
-                    {dayjs
-                      .utc(currentDate)
+                    {dayjs(currentDate)
                       .tz("Asia/Ho_Chi_Minh")
                       .format("DD/MM/YYYY")}
                   </div>
