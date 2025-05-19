@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ThemeContext } from "../../context/ThemeContext";
 import apiFetch from "../../config/baseAPI";
 import styles from "./program-detail.module.scss";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,12 +8,9 @@ import {
   faPlay,
   faClock,
   faCalendarAlt,
-  faSchool,
   faLink,
   faInfoCircle,
   faSpinner,
-  faShare,
-  faHeart,
   faExclamationCircle,
   faMapMarkerAlt,
   faUsers,
@@ -25,30 +21,51 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
-import { ClockCircleOutlined, HeartOutlined, PlayCircleOutlined, ShareAltOutlined } from "@ant-design/icons";
+import {
+  ClockCircleOutlined,
+  HeartOutlined,
+  PlayCircleOutlined,
+  ShareAltOutlined,
+} from "@ant-design/icons";
 import { createAvatarText } from "../../utils/text";
+import { getTimeUntilStart } from "../../utils/time";
 
 const ProgramDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { theme } = useContext(ThemeContext);
   const [program, setProgram] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const [textColor, setTextColor] = useState("light");
   const heroImageRef = useRef(null);
   const [relatedPrograms, setRelatedPrograms] = useState([]);
   const [relatedLoading, setRelatedLoading] = useState(false);
   const [relatedError, setRelatedError] = useState(null);
+  const [upcomingTime, setUpcomingTime] = useState(null);
+  const [currentSchedule, setCurrentSchedule] = useState(null);
 
   useEffect(() => {
     if (program?.thumbnail && heroImageRef.current) {
       checkImageBrightness(heroImageRef.current);
     }
   }, [program?.thumbnail]);
+
+  useEffect(() => {
+    setUpcomingTime(getTimeUntilStart(currentSchedule?.startTime));
+
+    const interval = setInterval(() => {
+      const result = getTimeUntilStart(currentSchedule?.startTime);
+      setUpcomingTime(result);
+
+      if (result === "Đã bắt đầu hoặc phát xong.") {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentSchedule]);
 
   // Add this utility function at the top of your file
   const truncateText = (text, maxLength = 50) => {
@@ -145,8 +162,24 @@ const ProgramDetailPage = () => {
       }
 
       const data = await response.json();
+      console.log(data.data);
       setProgram(data.data);
-      await checkFollowStatus(data.data.programID);
+      setCurrentSchedule(data.data?.currentSchedule);
+
+      if (data?.data?.followers && data?.data?.followers.$values.length > 0) {
+        const userData = localStorage.getItem("userData");
+
+        if (userData) {
+          const accountId = JSON.parse(userData).accountID;
+          if (!accountId) return;
+
+          if (
+            data?.data?.followers.$values.some((x) => x.accountID === accountId)
+          ) {
+            setIsFollowing(true);
+          }
+        }
+      }
     } catch (err) {
       setError(err.message);
       toast.error(err.message);
@@ -155,49 +188,66 @@ const ProgramDetailPage = () => {
     }
   };
 
-  const checkFollowStatus = async (programId) => {
-    const accountId = localStorage.getItem("userData")?.accountID;
-    if (!accountId) return;
-
-    try {
-      const response = await apiFetch(
-        `ProgramFollow/check/${accountId}/${programId}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setIsFollowing(data.isFollowing);
-      }
-    } catch (error) {
-      console.error("Error checking follow status:", error);
-    }
-  };
-
   const handleFollow = async () => {
-    try {
-      const accountId = localStorage.getItem("userData")?.accountID;
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const accountId = JSON.parse(userData).accountID;
       if (!accountId) {
         toast.warning("Vui lòng đăng nhập để theo dõi chương trình");
         return;
       }
 
-      const response = await apiFetch("ProgramFollow", {
-        method: "POST",
-        body: JSON.stringify({
-          accountId,
-          programId: program.programID,
-        }),
-      });
+      try {
+        if (isFollowing) {
+          const programFollow = program.followers?.$values.find(
+            (x) => x.accountID === accountId
+          );
+          if (programFollow) {
+            // Unfollow case
+            const response = await apiFetch(
+              `ProgramFollow/${programFollow.programFollowID}`,
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  accept: "*/*",
+                },
+              }
+            );
 
-      if (response.ok) {
-        setIsFollowing((prev) => !prev);
-        toast.success(
-          isFollowing
-            ? "Đã hủy theo dõi chương trình"
-            : "Đã theo dõi chương trình thành công"
-        );
+            if (!response.ok) {
+              throw new Error("Failed to unfollow program");
+            }
+
+            setIsFollowing(false);
+            toast.success("Đã hủy theo dõi chương trình");
+          }
+        } else {
+          // Follow case
+          const response = await apiFetch("ProgramFollow/follow", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+              accept: "*/*",
+            },
+            body: JSON.stringify({
+              accountID: accountId,
+              programID: program.programID,
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to follow program");
+          }
+
+          setIsFollowing(true);
+          toast.success("Đã theo dõi chương trình thành công");
+        }
+      } catch (error) {
+        toast.error("Đã xảy ra lỗi khi thực hiện thao tác");
       }
-    } catch (error) {
-      toast.error("Đã xảy ra lỗi khi thực hiện thao tác");
     }
   };
 
@@ -373,7 +423,7 @@ const ProgramDetailPage = () => {
 
   const convertUTCToGMT7 = (utcDateString) => {
     const date = new Date(utcDateString);
-    date.setHours(date.getHours() + 7); // Add 7 hours for GMT+7
+    date.setHours(date.getHours());
     return date;
   };
 
@@ -388,17 +438,26 @@ const ProgramDetailPage = () => {
       {/* Hero Section */}
       <div className={styles.profileContainer}>
         <div className={styles.bannerImage}>
-          <p className={styles.title}>{truncateText(program.programName, maxLength)}</p>
+          <p className={styles.title}>
+            {truncateText(program.programName, maxLength)}
+          </p>
           <img
             className={styles.profileImageItem}
-            src="https://images.unsplash.com/photo-1625496015236-96a3847ccd11?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            src={
+              currentSchedule?.thumbnail ??
+              "https://images.unsplash.com/photo-1625496015236-96a3847ccd11?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            }
             alt=""
           />
         </div>
         <div className={styles.profileCard}>
           <div className={styles.profileImage}>
             <div className={styles.profileImageBag}>
-              {createAvatarText(program.schoolChannel?.name ?? "A")}
+              {program.schoolChannel?.logoUrl ? (
+                <img src={program.schoolChannel?.logoUrl} alt="logo" />
+              ) : (
+                createAvatarText(program.schoolChannel?.name ?? "A")
+              )}
             </div>
             <div className={styles.onlineStatus}></div>
           </div>
@@ -407,29 +466,50 @@ const ProgramDetailPage = () => {
               <div className={styles.profileName}>
                 {program.schoolChannel?.name}
               </div>
-              <div
-                className={styles.liveContainer}
-              >
-                <span className={styles.liveDot}></span>
-                <p>Upcomming</p>-
-                <ClockCircleOutlined />
-                <p>Còn 20 giờ</p>
+              <div className={styles.liveContainer}>
+                {currentSchedule?.status === "LateStart" ||
+                currentSchedule?.status === "Live" ? (
+                  <>
+                    <span className={styles.liveDot}></span>
+                    <p>LIVE</p>
+                  </>
+                ) : (
+                  <>
+                    <ClockCircleOutlined />
+                    <p>{upcomingTime}</p>
+                  </>
+                )}
               </div>
             </div>
             <div className={styles.profileStats}>
-              {program.followCount || 0} người theo dõi · 120 video · 35 người đang chờ
+              {program.followers?.$values.length || 0} người theo dõi · 120
+              video
             </div>
           </div>
           <div className={styles.actionButtons}>
-            <button className={styles.messageThirdBtn}>Xem live</button>
-            <button className={styles.messageBtn}>Theo dõi</button>
+            <a
+              className={styles.messageThirdBtn}
+              href={`/watchLive/${program.schoolChannel?.schoolChannelID}`}
+            >
+              {currentSchedule?.status === "LateStart" ||
+              currentSchedule?.status === "Live"
+                ? "Xem live"
+                : "Đi đến live"}
+            </a>
+            <button className={styles.messageBtn} onClick={handleFollow}>
+              {isFollowing ? "Hủy theo dõi" : "Theo dõi"}
+            </button>
             <button className={styles.messageSecondBtn} onClick={handleShare}>
               Chia sẻ
             </button>
           </div>
           <div className={styles.actionButtonsMobile}>
-            <button className={styles.messageThirdBtn}><PlayCircleOutlined /></button>
-            <button className={styles.messageBtn}><HeartOutlined /></button>
+            <button className={styles.messageThirdBtn}>
+              <PlayCircleOutlined />
+            </button>
+            <button className={styles.messageBtn}>
+              <HeartOutlined />
+            </button>
             <button className={styles.messageSecondBtn} onClick={handleShare}>
               <ShareAltOutlined />
             </button>
@@ -525,7 +605,7 @@ const ProgramDetailPage = () => {
                 <div className={styles.scheduleList}>
                   {program.schedules.$values
                     .sort(
-                      (a, b) => new Date(a.startTime) - new Date(b.startTime)
+                      (a, b) => new Date(b.startTime) - new Date(a.startTime)
                     )
                     .map((schedule, index) => (
                       <motion.div

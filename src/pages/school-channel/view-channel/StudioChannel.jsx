@@ -307,7 +307,7 @@ const StudioChannel = () => {
               </div>
               <div>
                 <label>Số người theo dõi</label>
-                <span>Đang cập nhật</span>
+                <span>{channel.followers}</span>
               </div>
             </div>
             <div className="studio-channel-info-item">

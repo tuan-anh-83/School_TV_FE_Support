@@ -1,22 +1,56 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeContext } from "../../context/ThemeContext";
 import "./StudioHeader.scss";
 import darkLogo from "../../assets/dark-tv-logo.png";
+import {
+  getMyNotifications,
+  markNotificationAsRead,
+} from "../../utils/useNotificationAPI";
 import lightLogo from "../../assets/light-tv-logo.png";
+import { Badge, Dropdown, Space } from "antd";
+import { BellOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import NotificationItem from "../notification-item/NotificationItem";
 
 const StudioHeader = ({ channel }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotiDropdown, setShowNotiDropdown] = useState(false);
+  const [totalNotifications, setTotalNotifications] = useState([]);
+  const [hasNewNotification, setHasNewNotification] = useState(false);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useContext(ThemeContext);
 
-  const notifications = [
-    { id: 1, text: "New subscriber to your channel", time: "1 giờ trước" },
-    { id: 2, text: "Stream quality alert", time: "2 giờ trước" },
-    { id: 3, text: "Upcoming schedule reminder", time: "3 giờ trước" },
-  ];
+  const [pageNoti, setPageNoti] = useState(1);
+  const [pageSizeNoti, setPageSizeNoti] = useState(3);
+
+  const fetchNotifications = async () => {
+    try {
+      const notification = await getMyNotifications(pageNoti, pageSizeNoti);
+      const values = notification?.$values ?? [];
+
+      const sorted = values.sort((a, b) => {
+        const dateA = dayjs(a.createdAt).tz("Asia/Ho_Chi_Minh");
+        const dateB = dayjs(b.createdAt).tz("Asia/Ho_Chi_Minh");
+        return dateA - dateB;
+      });
+
+      if (pageNoti === 1) {
+        setTotalNotifications(sorted);
+      } else {
+        setTotalNotifications((prev) => [...prev, ...sorted]);
+      }
+    } catch (error) {
+      console.error("Lỗi khi fetch thông báo:", error);
+      setTotalNotifications([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [pageNoti]);
 
   const avatarSrc = channel?.$values?.[0]?.logoUrl
     ? channel?.$values?.[0]?.logoUrl
@@ -31,7 +65,7 @@ const StudioHeader = ({ channel }) => {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (showProfileDropdown || showNotiDropdown) {
       document.addEventListener("click", (e) => {
         handleOutsideClick(
@@ -45,6 +79,100 @@ const StudioHeader = ({ channel }) => {
       document.removeEventListener("click", handleOutsideClick);
     };
   }, [showProfileDropdown, showNotiDropdown]);
+
+  const notificationItems = {
+    items: [
+      {
+        label: (
+          <div className="user-notification-header">
+            <h3>Thông báo</h3>
+          </div>
+        ),
+        key: "header",
+      },
+      {
+        type: "divider",
+      },
+      ...(totalNotifications?.length === 0
+        ? [
+            {
+              label: (
+                <div className="user-notification-empty">
+                  Không có thông báo mới
+                </div>
+              ),
+              key: "empty",
+            },
+          ]
+        : totalNotifications
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map((item, index) => ({
+              label: (
+                <NotificationItem
+                  key={item.notificationID || index}
+                  title={item.title}
+                  message={item.message}
+                  createdAt={item.createdAt}
+                  isRead={item.isRead}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const response = await markNotificationAsRead(
+                      item.notificationID
+                    );
+                  }}
+                />
+              ),
+              key: item.id || index,
+            }))),
+
+      {
+        key: "footer",
+        label: (
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: 8,
+              paddingBottom: 8, // tránh bị cắt mất
+              minHeight: 32, // đảm bảo có đủ không gian
+            }}
+          >
+            {totalNotifications.length >= pageSizeNoti && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPageNoti(pageNoti + 1);
+                }}
+                style={{
+                  color: "#1890ff",
+                  cursor: "pointer",
+                  fontWeight: 500,
+                  marginRight: 12,
+                }}
+              >
+                Hiển thị thêm
+              </span>
+            )}
+            {pageNoti > 1 && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setTotalNotifications([]);
+                  setPageNoti(1);
+                }}
+                style={{
+                  color: "#1890ff",
+                  cursor: "pointer",
+                  fontWeight: 500,
+                }}
+              >
+                Ẩn bớt
+              </span>
+            )}
+          </div>
+        ),
+      },
+    ],
+  };
 
   return (
     <header className="studio-header">
@@ -71,45 +199,30 @@ const StudioHeader = ({ channel }) => {
         </button>
 
         <div className="notification-wrapper">
-          <button
-            className="notification-toggle"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowNotiDropdown(!showNotiDropdown);
-              setShowProfileDropdown(false);
-            }}
+          <Dropdown
+            menu={notificationItems}
+            trigger={["click"]}
+            open={open}
+            onOpenChange={setOpen}
+            placement="bottomRight"
+            overlayClassName="user-notification-dropdown"
           >
-            <i className="fas fa-bell"></i>
-            {notifications.length > 0 && (
-              <span className="notification-badge">{notifications.length}</span>
-            )}
-          </button>
-
-          {showNotiDropdown && (
-            <div className="notification-dropdown">
-              <div className="dropdown-header">
-                <h3 className="user-name">Thông báo</h3>
-                <button
-                  className="mobile-dropdown-close"
-                  onClick={() => setShowNotiDropdown(false)}
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              <div className="dropdown-divider"></div>
-              {notifications.map((notification) => (
-                <div key={notification.id} className="notification-item">
-                  <div className="notification-icon">
-                    <i className="fas fa-info-circle"></i>
-                  </div>
-                  <div className="notification-content">
-                    <p className="notification-text">{notification.text}</p>
-                    <p className="notification-time">{notification.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+            <a onClick={(e) => e.preventDefault()}>
+              <Space className="user-notification-trigger">
+                {hasNewNotification ? (
+                  <Badge
+                    dot
+                    className="blinking-dot-badge"
+                    onClick={() => setHasNewNotification(false)}
+                  >
+                    <BellOutlined className="user-notification-icon" />
+                  </Badge>
+                ) : (
+                  <BellOutlined className="user-notification-icon" />
+                )}
+              </Space>
+            </a>
+          </Dropdown>
         </div>
 
         <button

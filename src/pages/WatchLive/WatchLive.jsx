@@ -629,7 +629,7 @@ const WatchLive = () => {
         className="schedule-item live"
         onClick={() => {
           // When user clicks on a schedule item, display that video
-          setDisplayIframeUrl(schedule.isReplay && schedule.videoHistoryPlaybackUrl ? schedule.videoHistoryPlaybackUrl : schedule.iframeUrl);
+          setDisplayIframeUrl(schedule.videoHistoryPlaybackUrl ? schedule.videoHistoryPlaybackUrl : schedule.iframeUrl);
           setVideoHistoryId(schedule.videoHistoryIdFromSchedule);
           setCurrentScheduleId(schedule.scheduleID);
           setCurrentProgram(schedule.program);

@@ -59,8 +59,8 @@ const Header = ({ user }) => {
       const notification = await getMyNotifications(pageNoti, pageSizeNoti);
       const values = notification?.$values ?? [];
       const sorted = values.sort((a, b) => {
-        const dateA = dayjs.utc(a.createdAt).tz("Asia/Ho_Chi_Minh");
-        const dateB = dayjs.utc(b.createdAt).tz("Asia/Ho_Chi_Minh");
+        const dateA = dayjs(a.createdAt).tz("Asia/Ho_Chi_Minh");
+        const dateB = dayjs(b.createdAt).tz("Asia/Ho_Chi_Minh");
         return dateA - dateB;
       });
 
@@ -138,7 +138,7 @@ const Header = ({ user }) => {
               key: "empty",
             },
           ]
-        : totalNotifications.map((item, index) => ({
+        : totalNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((item, index) => ({
             label: (
               <NotificationItem
                 key={item.notificationID || index}
