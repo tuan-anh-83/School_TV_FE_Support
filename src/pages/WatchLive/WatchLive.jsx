@@ -628,8 +628,26 @@ const WatchLive = () => {
       <div
         className="schedule-item live"
         onClick={() => {
+          const now = dayjs().tz("Asia/Ho_Chi_Minh");
+
+          if (now.isBefore(schedule.startTime)) {
+            const totalSeconds = schedule.startTime.diff(now, "second");
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            toast.warning(
+              `⏰ Livestream chưa bắt đầu. Hãy quay lại sau ${hours} giờ ${minutes} phút ${seconds} giây.`
+            );
+            return;
+          }
+
           // When user clicks on a schedule item, display that video
-          setDisplayIframeUrl(schedule.videoHistoryPlaybackUrl ? schedule.videoHistoryPlaybackUrl : schedule.iframeUrl);
+          setDisplayIframeUrl(
+            schedule.videoHistoryPlaybackUrl
+              ? schedule.videoHistoryPlaybackUrl
+              : schedule.iframeUrl
+          );
           setVideoHistoryId(schedule.videoHistoryIdFromSchedule);
           setCurrentScheduleId(schedule.scheduleID);
           setCurrentProgram(schedule.program);
@@ -685,7 +703,7 @@ const WatchLive = () => {
             isReplay: schedule.isReplay,
             videoHistoryIdFromSchedule: schedule.videoHistoryIdFromSchedule,
             program: schedule.program,
-            videoHistoryPlaybackUrl: schedule.videoHistoryPlaybackUrl
+            videoHistoryPlaybackUrl: schedule.videoHistoryPlaybackUrl,
           }))
           .sort((a, b) => a.startTime.valueOf() - b.startTime.valueOf());
 
