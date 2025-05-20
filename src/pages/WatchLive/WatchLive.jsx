@@ -65,6 +65,7 @@ const WatchLive = () => {
   const [currentAd, setCurrentAd] = useState(null);
   const [isPlayingAd, setIsPlayingAd] = useState(false);
   const [currentScheduleId, setCurrentScheduleId] = useState(null);
+  const [currentStatus, setCurrentStatus] = useState(null);
 
   const getAccountId = () => {
     const userData = localStorage.getItem("userData");
@@ -377,6 +378,7 @@ const WatchLive = () => {
             setVideoHistoryId(nextProgram.videoHistoryIdFromSchedule);
             setCurrentScheduleId(nextProgram.scheduleID);
             setCurrentProgram(nextProgram.program);
+            setCurrentStatus(nextProgram.status);
           } else {
             // If no next program, re-fetch schedule (in case there are updates)
             fetchScheduleProgram(logicDate);
@@ -410,6 +412,7 @@ const WatchLive = () => {
             setVideoHistoryId(nextUpcomingProgram.videoHistoryIdFromSchedule);
             setCurrentScheduleId(nextUpcomingProgram.scheduleID);
             setCurrentProgram(nextUpcomingProgram.program);
+            setCurrentStatus(nextUpcomingProgram.status);
           }, timeUntilStart + 1000); // Add 1 second buffer
 
           return () => clearTimeout(timerId);
@@ -452,6 +455,7 @@ const WatchLive = () => {
             setVideoHistoryId(nextProgram.videoHistoryIdFromSchedule);
             setCurrentScheduleId(nextProgram.scheduleID);
             setCurrentProgram(nextProgram.program);
+            setCurrentStatus(nextProgram.status);
           }
         } else if (!currentSchedule) {
           // If currentSchedule is not found, refresh the schedule
@@ -651,6 +655,7 @@ const WatchLive = () => {
           setVideoHistoryId(schedule.videoHistoryIdFromSchedule);
           setCurrentScheduleId(schedule.scheduleID);
           setCurrentProgram(schedule.program);
+          setCurrentStatus(schedule.status);
 
           // Optional: Close the schedule panel after selecting a program
           setShowSchedule(false);
@@ -763,6 +768,7 @@ const WatchLive = () => {
 
               setCurrentScheduleId(currentProgram.scheduleID);
               setCurrentProgram(currentProgram.program);
+              setCurrentStatus(currentProgram.status);
 
               console.log(
                 `Selected program: ${
@@ -777,6 +783,7 @@ const WatchLive = () => {
               setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
               setCurrentScheduleId(schedules[0].scheduleID);
               setCurrentProgram(schedules[0].program);
+              setCurrentStatus(schedules[0].status);
             }
           } else {
             // For past or future days, just show the first program in the list
@@ -785,12 +792,14 @@ const WatchLive = () => {
             setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
             setCurrentScheduleId(schedules[0].scheduleID);
             setCurrentProgram(schedules[0].program);
+            setCurrentStatus(schedules[0].status);
           }
         } else {
           setDisplayIframeUrl("");
           setVideoHistoryId(null);
           setCurrentScheduleId(null);
           setCurrentProgram(null);
+          setCurrentStatus(null);
         }
       }
     } catch (error) {
@@ -1087,7 +1096,7 @@ const WatchLive = () => {
                   <iframe
                     src={`${toIframeUrl(
                       displayIframeUrl
-                    )}?autoplay=1&mute=0&controls=1&rel=0&playsinline=1`}
+                    )}?autoplay=1&mute=0&controls=${schedule.status === "Live" || schedule.status === "LateStart" ? 0 : 1}&rel=0&playsinline=1`}
                     allow="autoplay; encrypted-media; fullscreen;"
                     allowFullScreen
                     className="youtube-player"
