@@ -264,105 +264,105 @@ const StatisticsPage = () => {
   }, [channel, dateRange]);
 
   const popularContent = [
-    // Livestreams
-    {
-      id: 1,
-      title: "Lễ tốt nghiệp khoa CNTT 2023",
-      views: "15.2K",
-      likes: "1.8K",
-      comments: "342",
-      type: "Livestream",
-      duration: "2:45:30",
-      thumbnail: "https://picsum.photos/800/450?random=1",
-      performance: "Hiệu suất cao hơn bình thường",
-    },
-    {
-      id: 2,
-      title: "Hội thảo: Trí tuệ nhân tạo trong Giáo dục",
-      views: "12.8K",
-      likes: "1.5K",
-      comments: "256",
-      type: "Livestream",
-      duration: "1:30:15",
-      thumbnail: "https://picsum.photos/800/450?random=2",
-      performance: "Đang tăng trưởng",
-    },
-    {
-      id: 3,
-      title: "Talkshow: Định hướng nghề nghiệp CNTT 2024",
-      views: "10.5K",
-      likes: "980",
-      comments: "185",
-      type: "Livestream",
-      duration: "1:15:45",
-      thumbnail: "https://picsum.photos/800/450?random=3",
-      performance: "Hiệu suất trung bình",
-    },
-    // Videos
-    {
-      id: 4,
-      title: "Hướng dẫn đăng ký học phần HK2 2023-2024",
-      views: "18.3K",
-      likes: "2.1K",
-      comments: "425",
-      type: "Video",
-      duration: "15:24",
-      thumbnail: "https://picsum.photos/800/450?random=4",
-      performance: "Hiệu suất cao hơn bình thường",
-    },
-    {
-      id: 5,
-      title: "Review chương trình đào tạo ngành KTPM",
-      views: "14.7K",
-      likes: "1.6K",
-      comments: "298",
-      type: "Video",
-      duration: "22:15",
-      thumbnail: "https://picsum.photos/800/450?random=5",
-      performance: "Đang tăng trưởng",
-    },
-    {
-      id: 6,
-      title: "Giới thiệu cơ sở vật chất phòng lab mới",
-      views: "11.9K",
-      likes: "1.3K",
-      comments: "215",
-      type: "Video",
-      duration: "18:30",
-      thumbnail: "https://picsum.photos/800/450?random=6",
-      performance: "Hiệu suất trung bình",
-    },
-    // Bài viết
-    {
-      id: 7,
-      title: "Thông báo lịch thi cuối kỳ HK1 2023-2024",
-      views: "22.4K",
-      likes: "1.9K",
-      comments: "456",
-      type: "Bài viết",
-      thumbnail: "https://picsum.photos/800/450?random=7",
-      performance: "Hiệu suất cao hơn bình thường",
-    },
-    {
-      id: 8,
-      title: "Kế hoạch học tập và giảng dạy năm 2024",
-      views: "19.8K",
-      likes: "1.7K",
-      comments: "385",
-      type: "Bài viết",
-      thumbnail: "https://picsum.photos/800/450?random=8",
-      performance: "Đang tăng trưởng",
-    },
-    {
-      id: 9,
-      title: "Thông báo học bổng khoa CNTT 2024",
-      views: "17.2K",
-      likes: "1.4K",
-      comments: "312",
-      type: "Bài viết",
-      thumbnail: "https://picsum.photos/800/450?random=9",
-      performance: "Hiệu suất trung bình",
-    },
+    // // Livestreams
+    // {
+    //   id: 1,
+    //   title: "Lễ tốt nghiệp khoa CNTT 2023",
+    //   views: "15.2K",
+    //   likes: "1.8K",
+    //   comments: "342",
+    //   type: "Livestream",
+    //   duration: "2:45:30",
+    //   thumbnail: "https://picsum.photos/800/450?random=1",
+    //   performance: "Hiệu suất cao hơn bình thường",
+    // },
+    // {
+    //   id: 2,
+    //   title: "Hội thảo: Trí tuệ nhân tạo trong Giáo dục",
+    //   views: "12.8K",
+    //   likes: "1.5K",
+    //   comments: "256",
+    //   type: "Livestream",
+    //   duration: "1:30:15",
+    //   thumbnail: "https://picsum.photos/800/450?random=2",
+    //   performance: "Đang tăng trưởng",
+    // },
+    // {
+    //   id: 3,
+    //   title: "Talkshow: Định hướng nghề nghiệp CNTT 2024",
+    //   views: "10.5K",
+    //   likes: "980",
+    //   comments: "185",
+    //   type: "Livestream",
+    //   duration: "1:15:45",
+    //   thumbnail: "https://picsum.photos/800/450?random=3",
+    //   performance: "Hiệu suất trung bình",
+    // },
+    // // Videos
+    // {
+    //   id: 4,
+    //   title: "Hướng dẫn đăng ký học phần HK2 2023-2024",
+    //   views: "18.3K",
+    //   likes: "2.1K",
+    //   comments: "425",
+    //   type: "Video",
+    //   duration: "15:24",
+    //   thumbnail: "https://picsum.photos/800/450?random=4",
+    //   performance: "Hiệu suất cao hơn bình thường",
+    // },
+    // {
+    //   id: 5,
+    //   title: "Review chương trình đào tạo ngành KTPM",
+    //   views: "14.7K",
+    //   likes: "1.6K",
+    //   comments: "298",
+    //   type: "Video",
+    //   duration: "22:15",
+    //   thumbnail: "https://picsum.photos/800/450?random=5",
+    //   performance: "Đang tăng trưởng",
+    // },
+    // {
+    //   id: 6,
+    //   title: "Giới thiệu cơ sở vật chất phòng lab mới",
+    //   views: "11.9K",
+    //   likes: "1.3K",
+    //   comments: "215",
+    //   type: "Video",
+    //   duration: "18:30",
+    //   thumbnail: "https://picsum.photos/800/450?random=6",
+    //   performance: "Hiệu suất trung bình",
+    // },
+    // // Bài viết
+    // {
+    //   id: 7,
+    //   title: "Thông báo lịch thi cuối kỳ HK1 2023-2024",
+    //   views: "22.4K",
+    //   likes: "1.9K",
+    //   comments: "456",
+    //   type: "Bài viết",
+    //   thumbnail: "https://picsum.photos/800/450?random=7",
+    //   performance: "Hiệu suất cao hơn bình thường",
+    // },
+    // {
+    //   id: 8,
+    //   title: "Kế hoạch học tập và giảng dạy năm 2024",
+    //   views: "19.8K",
+    //   likes: "1.7K",
+    //   comments: "385",
+    //   type: "Bài viết",
+    //   thumbnail: "https://picsum.photos/800/450?random=8",
+    //   performance: "Đang tăng trưởng",
+    // },
+    // {
+    //   id: 9,
+    //   title: "Thông báo học bổng khoa CNTT 2024",
+    //   views: "17.2K",
+    //   likes: "1.4K",
+    //   comments: "312",
+    //   type: "Bài viết",
+    //   thumbnail: "https://picsum.photos/800/450?random=9",
+    //   performance: "Hiệu suất trung bình",
+    // },
   ];
 
   const audienceData = [
@@ -773,7 +773,7 @@ const StatisticsPage = () => {
         </div>
       </div>
 
-      <div className="stats-content-sections">
+      {/* <div className="stats-content-sections">
         <ContentSection
           title="Livestreams"
           items={popularContent.filter((c) => c.type === "Livestream")}
@@ -789,7 +789,7 @@ const StatisticsPage = () => {
           items={popularContent.filter((c) => c.type === "Bài viết")}
           icon={FileText}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

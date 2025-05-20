@@ -659,14 +659,21 @@ const WatchLive = () => {
         }}
       >
         <div className="schedule-time">
-          <div className="time-indicator live" />
+          {schedule.status === "Live" ||
+            (schedule.status === "LateStart" && (
+              <div className="time-indicator live" />
+            ))}
           {/* Convert startTime to GMT+7 */}
           {dayjs(schedule.startTime).tz("Asia/Ho_Chi_Minh").format("HH:mm")}
         </div>
         <div className="schedule-info">
           <div className="schedule-name">{schedule.programName}</div>
           <div className="schedule-description">
-            <span className="live-status">LIVE</span>
+            {schedule.status === "Live" || schedule.status === "LateStart" ? (
+              <span className="live-status">Live</span>
+            ) : (
+              <span className="live-empty"></span>
+            )}
           </div>
         </div>
       </div>
@@ -698,7 +705,7 @@ const WatchLive = () => {
             endTime: dayjs(schedule.endTime).tz("Asia/Ho_Chi_Minh"),
             programName: schedule.program.programName,
             title: schedule.program.title,
-            status: true,
+            status: schedule.status,
             iframeUrl: schedule.iframeUrl,
             isReplay: schedule.isReplay,
             videoHistoryIdFromSchedule: schedule.videoHistoryIdFromSchedule,
@@ -1019,6 +1026,13 @@ const WatchLive = () => {
     }
   }, [videoHistoryId]);
 
+  const toIframeUrl = (url) => {
+    if (url.includes("/watch")) {
+      return url.replace("/watch", "/iframe");
+    }
+    return url;
+  };
+
   return (
     <div className="main-container" style={{ background: "var(--bg-color)" }}>
       <div className="content-section">
@@ -1071,8 +1085,10 @@ const WatchLive = () => {
                   />
                 ) : (
                   <iframe
-                    src={displayIframeUrl}
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
+                    src={`${toIframeUrl(
+                      displayIframeUrl
+                    )}?autoplay=1&mute=0&controls=1&rel=0&playsinline=1`}
+                    allow="autoplay; encrypted-media; fullscreen;"
                     allowFullScreen
                     className="youtube-player"
                   />

@@ -54,6 +54,7 @@ import AdsRegister from "./pages/AdsRegister/AdsRegister";
 import AdsManagement from "./pages/Ads-Management/AdsManagement";
 import AdsPost from "./components/ads-studio/functions/post/AdsPost";
 import ScheduleList from "./pages/AdminPage/ScheduleList";
+import { default as AdsListForAd } from "./components/ads-studio/AdsList";
 
 const ScrollToTopWrapper = () => {
   const { pathname } = useLocation();
@@ -239,6 +240,10 @@ function App() {
             },
           ],
         },
+        {
+          path: "ads",
+          element: <AdsListForAd />,
+        },
       ],
     },
     {
@@ -392,7 +397,7 @@ function App() {
             </ProtectedRoute>
           ),
         },
-                {
+        {
           path: "/schedule-management",
           element: (
             <ProtectedRoute allowedRoles={["admin"]}>

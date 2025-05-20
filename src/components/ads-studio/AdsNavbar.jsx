@@ -4,7 +4,11 @@ import { Flex } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function AdsNavbar() {
-  const buttonLabel = ["Đăng Quảng Cáo", "Thống kê dữ liệu"];
+  const buttonLabel = [
+    "Đăng Quảng Cáo",
+    "Thống kê dữ liệu",
+    "Quảng cáo đã đăng",
+  ];
   const [activeButton, setActiveButton] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,6 +20,9 @@ function AdsNavbar() {
         break;
       case "/ads-management/statistics":
         setActiveButton(1);
+        break;
+      case "/ads-management/ads":
+        setActiveButton(2);
         break;
       default:
         setActiveButton(null);
@@ -31,6 +38,9 @@ function AdsNavbar() {
         break;
       case 1:
         navigate("/ads-management/statistics");
+        break;
+      case 2:
+        navigate("/ads-management/ads");
         break;
       default:
         break;

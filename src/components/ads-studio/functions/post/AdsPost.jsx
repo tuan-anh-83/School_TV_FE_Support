@@ -58,9 +58,9 @@ function AdsPost() {
     const fileSizeMB = file.size / 1024 / 1024;
     console.log("File size (MB):", fileSizeMB);
 
-    const isLt100M = fileSizeMB < 100;
-    if (!isLt100M) {
-      message.error("Video must be smaller than 100MB!");
+    const isLt200M = fileSizeMB < 200;
+    if (!isLt200M) {
+      message.error("Video must be smaller than 200MB!");
       return;
     }
 

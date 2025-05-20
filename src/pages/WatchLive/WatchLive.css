@@ -1419,6 +1419,10 @@
   animation: schedulePulse 1.5s infinite alternate;
 }
 
+.live-empty {
+  padding: 2px 12px;
+}
+
 @media screen and (max-width: 768px) {
   .schedule-panel {
     position: absolute;

@@ -269,7 +269,10 @@ export default function WatchHome() {
                   <div className="stream-card">
                     <div className="stream-thumbnail">
                       <img
-                        src={schedule.thumbnail || `https://picsum.photos/seed/${schedule.scheduleID}/300/180`}
+                        src={
+                          schedule.thumbnail ||
+                          `https://picsum.photos/seed/${schedule.scheduleID}/300/180`
+                        }
                         alt="Stream thumbnail"
                       />
                       <div className="live-badge-home">LIVE</div>
@@ -327,6 +330,7 @@ export default function WatchHome() {
               {upcomingSchedules.map((schedule, index) => {
                 const startTime = schedule.startTime;
                 const endTime = schedule.endTime;
+                const now = dayjs(new Date());
 
                 const program = schedule.program || {};
                 const programName =
@@ -334,13 +338,12 @@ export default function WatchHome() {
                 const channelName =
                   program.schoolChannel?.name || "Trường không xác định";
                 const programID = program.programID || "";
+                const totalSeconds = dayjs(startTime).diff(now, "second");
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
 
                 return (
-                  <div
-                    className="event-card"
-                    data-aos="fade-up"
-                    key={index}
-                  >
+                  <div className="event-card" data-aos="fade-up" key={index}>
                     <div className="event-date">
                       <i className="far fa-calendar" />
                       {formatDateTime(startTime)}
@@ -352,7 +355,7 @@ export default function WatchHome() {
                     <div className="event-meta">
                       <span>
                         <i className="fas fa-clock" />
-                        {`${Math.floor(dayjs(endTime).diff(dayjs(startTime), "seconds") / 60)}m ${dayjs(endTime).diff(dayjs(startTime), "seconds")}s`}
+                        {`${minutes}m ${seconds}s`}
                       </span>
                     </div>
                     {programID && (
@@ -393,51 +396,55 @@ export default function WatchHome() {
         ) : videoHistory.length > 0 ? (
           <div className="horizontal-scroll-container">
             <div className="videos-grid horizontal-scroll">
-              {videoHistory.sort((a, b) => new Date(b.startTime) - new Date(a.startTime)).map((video, index) => {
-                const updatedAt = convertToGMT7(video.updatedAt);
+              {videoHistory
+                .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
+                .map((video, index) => {
+                  const updatedAt = convertToGMT7(video.updatedAt);
 
-                const programName =
-                  video.program?.programName || "Chương trình không xác định";
-                const channelName =
-                  video.program?.schoolChannel?.name || "Trường không xác định";
-                const channelLogo = video.program?.schoolChannel?.logoUrl || `https://picsum.photos/seed/${video.videoHistoryID}/100/100`;
+                  const programName =
+                    video.program?.programName || "Chương trình không xác định";
+                  const channelName =
+                    video.program?.schoolChannel?.name ||
+                    "Trường không xác định";
+                  const channelLogo =
+                    video.program?.schoolChannel?.logoUrl ||
+                    `https://picsum.photos/seed/${video.videoHistoryID}/100/100`;
 
-                return (
-                  <div
-                    className="video-card"
-                    key={index}
-                    data-aos="fade-up"
-                  >
-                    <div className="video-thumbnail">
-                      <img
-                        src={video.thumbnail || `https://picsum.photos/seed/${video.videoHistoryID}/300/180`}
-                        alt="Video thumbnail"
-                      />
-                    </div>
-                    <div className="video-info">
-                      <div className="video-header">
-                        <h3 className="video-title">{programName}</h3>
-                        <div className="video-meta">
-                          <div className="channel-info">
-                            <img
-                              src={channelLogo}
-                              alt="University avatar"
-                              className="university-avatar"
-                            />
-                            <span className="university-name">
-                              {channelName}
-                            </span>
-                          </div>
-                          <div className="video-time">
-                            <i className="far fa-clock" />
-                            {formatDateTime(updatedAt)}
+                  return (
+                    <div className="video-card" key={index} data-aos="fade-up">
+                      <div className="video-thumbnail">
+                        <img
+                          src={
+                            video.thumbnail ||
+                            `https://picsum.photos/seed/${video.videoHistoryID}/300/180`
+                          }
+                          alt="Video thumbnail"
+                        />
+                      </div>
+                      <div className="video-info">
+                        <div className="video-header">
+                          <h3 className="video-title">{programName}</h3>
+                          <div className="video-meta">
+                            <div className="channel-info">
+                              <img
+                                src={channelLogo}
+                                alt="University avatar"
+                                className="university-avatar"
+                              />
+                              <span className="university-name">
+                                {channelName}
+                              </span>
+                            </div>
+                            <div className="video-time">
+                              <i className="far fa-clock" />
+                              {formatDateTime(updatedAt)}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
               <Link to="/archive" className="see-all-card">
                 <i className="fas fa-video" />
                 <p>Bấm vào Xem tất cả để tiếp tục khám phá bạn nhé!</p>
