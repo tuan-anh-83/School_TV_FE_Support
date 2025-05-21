@@ -50,7 +50,7 @@ const AdsHeader = ({ user }) => {
 
   return (
     <header className="studio-header">
-      <a href="/school-studio/statistics" className="studio-logo">
+      <a href="/ads-management/statistics" className="studio-logo">
         <img
           src={theme === "dark" ? darkLogo : lightLogo}
           alt="Ads Management"
