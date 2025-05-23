@@ -76,8 +76,10 @@ const Header = ({ user }) => {
   };
 
   useEffect(() => {
-    fetchNotifications();
-  }, [pageNoti]);
+    if (user?.accountID) {
+      fetchNotifications();
+    }
+  }, [pageNoti, user?.accountID]);
 
   useEffect(() => {
     const accountId = user?.accountID;
@@ -138,24 +140,26 @@ const Header = ({ user }) => {
               key: "empty",
             },
           ]
-        : totalNotifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((item, index) => ({
-            label: (
-              <NotificationItem
-                key={item.notificationID || index}
-                title={item.title}
-                message={item.message}
-                createdAt={item.createdAt}
-                isRead={item.isRead}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  const response = await markNotificationAsRead(
-                    item.notificationID
-                  );
-                }}
-              />
-            ),
-            key: item.id || index,
-          }))),
+        : totalNotifications
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map((item, index) => ({
+              label: (
+                <NotificationItem
+                  key={item.notificationID || index}
+                  title={item.title}
+                  message={item.message}
+                  createdAt={item.createdAt}
+                  isRead={item.isRead}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const response = await markNotificationAsRead(
+                      item.notificationID
+                    );
+                  }}
+                />
+              ),
+              key: item.id || index,
+            }))),
 
       {
         key: "footer",
