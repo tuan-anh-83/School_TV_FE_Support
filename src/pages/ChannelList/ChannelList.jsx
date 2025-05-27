@@ -287,6 +287,7 @@ const ChannelList = () => {
           content: "",
           programId: null,
           schoolChannelId: channelId,
+          isForSchoolChannel: true
         };
 
         const broadcast = await broadcastNotification(notification);
@@ -301,6 +302,7 @@ const ChannelList = () => {
           content: "",
           programId: null,
           schoolChannelId: channelId,
+          isForSchoolChannel: false
         };
 
         const broadcast2 = await broadcastNotification(myNotification);
@@ -366,6 +368,7 @@ const ChannelList = () => {
         content: "",
         programId: null,
         schoolChannelId: channelId,
+        isForSchoolChannel: true
       };
       const broadcast1 = await broadcastNotification(notification);
       if (!broadcast1) {
@@ -378,6 +381,7 @@ const ChannelList = () => {
         content: "",
         programId: null,
         schoolChannelId: channelId,
+        isForSchoolChannel: false
       };
 
       const broadcast2 = await broadcastNotification(myNotification);
