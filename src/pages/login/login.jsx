@@ -1,11 +1,12 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import { ThemeContext } from "../../context/ThemeContext";
 import "./login.scss";
 import apiFetch from "../../config/baseAPI";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { login } from "../../redux/features/userData/userLoginSlice";
+import { accountStatusHub } from "../../utils/AccountStatusHub";
 
 function Login() {
   const { theme } = useContext(ThemeContext);
@@ -48,11 +49,17 @@ function Login() {
 
         if (token && account) {
           // Check for SchoolOwner role
-          if (account.roleName === "SchoolOwner" || account.roleName === "Advertiser") {
+          if (
+            account.roleName === "SchoolOwner" ||
+            account.roleName === "Advertiser"
+          ) {
             notification.error({
               message: "Đăng nhập thất bại!",
-              description:
-                `Bạn phải chuyển qua đăng nhập bằng chức năng dành cho ${account.roleName === "SchoolOwner" ? "Trường Học" : "Nhà Quảng Cáo"}.`,
+              description: `Bạn phải chuyển qua đăng nhập bằng chức năng dành cho ${
+                account.roleName === "SchoolOwner"
+                  ? "Trường Học"
+                  : "Nhà Quảng Cáo"
+              }.`,
               placement: "topRight",
               duration: 5,
             });
@@ -105,6 +112,16 @@ function Login() {
     }
   };
 
+  // Cleanup function when component unmounts
+  useEffect(() => {
+    return () => {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (userData?.accountID) {
+        accountStatusHub.stopConnection(userData.accountID);
+      }
+    };
+  }, []);
+
   return (
     <div className="auth-login-container" data-theme={theme}>
       <div className="auth-login-card">
@@ -137,7 +154,7 @@ function Login() {
             viewBox="0 0 48 48"
             version="1"
             xmlns="http://www.w3.org/2000/svg"
-            enable-background="new 0 0 48 48"
+            enableBackground="new 0 0 48 48"
           >
             <g fill="#90CAF9">
               <path d="M17.4,33H15v-4h4l0.4,1.5C19.7,31.8,18.7,33,17.4,33z" />

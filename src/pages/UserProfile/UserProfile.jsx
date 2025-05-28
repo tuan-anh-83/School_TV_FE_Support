@@ -325,7 +325,6 @@ const UserProfile = () => {
           </div>
         </div>
       </div>
-
       <div className="user-profile-content">
         <div className="user-profile-info-card contact-info">
           <h2>Thông Tin Liên Hệ</h2>
