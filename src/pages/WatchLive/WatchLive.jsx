@@ -1096,7 +1096,7 @@ const WatchLive = () => {
                   <iframe
                     src={`${toIframeUrl(
                       displayIframeUrl
-                    )}?autoplay=1&mute=0&controls=${schedule.status === "Live" || schedule.status === "LateStart" ? 0 : 1}&rel=0&playsinline=1`}
+                    )}?autoplay=1&mute=0&controls=${currentStatus === "Live" || currentStatus === "LateStart" ? 0 : 1}&rel=0&playsinline=1`}
                     allow="autoplay; encrypted-media; fullscreen;"
                     allowFullScreen
                     className="youtube-player"
