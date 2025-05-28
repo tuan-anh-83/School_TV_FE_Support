@@ -1,5 +1,5 @@
 // AdsLogin.jsx
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import { ThemeContext } from "../../context/ThemeContext";
@@ -7,6 +7,7 @@ import "./AdsLogin.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/features/userData/userLoginSlice";
 import apiFetch from "../../config/baseAPI";
+import { accountStatusHub } from "../../utils/AccountStatusHub";
 
 function AdsLogin() {
   const { theme } = useContext(ThemeContext);
@@ -113,6 +114,16 @@ function AdsLogin() {
     }
   };
 
+  // Cleanup function when component unmounts
+  useEffect(() => {
+    return () => {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (userData?.accountID) {
+        accountStatusHub.stopConnection(userData.accountID);
+      }
+    };
+  }, []);
+
   // The rest of the component remains the same...
   return (
     <div className="school-login-container" data-theme={theme}>
@@ -125,7 +136,7 @@ function AdsLogin() {
             viewBox="0 0 48 48"
             version="1"
             xmlns="http://www.w3.org/2000/svg"
-            enable-background="new 0 0 48 48"
+            enableBackground="new 0 0 48 48"
           >
             <g fill="#90CAF9">
               <path d="M17.4,33H15v-4h4l0.4,1.5C19.7,31.8,18.7,33,17.4,33z" />

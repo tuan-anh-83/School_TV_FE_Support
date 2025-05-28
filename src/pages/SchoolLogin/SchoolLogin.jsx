@@ -1,5 +1,5 @@
 // SchoolLogin.jsx
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import { ThemeContext } from "../../context/ThemeContext";
@@ -7,6 +7,7 @@ import "./schoolLogin.scss";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/features/userData/userLoginSlice";
 import apiFetch from "../../config/baseAPI";
+import { accountStatusHub } from "../../utils/AccountStatusHub";
 
 function SchoolLogin() {
   const { theme } = useContext(ThemeContext);
@@ -81,6 +82,9 @@ function SchoolLogin() {
           dispatch(login(account));
           console.log("Redux state after login:", user);
 
+          // Start AccountStatusHub connection
+          await accountStatusHub.startConnection(account.accountID);
+
           notification.success({
             message: "Đăng nhập thành công!",
             description: "Chào mừng đơn vị trường học quay trở lại!",
@@ -112,6 +116,16 @@ function SchoolLogin() {
       setLoading(false);
     }
   };
+
+  // Cleanup function when component unmounts
+  useEffect(() => {
+    return () => {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (userData?.accountID) {
+        accountStatusHub.stopConnection(userData.accountID);
+      }
+    };
+  }, []);
 
   // The rest of the component remains the same...
   return (
