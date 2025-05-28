@@ -37,17 +37,29 @@ async function startConnection(accountId) {
     try {
       connection = new signalR.HubConnectionBuilder()
         .withUrl(hubUrl, {
-          transport: signalR.HttpTransportType.WebSockets,
-          skipNegotiation: true,
-          accessTokenFactory: () => localStorage.getItem("authToken"),
+          accessTokenFactory: () => {
+            const token = localStorage.getItem("authToken");
+            if (!token) {
+              console.error("AccountStatusHub: No auth token found");
+              throw new Error("No authentication token available");
+            }
+            return token;
+          },
         })
         .withAutomaticReconnect([0, 2000, 10000, 30000])
         .configureLogging(signalR.LogLevel.Debug)
         .build();
 
-      // Log connection state changes
+      // Add more detailed connection error logging
       connection.onreconnecting((error) => {
         console.log("AccountStatusHub: Reconnecting...", error);
+        if (error) {
+          console.error("AccountStatusHub: Reconnection error details:", {
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+          });
+        }
         isStarted = false;
       });
 
