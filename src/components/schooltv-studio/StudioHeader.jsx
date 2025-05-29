@@ -12,6 +12,8 @@ import { Badge, Dropdown, Space } from "antd";
 import { BellOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotificationItem from "../notification-item/NotificationItem";
+import { accountStatusHub } from "../../utils/AccountStatusHub";
+import PropTypes from "prop-types";
 
 const StudioHeader = ({ channel }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,6 +27,23 @@ const StudioHeader = ({ channel }) => {
 
   const [pageNoti, setPageNoti] = useState(1);
   const [pageSizeNoti, setPageSizeNoti] = useState(3);
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (userData?.accountID) {
+      accountStatusHub
+        .startConnection(userData.accountID)
+        .catch((err) =>
+          console.error("Failed to start AccountStatusHub:", err)
+        );
+    }
+
+    return () => {
+      if (userData?.accountID) {
+        accountStatusHub.stopConnection(userData.accountID);
+      }
+    };
+  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -285,6 +304,17 @@ const StudioHeader = ({ channel }) => {
       </nav>
     </header>
   );
+};
+
+StudioHeader.propTypes = {
+  channel: PropTypes.shape({
+    $values: PropTypes.arrayOf(
+      PropTypes.shape({
+        logoUrl: PropTypes.string,
+        name: PropTypes.string,
+      })
+    ),
+  }),
 };
 
 export default StudioHeader;
