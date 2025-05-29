@@ -35,6 +35,7 @@ function AdsPost() {
     window.matchMedia("(max-width: 767px)").matches
   );
   const [videoFile, setVideoFile] = useState(null);
+  const [videoDuration, setVideoDuration] = useState(null);
 
   const handleVideoUpload = (info) => {
     // Check if we have a file from different possible sources
@@ -76,6 +77,21 @@ function AdsPost() {
         VideoFile: file,
         VideoPreviewUrl: videoPreviewUrl,
       }));
+
+      // Tạo video element để lấy duration
+      const videoElement = document.createElement("video");
+      videoElement.preload = "metadata";
+      videoElement.src = videoPreviewUrl;
+
+      videoElement.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(videoElement.src);
+        const duration = Math.floor(videoElement.duration); // thời lượng tính bằng giây
+
+        setVideoDuration(duration);
+        form.setFieldsValue({
+          DurationSeconds: duration, // Optionally set default value
+        });
+      };
 
       // Need to manually update form since this happens outside normal form event
       form.setFieldsValue({
@@ -346,7 +362,9 @@ function AdsPost() {
 
               <Form.Item
                 label={
-                  <h2 className="studio-post-des">Thời lượng phát sóng (giây)</h2>
+                  <h2 className="studio-post-des">
+                    Thời lượng phát sóng (giây)
+                  </h2>
                 }
                 name="DurationSeconds"
                 rules={[
@@ -354,12 +372,18 @@ function AdsPost() {
                     required: true,
                     message: "Vui lòng chọn thời lượng phát sóng!",
                   },
+                  {
+                    type: "number",
+                    max: videoDuration || 9999,
+                    message: "Không được quá thời lượng của video!",
+                  },
                 ]}
               >
                 <InputNumber
                   className="studio-post-input w-100"
                   style={{ width: "100%" }}
                   placeholder="Nhập thời lượng phát sóng"
+                  disabled={!videoDuration}
                 />
               </Form.Item>
 

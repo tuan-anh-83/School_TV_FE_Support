@@ -54,7 +54,10 @@ import AdsRegister from "./pages/AdsRegister/AdsRegister";
 import AdsManagement from "./pages/Ads-Management/AdsManagement";
 import AdsPost from "./components/ads-studio/functions/post/AdsPost";
 import ScheduleList from "./pages/AdminPage/ScheduleList";
+import PostListPage from "./pages/PostList/PostListPage";
 import { default as AdsListForAd } from "./components/ads-studio/AdsList";
+import ProgramListPage from "./pages/ProgramList/ProgramListPage";
+import ScheduleListPage from "./pages/ScheduleList/ScheduleListPage";
 
 const ScrollToTopWrapper = () => {
   const { pathname } = useLocation();
@@ -199,6 +202,22 @@ function App() {
               element: <StudioPrograms />,
             },
           ],
+        },
+        {
+          path: "postList",
+          element: <PostListPage />,
+        },
+        {
+          path: "programList",
+          element: <ProgramListPage />,
+        },
+        {
+          path: "videoHistoryList",
+          element: <PostListPage />,
+        },
+        {
+          path: "scheduleList",
+          element: <ScheduleListPage />,
         },
       ],
     },
