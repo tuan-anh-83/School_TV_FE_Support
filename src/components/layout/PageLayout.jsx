@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import Footer from "../Footer";
 import AOS from "aos";
 import apiFetch from "../../config/baseAPI";
+import { accountStatusHub } from "../../utils/AccountStatusHub";
 
 function PageLayout() {
   const [user, setUser] = useState(null);
@@ -19,6 +20,15 @@ function PageLayout() {
           const parsedUserData = JSON.parse(storedUserData);
           setUser(parsedUserData);
           console.log("Loaded user data from localStorage:", parsedUserData);
+
+          // Initialize AccountStatusHub with stored user data
+          if (parsedUserData.accountID) {
+            accountStatusHub
+              .startConnection(parsedUserData.accountID)
+              .catch((err) =>
+                console.error("Failed to start AccountStatusHub:", err)
+              );
+          }
         } catch (error) {
           console.error("Error parsing stored user data:", error);
         }
@@ -67,7 +77,7 @@ function PageLayout() {
                 roleName:
                   data.roleName ||
                   (storedUserData ? JSON.parse(storedUserData).roleName : null),
-                accountPackage: data.accountPackage
+                accountPackage: data.accountPackage,
               };
 
           setUser(userData);
