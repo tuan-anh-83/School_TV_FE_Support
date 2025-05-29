@@ -355,7 +355,9 @@ export default function WatchHome() {
                     <div className="event-meta">
                       <span>
                         <i className="fas fa-clock" />
-                        {`${minutes}m ${seconds}s`}
+                        {totalSeconds < 0
+                          ? "Đang diễn ra"
+                          : `${minutes}m ${seconds}s`}
                       </span>
                     </div>
                     {programID && (
