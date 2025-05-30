@@ -14,34 +14,29 @@ import {
   Upload,
   InputNumber,
 } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useOutletContext } from "react-router";
 import apiFetch from "../../config/baseAPI";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
+import { extractVideoId, getThumbnailUrl } from "../../utils/image";
 
 const { Title } = Typography;
-const { TextArea } = Input;
 
 const VideoHistoryListPage = () => {
-  const [programs, setPrograms] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { channel } = useOutletContext();
 
   // Sample data for videoHistories
-  const getVideoHistories = async (channelId) => {
+  const getVideos = async (channelId) => {
     if (!channelId) {
       toast.error("ID kênh không hợp lệ!");
       return;
     }
     try {
       setIsLoading(true);
-      const response = await apiFetch(`Program/by-channel/${channelId}`, {
+      const response = await apiFetch(`VideoHistory/by-channel/${channelId}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -57,14 +52,14 @@ const VideoHistoryListPage = () => {
         throw new Error("Không có dữ liệu kênh!");
       }
 
-      if (data.$values.length > 0) {
-        setPrograms(data.$values);
+      console.log(data);
+
+      if (data && data.$values.length > 0) {
+        setVideos(data.$values);
       }
     } catch (error) {
       console.error("Error checking channel:", error);
-      toast.error(
-        error.message || "Có lỗi xảy ra khi lấy danh sách chương trình!"
-      );
+      toast.error(error.message || "Có lỗi xảy ra khi kiểm tra kênh!");
     } finally {
       setIsLoading(false);
     }
@@ -72,43 +67,39 @@ const VideoHistoryListPage = () => {
 
   useEffect(() => {
     if (channel && channel.$values) {
-      getPrograms(channel.$values[0].schoolChannelID);
+      getVideos(channel.$values[0].schoolChannelID);
     } else {
       setIsLoading(false);
     }
   }, [channel]);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingProgram, setEditingProgram] = useState(null);
+  const [editingVideo, setEditingVideo] = useState(null);
   const [form] = Form.useForm();
 
-  // Handle edit program
+  // Handle edit video
   const handleEdit = (record) => {
-    setEditingProgram(record);
-    form.setFieldsValue({
-      programName: record.programName,
-      title: record.title,
-    });
-    setIsModalVisible(true);
+    // setEditingVideo(record);
+    // form.setFieldsValue({
+    //   title: record.title,
+    // });
+    // setIsModalVisible(true);
   };
 
   // Handle delete post
   const handleDelete = async (record) => {
-    setIsLoading(true);
-    const response = await apiFetch(`Program/${record.programID}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      toast.error(data?.error || "Có lỗi xảy ra khi xóa!");
-      throw new Error(data?.error || "Có lỗi xảy ra khi xóa!");
-    }
-
-    toast.success("Program deleted successfully!");
-
-    setIsModalVisible(false);
-    form.resetFields();
-    setIsLoading(false);
+    // setIsLoading(true);
+    // const response = await apiFetch(`VideoHistory/${record.videoHistoryID}`, {
+    //   method: "DELETE",
+    // });
+    // if (!response.ok) {
+    //   toast.error(data?.error || "Có lỗi xảy ra khi xóa!");
+    //   throw new Error(data?.error || "Có lỗi xảy ra khi xóa!");
+    // }
+    // toast.success("Video deleted successfully!");
+    // setIsModalVisible(false);
+    // form.resetFields();
+    // setIsLoading(false);
   };
 
   // Handle modal OK
@@ -118,11 +109,14 @@ const VideoHistoryListPage = () => {
       const formValues = await form.validateFields();
 
       // Update existing post
-      const response = await apiFetch(`Program/${editingProgram.programID}`, {
-        method: "PUT",
-        body: JSON.stringify(formValues),
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await apiFetch(
+        `VideoHistory/${editingVideo.videoHistoryID}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(formValues),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       const data = await response.json();
 
@@ -131,7 +125,7 @@ const VideoHistoryListPage = () => {
         throw new Error(data?.error || "Có lỗi xảy ra khi cập nhật!");
       }
 
-      toast.success("Program updated successfully!");
+      toast.success("Video updated successfully!");
 
       setIsModalVisible(false);
       form.resetFields();
@@ -146,52 +140,64 @@ const VideoHistoryListPage = () => {
   const handleModalCancel = () => {
     setIsModalVisible(false);
     form.resetFields();
-    setEditingProgram(null);
+    setEditingVideo(null);
+  };
+
+  const handleError = (e) => {
+    e.target.onerror = null; // tránh loop nếu fallback lỗi
+    e.target.src =
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYe8pY2GWIHYPfuxsUChCBHeVmX5vplQetsQ&s";
   };
 
   // Table columns configuration
   const columns = [
     {
-      title: "Title",
-      dataIndex: "title",
-      key: "title",
-      width: 150,
-      ellipsis: true,
-      sorter: (a, b) => a.title.localeCompare(b.title),
+      title: "Thumbnail",
+      dataIndex: "playbackUrl",
+      key: "playbackUrl",
+      width: 80,
+      render: (playbackUrl) => (
+        <img
+          width={80}
+          height={80}
+          style={{ objectFit: "cover" }}
+          src={getThumbnailUrl(extractVideoId(playbackUrl))}
+          alt=""
+          onError={handleError}
+        />
+      ),
     },
     {
       title: "Program",
       dataIndex: "programName",
       key: "programName",
       width: 150,
-      sorter: (a, b) => a.programName.localeCompare(b.programName),
+      ellipsis: true,
+      sorter: (a, b) =>
+        a.program.programName.localeCompare(b.program.programName),
+      render: (_, record) => record.program.programName,
     },
     {
-      title: "Followers",
-      dataIndex: "programFollows",
-      key: "followers",
-      width: 120,
-      render: (programFollows) => (
-        <span style={{ color: "#1890ff", fontWeight: "bold" }}>
-          {programFollows ? programFollows.$values.length : 0} follower
-        </span>
-      ),
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      width: 150,
+      ellipsis: true,
+      sorter: (a, b) => a.description.localeCompare(b.description),
     },
     {
-      title: "Status",
+      title: "Type",
+      dataIndex: "type",
+      key: "type",
+      width: 100,
+      sorter: (a, b) => a.type.localeCompare(b.type),
+    },
+    {
+      title: "Storage",
       dataIndex: "status",
       key: "status",
       width: 100,
-      render: (status) => (
-        <span
-          style={{
-            color: status === "Active" ? "#52c41a" : "#faad14",
-            fontWeight: "bold",
-          }}
-        >
-          {status === "Active" ? "Đang hoạt động" : "Đã bị xóa"}
-        </span>
-      ),
+      render: (status) => (status ? "Có" : "Không"),
     },
     {
       title: "Created Date",
@@ -250,20 +256,20 @@ const VideoHistoryListPage = () => {
 
         <Table
           columns={columns}
-          dataSource={programs}
+          dataSource={videos}
           rowKey="id"
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} programs`,
+              `${range[0]}-${range[1]} of ${total} videos`,
           }}
           scroll={{ x: 800 }}
         />
 
         <Modal
-          title={"Edit Program"}
+          title={"Edit Video"}
           open={isModalVisible}
           onOk={handleModalOk}
           onCancel={handleModalCancel}
