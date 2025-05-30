@@ -631,9 +631,13 @@ const WatchLive = () => {
     children: (
       <div
         className="schedule-item live"
+        style={
+          schedule.status === "Live" || schedule.status === "LateStart"
+            ? {}
+            : { background: "#30106a" }
+        }
         onClick={() => {
           const now = dayjs().tz("Asia/Ho_Chi_Minh");
-
           if (now.isBefore(schedule.startTime)) {
             const totalSeconds = schedule.startTime.diff(now, "second");
             const hours = Math.floor(totalSeconds / 3600);

@@ -12,7 +12,7 @@ import {
 } from "antd";
 import { MdOutlineOndemandVideo } from "react-icons/md";
 import { message, Upload } from "antd";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../../../config/baseAPI";
 
@@ -20,6 +20,7 @@ const { Dragger } = Upload;
 const { TextArea } = Input;
 
 function StudioVideo() {
+  const navigate = useNavigate();
   const { channel } = useOutletContext();
   const [program, setProgram] = useState([]);
   const [programID, setProgramID] = useState(null);
@@ -52,9 +53,6 @@ function StudioVideo() {
         });
 
         setProgram(getProgram); // Cập nhật danh sách chương trình
-      } else {
-        // Nếu không có chương trình nào, báo lỗi
-        throw new Error("Không có chương trình nào phù hợp.");
       }
     } catch (error) {
       toast.error("Lỗi khi lấy danh sách chương trình!");
@@ -245,6 +243,10 @@ function StudioVideo() {
       }
     } catch (error) {
       toast.error(error.message ?? "Lỗi khi upload video!");
+      if (error?.message?.includes("package")) {
+        navigate("/package");
+        return;
+      }
     } finally {
       setIsBtnLoading(false);
     }
