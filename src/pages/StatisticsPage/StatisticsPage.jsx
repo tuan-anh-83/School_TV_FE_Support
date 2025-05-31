@@ -18,39 +18,32 @@ import {
   Bar,
 } from "recharts";
 import {
-  Calendar,
-  TrendingUp,
   Users,
   Eye,
   Clock,
-  Video,
-  Radio,
-  ThumbsUp,
-  MessageCircle,
-  Share2,
-  DollarSign,
-  Award,
-  Zap,
-  TrendingDown,
   Download,
-  Filter,
-  Settings,
   Info,
   ChevronDown,
-  Moon,
-  Sun,
-  FileText,
-  ChevronRight,
 } from "lucide-react";
 import "./StatisticsPage.css";
 import { toast } from "react-toastify";
-import { LoadingOutlined } from "@ant-design/icons";
+import {
+  CommentOutlined,
+  EyeOutlined,
+  HeartOutlined,
+  LoadingOutlined,
+  PlayCircleOutlined,
+  ShareAltOutlined,
+} from "@ant-design/icons";
 import apiFetch from "../../config/baseAPI";
+import { Typography, Card, Avatar } from "antd";
+import { extractVideoId, getThumbnailUrl } from "../../utils/image";
+import dayjs from "dayjs";
+
+const { Text, Title } = Typography;
 
 const StatisticsPage = () => {
-  const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState("7days");
-  const [selectedMetric, setSelectedMetric] = useState("views");
   const [isLoading, setIsLoading] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [dateRange, setDateRange] = useState("7");
@@ -81,77 +74,12 @@ const StatisticsPage = () => {
     },
   ]);
   const { channel } = useOutletContext();
+  const [videos, setVideos] = useState([]);
 
   useEffect(() => {
     // Apply dark mode class
     document.body.classList.toggle("dark-mode", isDarkMode);
   }, [isDarkMode]);
-
-  const viewData = [
-    {
-      date: "20/11",
-      views: 2400,
-      likes: 150,
-      comments: 45,
-      shares: 20,
-      revenue: 120,
-      watchTime: 1200,
-    },
-    {
-      date: "21/11",
-      views: 1398,
-      likes: 98,
-      comments: 32,
-      shares: 15,
-      revenue: 85,
-      watchTime: 980,
-    },
-    {
-      date: "22/11",
-      views: 3800,
-      likes: 220,
-      comments: 65,
-      shares: 40,
-      revenue: 190,
-      watchTime: 1500,
-    },
-    {
-      date: "23/11",
-      views: 3908,
-      likes: 245,
-      comments: 78,
-      shares: 35,
-      revenue: 195,
-      watchTime: 1600,
-    },
-    {
-      date: "24/11",
-      views: 4800,
-      likes: 300,
-      comments: 90,
-      shares: 50,
-      revenue: 240,
-      watchTime: 2000,
-    },
-    {
-      date: "25/11",
-      views: 3800,
-      likes: 280,
-      comments: 85,
-      shares: 45,
-      revenue: 190,
-      watchTime: 1800,
-    },
-    {
-      date: "26/11",
-      views: 4300,
-      likes: 320,
-      comments: 95,
-      shares: 55,
-      revenue: 215,
-      watchTime: 1900,
-    },
-  ];
 
   const audienceDataByDay = [
     { time: "T2", viewers: 850 },
@@ -169,8 +97,6 @@ const StatisticsPage = () => {
     { name: "Giải trí", value: 20, color: "#28a745" },
     { name: "Hướng dẫn", value: 20, color: "#a55eea" },
   ];
-
-  const COLORS = ["#4a90e2", "#ff4757", "#28a745"];
 
   const generateMockData = (days) => {
     const data = [];
@@ -257,113 +183,54 @@ const StatisticsPage = () => {
   useEffect(() => {
     if (channel && channel.$values) {
       analytics(channel.$values[0].schoolChannelID, dateRange);
-    }
-    else {
+    } else {
       setIsLoading(false);
     }
   }, [channel, dateRange]);
 
-  const popularContent = [
-    // // Livestreams
-    // {
-    //   id: 1,
-    //   title: "Lễ tốt nghiệp khoa CNTT 2023",
-    //   views: "15.2K",
-    //   likes: "1.8K",
-    //   comments: "342",
-    //   type: "Livestream",
-    //   duration: "2:45:30",
-    //   thumbnail: "https://picsum.photos/800/450?random=1",
-    //   performance: "Hiệu suất cao hơn bình thường",
-    // },
-    // {
-    //   id: 2,
-    //   title: "Hội thảo: Trí tuệ nhân tạo trong Giáo dục",
-    //   views: "12.8K",
-    //   likes: "1.5K",
-    //   comments: "256",
-    //   type: "Livestream",
-    //   duration: "1:30:15",
-    //   thumbnail: "https://picsum.photos/800/450?random=2",
-    //   performance: "Đang tăng trưởng",
-    // },
-    // {
-    //   id: 3,
-    //   title: "Talkshow: Định hướng nghề nghiệp CNTT 2024",
-    //   views: "10.5K",
-    //   likes: "980",
-    //   comments: "185",
-    //   type: "Livestream",
-    //   duration: "1:15:45",
-    //   thumbnail: "https://picsum.photos/800/450?random=3",
-    //   performance: "Hiệu suất trung bình",
-    // },
-    // // Videos
-    // {
-    //   id: 4,
-    //   title: "Hướng dẫn đăng ký học phần HK2 2023-2024",
-    //   views: "18.3K",
-    //   likes: "2.1K",
-    //   comments: "425",
-    //   type: "Video",
-    //   duration: "15:24",
-    //   thumbnail: "https://picsum.photos/800/450?random=4",
-    //   performance: "Hiệu suất cao hơn bình thường",
-    // },
-    // {
-    //   id: 5,
-    //   title: "Review chương trình đào tạo ngành KTPM",
-    //   views: "14.7K",
-    //   likes: "1.6K",
-    //   comments: "298",
-    //   type: "Video",
-    //   duration: "22:15",
-    //   thumbnail: "https://picsum.photos/800/450?random=5",
-    //   performance: "Đang tăng trưởng",
-    // },
-    // {
-    //   id: 6,
-    //   title: "Giới thiệu cơ sở vật chất phòng lab mới",
-    //   views: "11.9K",
-    //   likes: "1.3K",
-    //   comments: "215",
-    //   type: "Video",
-    //   duration: "18:30",
-    //   thumbnail: "https://picsum.photos/800/450?random=6",
-    //   performance: "Hiệu suất trung bình",
-    // },
-    // // Bài viết
-    // {
-    //   id: 7,
-    //   title: "Thông báo lịch thi cuối kỳ HK1 2023-2024",
-    //   views: "22.4K",
-    //   likes: "1.9K",
-    //   comments: "456",
-    //   type: "Bài viết",
-    //   thumbnail: "https://picsum.photos/800/450?random=7",
-    //   performance: "Hiệu suất cao hơn bình thường",
-    // },
-    // {
-    //   id: 8,
-    //   title: "Kế hoạch học tập và giảng dạy năm 2024",
-    //   views: "19.8K",
-    //   likes: "1.7K",
-    //   comments: "385",
-    //   type: "Bài viết",
-    //   thumbnail: "https://picsum.photos/800/450?random=8",
-    //   performance: "Đang tăng trưởng",
-    // },
-    // {
-    //   id: 9,
-    //   title: "Thông báo học bổng khoa CNTT 2024",
-    //   views: "17.2K",
-    //   likes: "1.4K",
-    //   comments: "312",
-    //   type: "Bài viết",
-    //   thumbnail: "https://picsum.photos/800/450?random=9",
-    //   performance: "Hiệu suất trung bình",
-    // },
-  ];
+  const getVideos = async (channelId) => {
+    if (!channelId) {
+      toast.error("ID kênh không hợp lệ!");
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const response = await apiFetch(`VideoHistory/by-channel/${channelId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Kênh không tồn tại!");
+      }
+      const data = await response.json();
+      if (!data) {
+        throw new Error("Không có dữ liệu kênh!");
+      }
+
+      console.log(data);
+
+      if (data && data.$values.length > 0) {
+        setVideos(data.$values);
+      }
+    } catch (error) {
+      console.error("Error checking channel:", error);
+      toast.error(error.message || "Có lỗi xảy ra khi kiểm tra kênh!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (channel && channel.$values) {
+      getVideos(channel.$values[0].schoolChannelID);
+    } else {
+      setIsLoading(false);
+    }
+  }, [channel]);
 
   const audienceData = [
     { time: "00:00", viewers: 120 },
@@ -379,12 +246,6 @@ const StatisticsPage = () => {
     { name: "Video", value: 45, color: "#4a90e2" },
     { name: "Livestream", value: 30, color: "#ff4757" },
     { name: "Bài viết", value: 25, color: "#28a745" },
-  ];
-
-  const metrics = [
-    { key: "views", label: "Lượt xem", color: "#4a90e2" },
-    { key: "watchTime", label: "Thời gian xem", color: "#ff4757" },
-    { key: "likes", label: "Lượt thích", color: "#28a745" },
   ];
 
   const formatSummaryStats = (data) => [
@@ -444,55 +305,82 @@ const StatisticsPage = () => {
     </motion.div>
   );
 
-  const ContentSection = ({ title, items, icon: Icon }) => (
-    <div className="stats-content-section">
-      <div className="stats-section-header">
-        <div className="stats-section-title">
-          <Icon size={20} />
-          <h3>{title}</h3>
-        </div>
-        <button className="stats-view-all-button">
-          Xem tất cả
-          <ChevronRight size={16} />
-        </button>
-      </div>
-      <div className="stats-content-grid">
-        {items.map((content) => (
-          <ContentCard key={content.id} content={content} />
-        ))}
-      </div>
-    </div>
-  );
+  const formatNumber = (num) => {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "K";
+    }
+    return num?.toString();
+  };
 
-  const ContentCard = ({ content }) => (
-    <div className="stats-content-card">
-      <div className="stats-thumbnail-container">
-        <img src={content.thumbnail} alt={content.title} />
-        {content.duration && (
-          <span className="stats-duration">{content.duration}</span>
-        )}
-        <div className="stats-content-type">{content.type}</div>
-      </div>
-      <div className="stats-content-info">
-        <h4>{content.title}</h4>
-        <div className="stats-metrics">
-          <span>
-            <Eye size={14} /> {content.views}
-          </span>
-          <span>
-            <ThumbsUp size={14} /> {content.likes}
-          </span>
-          <span>
-            <MessageCircle size={14} /> {content.comments}
-          </span>
-        </div>
-        <div className="stats-performance">
-          <Zap size={14} />
-          <span>{content.performance}</span>
-        </div>
-      </div>
-    </div>
-  );
+  const cardStyle = {
+    minWidth: 250,
+    marginRight: 16,
+    borderRadius: "12px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+    transition: "transform 0.2s, box-shadow 0.2s",
+  };
+
+  const containerStyle = {
+    paddingBottom: 10,
+  };
+
+  const scrollContainerStyle = {
+    display: "flex",
+    overflowX: "auto",
+    paddingBottom: "10px",
+    gap: "0px",
+    scrollbarWidth: "thin",
+    scrollbarColor: "#d9d9d9 transparent",
+  };
+
+  const thumbnailContainerStyle = {
+    position: "relative",
+    cursor: "pointer",
+  };
+
+  const durationBadgeStyle = {
+    position: "absolute",
+    bottom: "8px",
+    right: "8px",
+    background: "rgba(0,0,0,0.8)",
+    color: "white",
+    padding: "2px 6px",
+    borderRadius: "4px",
+    fontSize: "12px",
+    fontWeight: "500",
+  };
+
+  const playOverlayStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    fontSize: "48px",
+    color: "rgba(255,255,255,0.9)",
+    transition: "opacity 0.2s",
+  };
+
+  const statsStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "12px",
+    paddingTop: "12px",
+    borderTop: "1px solid #f0f0f0",
+  };
+
+  const statItemStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    color: "#666",
+    fontSize: "13px",
+  };
+
+  const handleError = (e) => {
+    e.target.onerror = null; // tránh loop nếu fallback lỗi
+    e.target.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYe8pY2GWIHYPfuxsUChCBHeVmX5vplQetsQ&s";
+  };
 
   return (
     <div className={`stats-page ${isDarkMode ? "dark-mode" : ""}`}>
@@ -552,87 +440,112 @@ const StatisticsPage = () => {
         {summaryStats.map((stat, index) => renderStatsCard(stat))}
       </div>
 
-      <div className="stats-performance-chart-section">
-        <div className="stats-chart-card performance">
-          <div className="stats-chart-header">
-            <div className="stats-chart-title">
-              <h3>Hiệu suất tổng quan</h3>
-              <Info size={16} className="stats-info-icon" />
-            </div>
-          </div>
-
-          <div className="stats-metric-selector-container">
-            <div className="stats-metric-selector">
-              {metrics.map((metric) => (
-                <button
-                  key={metric.key}
-                  className={`stats-metric-button ${
-                    selectedMetric === metric.key ? "active" : ""
-                  }`}
-                  onClick={() => setSelectedMetric(metric.key)}
-                >
-                  {metric.key === "views" && <Eye size={16} />}
-                  {metric.key === "watchTime" && <Clock size={16} />}
-                  {metric.key === "likes" && <ThumbsUp size={16} />}
-                  {metric.key === "revenue" && <DollarSign size={16} />}
-                  {metric.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="stats-chart-container">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={viewData}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="colorMetric" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor={
-                        metrics.find((m) => m.key === selectedMetric)?.color
-                      }
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor={
-                        metrics.find((m) => m.key === selectedMetric)?.color
-                      }
-                      stopOpacity={0}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  axisLine={false}
-                  tickLine={false}
-                  dy={10}
-                />
-                <YAxis axisLine={false} tickLine={false} dx={-10} />
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--card-bg)",
-                    border: "1px solid var(--border-color)",
-                    borderRadius: "8px",
-                    padding: "10px",
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey={selectedMetric}
-                  stroke={metrics.find((m) => m.key === selectedMetric)?.color}
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorMetric)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+      <div style={containerStyle}>
+        <div style={{ marginBottom: "20px" }}>
+          <Title level={3} style={{ margin: 0, color: "#333" }}>
+            Danh sách Video
+          </Title>
         </div>
+
+        <div style={scrollContainerStyle}>
+          {videos &&
+            videos.map((video) => (
+              <Card
+                key={video.videoHistoryID}
+                style={cardStyle}
+                bodyStyle={{ padding: "16px" }}
+                hoverable
+                cover={
+                  <div style={thumbnailContainerStyle}>
+                    <img
+                      alt=""
+                      src={getThumbnailUrl(extractVideoId(video.playbackUrl))}
+                      style={{
+                        width: "100%",
+                        height: "157px",
+                        objectFit: "cover",
+                      }}
+                      onError={handleError}
+                    />
+                    <div style={playOverlayStyle}>
+                      <PlayCircleOutlined />
+                    </div>
+                    <div style={durationBadgeStyle}>{video.duration.toFixed(2)}</div>
+                  </div>
+                }
+              >
+                <div>
+                  <Title
+                    level={5}
+                    style={{
+                      margin: "0 0 0 0",
+                      fontSize: "14px",
+                      lineHeight: "1.4",
+                      height: "20px",
+                      overflow: "hidden",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {video?.program?.programName ?? "N/A"}
+                  </Title>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <div>
+                      <Text strong style={{ fontSize: "13px", overflow: "hidden", whiteSpace: "nowrap", width: "80%" }} ellipsis>
+                        {video.description}
+                      </Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                        <EyeOutlined style={{ marginRight: "4px" }} />
+                        {formatNumber(video.viewCount)} lượt xem •{" "}
+                        {dayjs(video.createdAt).format("DD-MM-YYYY HH:mm:ss")}
+                      </Text>
+                    </div>
+                  </div>
+
+                  <div style={statsStyle}>
+                    <div style={statItemStyle}>
+                      <HeartOutlined style={{ color: "#ff4d4f" }} />
+                      <span>{formatNumber(video.likeCount)}</span>
+                    </div>
+                    <div style={statItemStyle}>
+                      <ShareAltOutlined style={{ color: "#1890ff" }} />
+                      <span>{formatNumber(video.shareCount)}</span>
+                    </div>
+                    <div style={statItemStyle}>
+                      <CommentOutlined style={{ color: "#52c41a" }} />
+                      <span>{formatNumber(video.commentCount)}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+        </div>
+
+        <style jsx>{`
+          div::-webkit-scrollbar {
+            height: 8px;
+          }
+          div::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+          div::-webkit-scrollbar-thumb {
+            background: #d9d9d9;
+            border-radius: 4px;
+          }
+          div::-webkit-scrollbar-thumb:hover {
+            background: #bfbfbf;
+          }
+        `}</style>
       </div>
 
       <div className="stats-analytics-grid">

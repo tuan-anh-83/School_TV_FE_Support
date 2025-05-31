@@ -59,6 +59,8 @@ import { default as AdsListForAd } from "./components/ads-studio/AdsList";
 import ProgramListPage from "./pages/ProgramList/ProgramListPage";
 import ScheduleListPage from "./pages/ScheduleList/ScheduleListPage";
 import AdvertiserAccount from "./pages/AdminPage/AdvertiserAccount";
+import VideoHistoryListPage from "./pages/VideoHistoryList/VideoHistoryListPage";
+
 
 const ScrollToTopWrapper = () => {
   const { pathname } = useLocation();
@@ -214,7 +216,7 @@ function App() {
         },
         {
           path: "videoHistoryList",
-          element: <PostListPage />,
+          element: <VideoHistoryListPage />,
         },
         {
           path: "scheduleList",

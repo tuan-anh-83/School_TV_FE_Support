@@ -98,6 +98,23 @@ function SchoolLogin() {
           throw new Error("Invalid response format");
         }
       } else {
+        const data = await response.json();
+        if (data && data.message && data.url) {
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: (
+              <>
+                {data.message}{" "}
+                <a href={data.url} style={{ color: "#1890ff" }}>
+                  Tại đây
+                </a>
+              </>
+            ),
+            placement: "topRight",
+            duration: 5,
+          });
+          return;
+        }
         throw { status: response.status };
       }
     } catch (error) {
