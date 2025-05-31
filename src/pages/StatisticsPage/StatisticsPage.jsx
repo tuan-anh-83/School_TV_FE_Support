@@ -17,14 +17,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-import {
-  Users,
-  Eye,
-  Clock,
-  Download,
-  Info,
-  ChevronDown,
-} from "lucide-react";
+import { Users, Eye, Clock, Download, Info, ChevronDown } from "lucide-react";
 import "./StatisticsPage.css";
 import { toast } from "react-toastify";
 import {
@@ -50,6 +43,7 @@ const StatisticsPage = () => {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [audienceTimeFilter, setAudienceTimeFilter] = useState("hour");
   const [contentDistFilter, setContentDistFilter] = useState("type");
+  const [viewData, setViewData] = useState([]);
   const [summaryStats, setSummaryStats] = React.useState([
     {
       icon: Eye,
@@ -75,6 +69,19 @@ const StatisticsPage = () => {
   ]);
   const { channel } = useOutletContext();
   const [videos, setVideos] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Only redirect if we're sure there's no channel after loading is complete
+    if (
+      !isLoading &&
+      (!channel || (channel?.$values && channel.$values.length === 0))
+    ) {
+      toast.error("Không tìm thấy thông tin kênh!");
+      navigate("/create-channel");
+      return;
+    }
+  }, [channel, isLoading, navigate]);
 
   useEffect(() => {
     // Apply dark mode class
@@ -147,7 +154,7 @@ const StatisticsPage = () => {
 
   const analytics = async (channelId, dateRange) => {
     if (!channelId) {
-      toast.error("ID kênh không hợp lệ!");
+      setIsLoading(false);
       return;
     }
     try {
@@ -181,7 +188,10 @@ const StatisticsPage = () => {
   };
 
   useEffect(() => {
-    if (channel && channel.$values) {
+    if (
+      Object.prototype.hasOwnProperty.call(channel || {}, "$values") &&
+      channel.$values?.length > 0
+    ) {
       analytics(channel.$values[0].schoolChannelID, dateRange);
     } else {
       setIsLoading(false);
@@ -190,7 +200,7 @@ const StatisticsPage = () => {
 
   const getVideos = async (channelId) => {
     if (!channelId) {
-      toast.error("ID kênh không hợp lệ!");
+      setIsLoading(false);
       return;
     }
     try {
@@ -211,9 +221,7 @@ const StatisticsPage = () => {
         throw new Error("Không có dữ liệu kênh!");
       }
 
-      console.log(data);
-
-      if (data && data.$values.length > 0) {
+      if (data && data.$values?.length > 0) {
         setVideos(data.$values);
       }
     } catch (error) {
@@ -225,7 +233,10 @@ const StatisticsPage = () => {
   };
 
   useEffect(() => {
-    if (channel && channel.$values) {
+    if (
+      Object.prototype.hasOwnProperty.call(channel || {}, "$values") &&
+      channel.$values?.length > 0
+    ) {
       getVideos(channel.$values[0].schoolChannelID);
     } else {
       setIsLoading(false);
@@ -379,7 +390,8 @@ const StatisticsPage = () => {
 
   const handleError = (e) => {
     e.target.onerror = null; // tránh loop nếu fallback lỗi
-    e.target.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYe8pY2GWIHYPfuxsUChCBHeVmX5vplQetsQ&s";
+    e.target.src =
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYe8pY2GWIHYPfuxsUChCBHeVmX5vplQetsQ&s";
   };
 
   return (
@@ -470,7 +482,9 @@ const StatisticsPage = () => {
                     <div style={playOverlayStyle}>
                       <PlayCircleOutlined />
                     </div>
-                    <div style={durationBadgeStyle}>{video.duration.toFixed(2)}</div>
+                    <div style={durationBadgeStyle}>
+                      {video.duration.toFixed(2)}
+                    </div>
                   </div>
                 }
               >
@@ -499,7 +513,16 @@ const StatisticsPage = () => {
                     }}
                   >
                     <div>
-                      <Text strong style={{ fontSize: "13px", overflow: "hidden", whiteSpace: "nowrap", width: "80%" }} ellipsis>
+                      <Text
+                        strong
+                        style={{
+                          fontSize: "13px",
+                          overflow: "hidden",
+                          whiteSpace: "nowrap",
+                          width: "80%",
+                        }}
+                        ellipsis
+                      >
                         {video.description}
                       </Text>
                       <br />
