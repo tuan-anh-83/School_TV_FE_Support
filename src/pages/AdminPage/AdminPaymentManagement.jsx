@@ -50,7 +50,10 @@ function AdminPaymentManagement() {
       const filtered = payments.filter(
         (item) =>
           item.paymentID.toString().includes(value) ||
-          item.status.toLowerCase().includes(value.toLowerCase())
+          item.status.toLowerCase().includes(value.toLowerCase()) ||
+          item.user?.username?.toLowerCase().includes(value.toLowerCase()) ||
+          item.user?.fullname?.toLowerCase().includes(value.toLowerCase()) ||
+          item.user?.roleName?.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredPayments(filtered);
     }
@@ -99,6 +102,23 @@ function AdminPaymentManagement() {
       key: "timestamp",
       render: formatDateTime,
     },
+    {
+      title: "User Info",
+      key: "userInfo",
+      render: (_, record) => (
+        <div>
+          <div>
+            <strong>Username:</strong> {record.user?.username}
+          </div>
+          <div>
+            <strong>Fullname:</strong> {record.user?.fullname}
+          </div>
+          <div>
+            <strong>Role:</strong> {record.user?.roleName}
+          </div>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -111,7 +131,7 @@ function AdminPaymentManagement() {
           <Title level={2}>Admin Payment Management</Title>
 
           <Search
-            placeholder="Search by Payment ID or Status"
+            placeholder="Search by Payment ID, Status, Username, Fullname, or Role"
             onChange={handleSearchChange}
             value={searchTerm}
             style={{ width: 300, marginBottom: 20 }}

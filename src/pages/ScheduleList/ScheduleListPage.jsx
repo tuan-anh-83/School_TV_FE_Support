@@ -249,7 +249,15 @@ const ScheduleListPage = () => {
       dataIndex: "thumbnail",
       key: "thumbnail",
       width: 80,
-      render: (thumbnail) => <img width={80} height={80} src={thumbnail} alt="" style={{borderRadius: 10}} />,
+      render: (thumbnail) => (
+        <img
+          width={80}
+          height={80}
+          src={thumbnail}
+          alt=""
+          style={{ borderRadius: 10 }}
+        />
+      ),
     },
     {
       title: "Title",
@@ -296,7 +304,7 @@ const ScheduleListPage = () => {
             ></Button>
             <Popconfirm
               title="Delete Post"
-              description="Are you sure you want to delete this post?"
+              description="Bạn có chắc muốn xóa lịch chiếu này?"
               onConfirm={() => handleDelete(record)}
               okText="Yes"
               cancelText="No"

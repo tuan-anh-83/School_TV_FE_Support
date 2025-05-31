@@ -99,12 +99,20 @@ const ProgramListPage = () => {
       method: "DELETE",
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
       toast.error(data?.error || "Có lỗi xảy ra khi xóa!");
-      throw new Error(data?.error || "Có lỗi xảy ra khi xóa!");
+      setIsLoading(false);
+      return;
     }
 
     toast.success("Program deleted successfully!");
+
+    // Fetch lại danh sách chương trình
+    if (channel && channel.$values) {
+      await getPrograms(channel.$values[0].schoolChannelID);
+    }
 
     setIsModalVisible(false);
     form.resetFields();
@@ -132,6 +140,11 @@ const ProgramListPage = () => {
       }
 
       toast.success("Program updated successfully!");
+
+      // Fetch lại danh sách chương trình
+      if (channel && channel.$values) {
+        await getPrograms(channel.$values[0].schoolChannelID);
+      }
 
       setIsModalVisible(false);
       form.resetFields();
@@ -215,7 +228,7 @@ const ProgramListPage = () => {
           ></Button>
           <Popconfirm
             title="Delete Post"
-            description="Are you sure you want to delete this post?"
+            description="Bạn có chắc muốn xóa chương trình này?"
             onConfirm={() => handleDelete(record)}
             okText="Yes"
             cancelText="No"

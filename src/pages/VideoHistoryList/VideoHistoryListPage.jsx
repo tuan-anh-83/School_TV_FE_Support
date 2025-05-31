@@ -215,7 +215,7 @@ const VideoHistoryListPage = () => {
           ></Button>
           <Popconfirm
             title="Delete Post"
-            description="Are you sure you want to delete this post?"
+            description="Bạn cs"
             onConfirm={() => handleDelete(record)}
             okText="Yes"
             cancelText="No"
@@ -244,7 +244,7 @@ const VideoHistoryListPage = () => {
           }}
         >
           <Title level={3} style={{ margin: 0 }}>
-            Danh sách chương trình
+            Danh sách Video
           </Title>
         </div>
 

@@ -7,7 +7,6 @@ import {
   SettingOutlined,
   HomeOutlined,
   UserDeleteOutlined,
-  UsergroupDeleteOutlined,
   UnorderedListOutlined,
   ProfileOutlined,
   ScheduleOutlined,
@@ -17,6 +16,7 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import "./AdminMenu.scss";
+import PropTypes from "prop-types";
 
 const AdminMenu = ({ onLogout }) => {
   const location = useLocation();
@@ -116,11 +116,11 @@ const AdminMenu = ({ onLogout }) => {
           icon: <UserDeleteOutlined />,
           label: <Link to="/userlist">User List</Link>,
         },
-        // {
-        //   key: "3.2",
-        //   icon: <UsergroupDeleteOutlined />,
-        //   label: <Link to="/adminlist">Admin List</Link>,
-        // },
+        {
+          key: "4.2",
+          icon: <UserDeleteOutlined />,
+          label: <Link to="/advertiseraccount">Advertiser Account</Link>,
+        },
         {
           key: "4.3",
           icon: <HomeOutlined />,
@@ -155,7 +155,7 @@ const AdminMenu = ({ onLogout }) => {
       icon: <VideoCameraAddOutlined />,
       label: <Link to="/ads">Ads Management</Link>,
     },
-        {
+    {
       key: "8",
       icon: <CalendarOutlined />,
       label: <Link to="/schedule-management">Schedule Management</Link>,
@@ -186,6 +186,10 @@ const AdminMenu = ({ onLogout }) => {
       forceSubMenuRender={true} // Important for smooth transitions
     />
   );
+};
+
+AdminMenu.propTypes = {
+  onLogout: PropTypes.func,
 };
 
 export default AdminMenu;
