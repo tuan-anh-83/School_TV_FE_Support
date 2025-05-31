@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   Button,
@@ -12,13 +12,11 @@ import {
   Typography,
   Switch,
   Upload,
-  InputNumber,
   DatePicker,
 } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
-  PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 import { useOutletContext } from "react-router";
@@ -293,14 +291,21 @@ const ScheduleListPage = () => {
       title: "Actions",
       key: "actions",
       width: 120,
-      render: (_, record) =>
-        record.status === "Pending" && (
+      render: (_, record) => {
+        const isPending = record.status === "Pending";
+        return (
           <Space>
             <Button
               type="primary"
               icon={<EditOutlined />}
               size="small"
               onClick={() => handleEdit(record)}
+              disabled={!isPending}
+              title={
+                !isPending
+                  ? "Chỉ có thể chỉnh sửa lịch chiếu ở trạng thái Pending"
+                  : ""
+              }
             ></Button>
             <Popconfirm
               title="Delete Post"
@@ -308,16 +313,24 @@ const ScheduleListPage = () => {
               onConfirm={() => handleDelete(record)}
               okText="Yes"
               cancelText="No"
+              disabled={!isPending}
             >
               <Button
                 type="primary"
                 danger
                 icon={<DeleteOutlined />}
                 size="small"
+                disabled={!isPending}
+                title={
+                  !isPending
+                    ? "Chỉ có thể xóa lịch chiếu ở trạng thái Pending"
+                    : ""
+                }
               ></Button>
             </Popconfirm>
           </Space>
-        ),
+        );
+      },
     },
   ];
 

@@ -1,20 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Button,
-  Space,
-  Modal,
-  Form,
-  Input,
-  message,
-  Popconfirm,
-  Card,
-  Typography,
-  Switch,
-  Upload,
-  InputNumber,
-} from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Table, Card, Typography } from "antd";
 import { useOutletContext } from "react-router";
 import apiFetch from "../../config/baseAPI";
 import dayjs from "dayjs";
@@ -72,76 +57,6 @@ const VideoHistoryListPage = () => {
       setIsLoading(false);
     }
   }, [channel]);
-
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingVideo, setEditingVideo] = useState(null);
-  const [form] = Form.useForm();
-
-  // Handle edit video
-  const handleEdit = (record) => {
-    // setEditingVideo(record);
-    // form.setFieldsValue({
-    //   title: record.title,
-    // });
-    // setIsModalVisible(true);
-  };
-
-  // Handle delete post
-  const handleDelete = async (record) => {
-    // setIsLoading(true);
-    // const response = await apiFetch(`VideoHistory/${record.videoHistoryID}`, {
-    //   method: "DELETE",
-    // });
-    // if (!response.ok) {
-    //   toast.error(data?.error || "Có lỗi xảy ra khi xóa!");
-    //   throw new Error(data?.error || "Có lỗi xảy ra khi xóa!");
-    // }
-    // toast.success("Video deleted successfully!");
-    // setIsModalVisible(false);
-    // form.resetFields();
-    // setIsLoading(false);
-  };
-
-  // Handle modal OK
-  const handleModalOk = async () => {
-    try {
-      setIsLoading(true);
-      const formValues = await form.validateFields();
-
-      // Update existing post
-      const response = await apiFetch(
-        `VideoHistory/${editingVideo.videoHistoryID}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(formValues),
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        toast.error(data?.error || "Có lỗi xảy ra khi cập nhật!");
-        throw new Error(data?.error || "Có lỗi xảy ra khi cập nhật!");
-      }
-
-      toast.success("Video updated successfully!");
-
-      setIsModalVisible(false);
-      form.resetFields();
-    } catch (error) {
-      console.error("Validation failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle modal cancel
-  const handleModalCancel = () => {
-    setIsModalVisible(false);
-    form.resetFields();
-    setEditingVideo(null);
-  };
 
   const handleError = (e) => {
     e.target.onerror = null; // tránh loop nếu fallback lỗi
@@ -207,35 +122,6 @@ const VideoHistoryListPage = () => {
       sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       render: (createdAt) => dayjs(createdAt).format("DD-MM-YYYY"),
     },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 120,
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            size="small"
-            onClick={() => handleEdit(record)}
-          ></Button>
-          <Popconfirm
-            title="Delete Post"
-            description="Bạn cs"
-            onConfirm={() => handleDelete(record)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              type="primary"
-              danger
-              icon={<DeleteOutlined />}
-              size="small"
-            ></Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
   ];
 
   return (
@@ -258,6 +144,7 @@ const VideoHistoryListPage = () => {
           columns={columns}
           dataSource={videos}
           rowKey="id"
+          loading={isLoading}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -267,45 +154,6 @@ const VideoHistoryListPage = () => {
           }}
           scroll={{ x: 800 }}
         />
-
-        <Modal
-          title={"Edit Video"}
-          open={isModalVisible}
-          onOk={handleModalOk}
-          onCancel={handleModalCancel}
-          loading={isLoading}
-          width={600}
-          okText={"Update"}
-        >
-          <Form form={form} layout="vertical" name="post_form">
-            <Form.Item
-              name="programName"
-              label="Tên chương trình"
-              rules={[
-                {
-                  required: false,
-                  message: "Please input the program name!",
-                },
-              ]}
-            >
-              <Input placeholder="Enter program name" />
-            </Form.Item>
-
-            <Form.Item
-              name="title"
-              label="Tiêu đề"
-              rules={[
-                { required: true, message: "Please input the program title!" },
-                {
-                  min: 3,
-                  message: "Title must be at least 3 characters long!",
-                },
-              ]}
-            >
-              <Input placeholder="Enter program title" />
-            </Form.Item>
-          </Form>
-        </Modal>
       </Card>
     </div>
   );
