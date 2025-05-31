@@ -378,7 +378,7 @@ function AdminPackage() {
         okText="Yes"
         cancelText="No"
       >
-        <p>Are you sure you want to delete this package?</p>
+        <p>Bạn có chắc muốn xóa gói này?</p>
       </Modal>
     </div>
   );

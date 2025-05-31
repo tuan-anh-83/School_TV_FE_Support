@@ -23,25 +23,22 @@ import {
 import { useOutletContext } from "react-router";
 import apiFetch from "../../config/baseAPI";
 import dayjs from "dayjs";
-import { toast } from "react-toastify";
 
 const { Title } = Typography;
 const { TextArea } = Input;
 
 const PostsListPage = () => {
   const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const { channel } = useOutletContext();
   const [fileList, setFileList] = useState([]);
 
   // Sample data for posts
   const getPosts = async (channelId) => {
     if (!channelId) {
-      toast.error("ID kênh không hợp lệ!");
+      message.error("ID kênh không hợp lệ!");
       return;
     }
     try {
-      setIsLoading(true);
       const response = await apiFetch(`News/school-channel/${channelId}`, {
         method: "GET",
         headers: {
@@ -65,17 +62,15 @@ const PostsListPage = () => {
       }
     } catch (error) {
       console.error("Error checking channel:", error);
-      toast.error(error.message || "Có lỗi xảy ra khi lấy danh sách bài viết!");
-    } finally {
-      setIsLoading(false);
+      message.error(
+        error.message || "Có lỗi xảy ra khi lấy danh sách bài viết!"
+      );
     }
   };
 
   useEffect(() => {
     if (channel && channel.$values) {
       getPosts(channel.$values[0].schoolChannelID);
-    } else {
-      setIsLoading(false);
     }
   }, [channel]);
 
@@ -94,7 +89,7 @@ const PostsListPage = () => {
     });
 
     // Convert existing image files to file list format for display
-    const existingFiles = record.newsPictures.$values.map((file, index) => ({
+    const existingFiles = record.newsPictures.$values.map((file) => ({
       uid: `-${file?.pictureID}`,
       name: file?.fileName,
       status: "done",
@@ -109,20 +104,39 @@ const PostsListPage = () => {
 
   // Handle delete post
   const handleDelete = async (record) => {
-    const response = await apiFetch(`News/${record.newsID}`, {
-      method: "DELETE",
-    });
+    try {
+      const response = await apiFetch(`News/${record.newsID}`, {
+        method: "DELETE",
+      });
 
-    if (!response.ok) {
-      toast.error(data?.error || "Có lỗi xảy ra khi xóa!");
-      throw new Error(data?.error || "Có lỗi xảy ra khi xóa!");
+      if (!response.ok && response.status !== 204) {
+        const data = await response.json();
+        message.error(data?.error || "Có lỗi xảy ra khi xóa!");
+        return;
+      }
+
+      // Nếu status là 204 thì xóa thành công
+      message.success("Xóa bài viết thành công!");
+
+      // Fetch lại danh sách bài viết ngay lập tức
+      if (channel && channel.$values) {
+        console.log("Fetching new data after delete...");
+        try {
+          await getPosts(channel.$values[0].schoolChannelID);
+          console.log("Data fetched successfully after delete");
+        } catch (error) {
+          console.error("Error fetching data after delete:", error);
+        }
+      }
+
+      // Reset form và đóng modal sau khi đã fetch xong
+      setIsModalVisible(false);
+      form.resetFields();
+      setFileList([]);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      message.error("Có lỗi xảy ra khi xóa bài viết!");
     }
-
-    toast.success("Post deleted successfully!");
-
-    setIsModalVisible(false);
-    form.resetFields();
-    setFileList([]);
   };
 
   // Handle modal OK
@@ -145,13 +159,12 @@ const PostsListPage = () => {
       );
 
       // Append image files
-      fileList.forEach((file, index) => {
+      fileList.forEach((file) => {
         if (file.originFileObj) {
           // New file upload
           formData.append("ImageFiles", file.originFileObj);
         } else if (file.isExisting) {
-          // Existing file - you might want to send just the pictureID
-          // or handle it differently based on your backend requirements
+          // Existing file
           formData.append("ExistingImageIDs", file.pictureID);
         }
       });
@@ -165,11 +178,16 @@ const PostsListPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data?.error || "Có lỗi xảy ra khi cập nhật!");
+        message.error(data?.error || "Có lỗi xảy ra khi cập nhật!");
         throw new Error(data?.error || "Có lỗi xảy ra khi cập nhật!");
       }
 
-      toast.success("Post updated successfully!");
+      message.success("Cập nhật bài viết thành công!");
+
+      // Fetch lại danh sách bài viết
+      if (channel && channel.$values) {
+        await getPosts(channel.$values[0].schoolChannelID);
+      }
 
       setIsModalVisible(false);
       form.resetFields();
@@ -184,7 +202,7 @@ const PostsListPage = () => {
   };
 
   // Custom upload request (prevent automatic upload)
-  const customUploadRequest = ({ file, onSuccess }) => {
+  const customUploadRequest = ({ onSuccess }) => {
     // Prevent automatic upload, we'll handle files in form submission
     setTimeout(() => {
       onSuccess("ok");
@@ -271,7 +289,7 @@ const PostsListPage = () => {
           ></Button>
           <Popconfirm
             title="Delete Post"
-            description="Are you sure you want to delete this post?"
+            description="Bạn có chắc muốn xóa bài viết này?"
             onConfirm={() => handleDelete(record)}
             okText="Yes"
             cancelText="No"
