@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useContext,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -22,6 +16,8 @@ import {
   startAdsHub,
   stopAdsHub,
 } from "../../utils/AdsHub";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
 
 dayjs.extend(timezone);
 
@@ -35,12 +31,15 @@ const WatchLive = () => {
   const [currentDate, setCurrentDate] = useState(
     dayjs().tz("Asia/Ho_Chi_Minh")
   );
+  const videoRef = useRef(null);
+  const playerRef = useRef(null);
 
   const [logicDate, setLogicDate] = useState(
     currentDate.format("YYYY-MM-DD") || ""
   );
   const [displaySchedule, setDisplaySchedule] = useState([]);
   const [displayIframeUrl, setDisplayIframeUrl] = useState("");
+  const [displayMp4Url, setDisplayMp4Url] = useState("");
   const [videoHistoryId, setVideoHistoryId] = useState(null);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [commentError, setCommentError] = useState(null);
@@ -66,6 +65,57 @@ const WatchLive = () => {
   const [isPlayingAd, setIsPlayingAd] = useState(false);
   const [currentScheduleId, setCurrentScheduleId] = useState(null);
   const [currentStatus, setCurrentStatus] = useState(null);
+
+  useEffect(() => {
+    if (videoRef.current && !playerRef.current) {
+      // Add required CSS for hiding progress bar
+      const style = document.createElement("style");
+      style.textContent = `
+        .vjs-progress-control {
+          display: none !important;
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Initialize Video.js player
+      playerRef.current = videojs(videoRef.current, {
+        controls: true,
+        responsive: true,
+        fluid: true,
+        html5: {
+          hls: {
+            enableLowInitialPlaylist: true,
+            smoothQualityChange: true,
+            overrideNative: true,
+          },
+        },
+      });
+
+      // Auto-play when ready
+      playerRef.current.ready(() => {
+        playerRef.current.play().catch(console.error);
+      });
+    }
+
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
+    };
+  }, [videoRef?.current]);
+
+  useEffect(() => {
+    if (playerRef.current && displayMp4Url) {
+      playerRef.current.src({
+        src: displayMp4Url,
+        type: displayMp4Url.includes(".m3u8")
+          ? "application/x-mpegURL"
+          : "video/mp4",
+      });
+      playerRef.current.play().catch(console.error);
+    }
+  }, [playerRef?.current, displayMp4Url]);
 
   const getAccountId = () => {
     const userData = localStorage.getItem("userData");
@@ -375,6 +425,7 @@ const WatchLive = () => {
               `Switching to next program: ${nextProgram.programName}`
             );
             setDisplayIframeUrl(nextProgram.iframeUrl);
+            setDisplayMp4Url(nextProgram.mp4Url);
             setVideoHistoryId(nextProgram.videoHistoryIdFromSchedule);
             setCurrentScheduleId(nextProgram.scheduleID);
             setCurrentProgram(nextProgram.program);
@@ -409,6 +460,7 @@ const WatchLive = () => {
               `Time to start program: ${nextUpcomingProgram.programName}`
             );
             setDisplayIframeUrl(nextUpcomingProgram.iframeUrl);
+            setDisplayMp4Url(nextUpcomingProgram.mp4Url);
             setVideoHistoryId(nextUpcomingProgram.videoHistoryIdFromSchedule);
             setCurrentScheduleId(nextUpcomingProgram.scheduleID);
             setCurrentProgram(nextUpcomingProgram.program);
@@ -452,6 +504,7 @@ const WatchLive = () => {
               `Current program has ended. Switching to: ${nextProgram.programName}`
             );
             setDisplayIframeUrl(nextProgram.iframeUrl);
+            setDisplayMp4Url(nextProgram.mp4Url);
             setVideoHistoryId(nextProgram.videoHistoryIdFromSchedule);
             setCurrentScheduleId(nextProgram.scheduleID);
             setCurrentProgram(nextProgram.program);
@@ -656,6 +709,7 @@ const WatchLive = () => {
               ? schedule.videoHistoryPlaybackUrl
               : schedule.iframeUrl
           );
+          setDisplayMp4Url(schedule.mp4Url);
           setVideoHistoryId(schedule.videoHistoryIdFromSchedule);
           setCurrentScheduleId(schedule.scheduleID);
           setCurrentProgram(schedule.program);
@@ -689,11 +743,13 @@ const WatchLive = () => {
     ),
   }));
 
+  console.log(displayMp4Url);
+
   const fetchScheduleProgram = async (date) => {
     try {
       // Convert the GMT+7 date to UTC before sending to API
       const utcDate = dayjs.tz(date, "Asia/Ho_Chi_Minh").format("YYYY-MM-DD");
-      console.log("Call from watch live");
+
       const response = await apiFetch(
         `Schedule/by-channel-and-date?channelId=${channelId}&date=${encodeURIComponent(
           utcDate
@@ -704,6 +760,8 @@ const WatchLive = () => {
       if (!response.ok) throw new Error("Không thể lấy lịch phát sóng!");
 
       const data = await response.json();
+
+      console.log(data?.data?.$values);
 
       if (data?.data?.$values) {
         const schedules = data.data.$values
@@ -716,6 +774,7 @@ const WatchLive = () => {
             title: schedule.program.title,
             status: schedule.status,
             iframeUrl: schedule.iframeUrl,
+            mp4Url: schedule.mp4Url,
             isReplay: schedule.isReplay,
             videoHistoryIdFromSchedule: schedule.videoHistoryIdFromSchedule,
             program: schedule.program,
@@ -764,9 +823,11 @@ const WatchLive = () => {
 
               if (hasStarted && !hasEnded) {
                 setDisplayIframeUrl(currentProgram.iframeUrl);
+                setDisplayMp4Url(currentProgram.mp4Url);
                 setVideoHistoryId(currentProgram.videoHistoryIdFromSchedule);
               } else {
                 setDisplayIframeUrl(""); // Hoặc null tùy UI
+                setDisplayMp4Url("");
                 setVideoHistoryId(null);
               }
 
@@ -784,6 +845,7 @@ const WatchLive = () => {
             } else {
               // Fallback to first program if something went wrong in our logic
               setDisplayIframeUrl(schedules[0].iframeUrl);
+              setDisplayMp4Url(schedules[0].mp4Url);
               setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
               setCurrentScheduleId(schedules[0].scheduleID);
               setCurrentProgram(schedules[0].program);
@@ -793,6 +855,7 @@ const WatchLive = () => {
             // For past or future days, just show the first program in the list
             // (User can click on specific programs to view them)
             setDisplayIframeUrl(schedules[0].iframeUrl);
+            setDisplayMp4Url(schedules[0].mp4Url);
             setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
             setCurrentScheduleId(schedules[0].scheduleID);
             setCurrentProgram(schedules[0].program);
@@ -800,6 +863,7 @@ const WatchLive = () => {
           }
         } else {
           setDisplayIframeUrl("");
+          setDisplayMp4Url("");
           setVideoHistoryId(null);
           setCurrentScheduleId(null);
           setCurrentProgram(null);
@@ -1076,7 +1140,7 @@ const WatchLive = () => {
                 }}
               />
             )} */}
-            {displayIframeUrl ? (
+            {displayMp4Url ? (
               <>
                 <button
                   className={`schedule-button ${showSchedule ? "active" : ""}`}
@@ -1097,14 +1161,14 @@ const WatchLive = () => {
                     }}
                   />
                 ) : (
-                  <iframe
-                    src={`${toIframeUrl(
-                      displayIframeUrl
-                    )}?autoplay=1&mute=0&controls=0&rel=0&playsinline=1`}
-                    allow="autoplay; encrypted-media; fullscreen;"
-                    allowFullScreen
-                    className="youtube-player"
-                  />
+                  <div data-vjs-player>
+                    <video
+                      ref={videoRef}
+                      className="video-js vjs-default-skin vjs-16-9"
+                      width="352"
+                      height="198"
+                    />
+                  </div>
                 )}
               </>
             ) : (
