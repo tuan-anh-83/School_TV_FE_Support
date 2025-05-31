@@ -685,8 +685,10 @@ const WatchLive = () => {
       <div
         className="schedule-item live"
         style={
-          schedule.status === "Live" || schedule.status === "LateStart"
-            ? {}
+          currentScheduleId === schedule.scheduleID
+            ? { background: "#980d99" }
+            : schedule.status === "Live" || schedule.status === "LateStart"
+            ? { background: "#960134" }
             : { background: "#30106a" }
         }
         onClick={() => {
