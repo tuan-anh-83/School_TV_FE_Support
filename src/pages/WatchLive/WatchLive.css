@@ -1673,7 +1673,3 @@
 .auth-required button:hover {
   background: var(--hover-color);
 }
-
-.vjs-progress-control {
-  display: none !important;
-}

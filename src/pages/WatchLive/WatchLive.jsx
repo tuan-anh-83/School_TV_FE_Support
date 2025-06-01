@@ -67,17 +67,9 @@ const WatchLive = () => {
   const [currentStatus, setCurrentStatus] = useState(null);
 
   useEffect(() => {
-    if (videoRef.current && !playerRef.current) {
-      // Add required CSS for hiding progress bar
-      const style = document.createElement("style");
-      style.textContent = `
-        .vjs-progress-control {
-          display: none !important;
-        }
-      `;
-      document.head.appendChild(style);
+    const initializePlayer = () => {
+      if (!videoRef.current) return;
 
-      // Initialize Video.js player
       playerRef.current = videojs(videoRef.current, {
         controls: true,
         responsive: true,
@@ -91,31 +83,87 @@ const WatchLive = () => {
         },
       });
 
-      // Auto-play when ready
       playerRef.current.ready(() => {
-        playerRef.current.play().catch(console.error);
+        console.log("Player is ready");
+        playerRef.current.isPlayerReady = true;
       });
+    };
+
+    if (!playerRef.current && videoRef.current) {
+      initializePlayer();
     }
 
     return () => {
-      if (playerRef.current) {
+      if (playerRef.current && !playerRef.current.isDisposed()) {
         playerRef.current.dispose();
         playerRef.current = null;
       }
     };
-  }, [videoRef?.current]);
+  }, []);
 
+  // Second useEffect: Handle source changes
   useEffect(() => {
-    if (playerRef.current && displayMp4Url) {
+    if (!displayMp4Url) {
+      // Nếu không có video → không làm gì
+      return;
+    }
+
+    // Trường hợp player chưa init nhưng video DOM đã bị mất
+    if (!videoRef.current || videoRef.current.tagName !== "VIDEO") {
+      const container = document.querySelector("[data-vjs-player]");
+      if (container) {
+        container.innerHTML = ""; // Clear old content
+        const videoEl = document.createElement("video");
+        videoEl.className = "video-js vjs-default-skin vjs-16-9";
+        videoEl.setAttribute("playsinline", "");
+        container.appendChild(videoEl);
+        videoRef.current = videoEl;
+      }
+    }
+
+    // Re-init nếu bị dispose
+    if (!playerRef.current || playerRef.current.isDisposed()) {
+      playerRef.current = videojs(videoRef.current, {
+        controls: true,
+        responsive: true,
+        fluid: true,
+        html5: {
+          hls: {
+            enableLowInitialPlaylist: true,
+            smoothQualityChange: true,
+            overrideNative: true,
+          },
+        },
+      });
+    }
+
+    const setSource = () => {
       playerRef.current.src({
         src: displayMp4Url,
         type: displayMp4Url.includes(".m3u8")
           ? "application/x-mpegURL"
           : "video/mp4",
       });
-      playerRef.current.play().catch(console.error);
+
+      playerRef.current.ready(() => {
+        playerRef.current.liveTracker?.seekToLiveEdge?.();
+
+        const seekable = playerRef.current.seekable();
+        if (seekable && seekable.length > 0) {
+          const livePoint = seekable.end(seekable.length - 1);
+          playerRef.current.currentTime(livePoint);
+        }
+
+        playerRef.current.play().catch(console.error);
+      });
+    };
+
+    if (playerRef.current.isPlayerReady || playerRef.current.readyState() > 0) {
+      setSource();
+    } else {
+      playerRef.current.ready(setSource);
     }
-  }, [playerRef?.current, displayMp4Url]);
+  }, [displayMp4Url]);
 
   const getAccountId = () => {
     const userData = localStorage.getItem("userData");
@@ -368,18 +416,23 @@ const WatchLive = () => {
     }
   }, [channelId]);
 
+  // useEffect(() => {
+  //   // Initial fetch
+  //   fetchScheduleProgram(logicDate);
+
+  //   // Set up auto-refresh every 30 seconds
+  //   const refreshInterval = setInterval(() => {
+  //     fetchScheduleProgram(logicDate);
+  //   }, 30000); // 30 seconds
+
+  //   // Cleanup interval on component unmount
+  //   return () => clearInterval(refreshInterval);
+  // }, [logicDate, channelId]);
+
   useEffect(() => {
     // Initial fetch
     fetchScheduleProgram(logicDate);
-
-    // Set up auto-refresh every 30 seconds
-    const refreshInterval = setInterval(() => {
-      fetchScheduleProgram(logicDate);
-    }, 30000); // 30 seconds
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(refreshInterval);
-  }, [logicDate, channelId]);
+  }, [logicDate]);
 
   useEffect(() => {
     // Only set up auto-switching if we're viewing today's schedule
@@ -1169,6 +1222,7 @@ const WatchLive = () => {
                       className="video-js vjs-default-skin vjs-16-9"
                       width="352"
                       height="198"
+                      playsInline
                     />
                   </div>
                 )}
