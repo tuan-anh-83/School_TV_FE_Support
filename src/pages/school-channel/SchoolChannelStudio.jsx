@@ -12,27 +12,35 @@ function SchoolChannelStudio() {
   const navigate = useNavigate();
   const location = useLocation();
   const [schoolChannel, setSchoolChannel] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const fetchChannel = async () => {
     try {
+      setIsLoading(true);
       const data = await checkExistChannel(user.accountID);
 
-      if (!data) {
+      if (!data || (data.$values && data.$values.length === 0)) {
         navigate("/create-channel");
+        return;
       }
 
       setSchoolChannel(data);
     } catch (error) {
       toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
+      navigate("/create-channel");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchChannel();
-  }, [user.accountID, navigate]);
+    if (user?.accountID) {
+      fetchChannel();
+    }
+  }, [user?.accountID, navigate]);
 
   useEffect(() => {
-    if (schoolChannel) {
+    if (schoolChannel && schoolChannel.$values?.[0]?.name) {
       toast.success(
         `Bạn đang đăng nhập kênh ${schoolChannel.$values[0].name}!`
       );
@@ -51,12 +59,16 @@ function SchoolChannelStudio() {
     shouldHideNavbar ? "no-styles" : ""
   }`;
 
+  if (isLoading) {
+    return <div>Loading...</div>; // You might want to use a proper loading component here
+  }
+
   return (
     <>
       <StudioHeader channel={schoolChannel} />
       <div className={containerClass}>
         {!shouldHideNavbar && <StudioNavbar />}
-        <Outlet context={{ channel: schoolChannel }} />
+        <Outlet context={{ channel: schoolChannel, isLoading }} />
       </div>
     </>
   );
