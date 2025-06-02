@@ -4,22 +4,19 @@ import {
   Table,
   Input,
   Button,
-  notification,
-  Select,
   Modal,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import apiFetch from "../../config/baseAPI";
 import AdminMenu from "./AdminMenu";
+import { extractVideoId, getThumbnailUrl } from "../../utils/image";
 
 const { Sider, Content } = Layout;
 const { Search } = Input;
-const { Option } = Select;
 
 function Report() {
   const [data, setData] = useState([]);
-  const [statusMap, setStatusMap] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [deleteKey, setDeleteKey] = useState(null);
   const [initialData, setInitialData] = useState([]);
@@ -31,34 +28,34 @@ function Report() {
   };
 
   const handleDelete = async () => {
-    try {
-      const response = await apiFetch(`accounts/admin/delete/${deleteKey}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    // try {
+    //   const response = await apiFetch(`accounts/admin/delete/${deleteKey}`, {
+    //     method: "DELETE",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   });
 
-      if (!response.ok) {
-        throw new Error(`Failed to delete account: ${response.status}`);
-      }
+    //   if (!response.ok) {
+    //     throw new Error(`Failed to delete account: ${response.status}`);
+    //   }
 
-      const updatedData = data.filter((item) => item.key !== deleteKey);
-      setData(updatedData);
+    //   const updatedData = data.filter((item) => item.key !== deleteKey);
+    //   setData(updatedData);
 
-      notification.success({
-        message: "Tài khoản đã được xóa thành công",
-        description: `Tài khoản có ID ${deleteKey} đã được xóa.`,
-      });
-    } catch (error) {
-      console.error("Error deleting account:", error);
-      notification.error({
-        message: "Xóa tài khoản thất bại",
-        description: "Có lỗi xảy ra khi xóa tài khoản.",
-      });
-    }
+    //   notification.success({
+    //     message: "Tài khoản đã được xóa thành công",
+    //     description: `Tài khoản có ID ${deleteKey} đã được xóa.`,
+    //   });
+    // } catch (error) {
+    //   console.error("Error deleting account:", error);
+    //   notification.error({
+    //     message: "Xóa tài khoản thất bại",
+    //     description: "Có lỗi xảy ra khi xóa tài khoản.",
+    //   });
+    // }
 
-    setIsModalVisible(false);
+    // setIsModalVisible(false);
   };
 
   const handleCancel = () => {
@@ -68,7 +65,7 @@ function Report() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await apiFetch("accounts/admin/all", {
+        const response = await apiFetch("report", {
           headers: {
             accept: "*/*",
           },
@@ -79,22 +76,11 @@ function Report() {
         }
 
         const responseData = await response.json();
-        const filteredData = responseData.$values.filter(
-          (item) => item.roleID === 4
-        );
-        const fetchedData = filteredData.map((item) => ({
-          key: item.accountID,
-          username: item.username,
-          email: item.email,
-          fullname: item.fullname,
-          address: item.address,
-          phoneNumber: item.phoneNumber,
-          roleName: "Advertiser",
-          status: item.status,
-        }));
 
-        setInitialData(fetchedData);
-        setData(fetchedData);
+        if (responseData && responseData?.$values.length > 0) {
+          setData(responseData.$values);
+          setInitialData(responseData.$values);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         if (error.message.includes("Failed to fetch data")) {
@@ -107,46 +93,12 @@ function Report() {
     fetchData();
   }, [navigate]);
 
-  const handleStatusChange = (value, key) => {
-    setStatusMap((prevState) => ({ ...prevState, [key]: value }));
-  };
-
-  const handleSaveStatus = async (key) => {
-    const newStatus = statusMap[key];
-    try {
-      const response = await apiFetch(`accounts/admin/update-status/${key}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update status: ${response.status}`);
-      }
-
-      notification.success({
-        message: "Tài khoản đã được cập nhật trạng thái thành công",
-        description: `Tài khoản có ID ${key} đã được thay đổi trạng thái thành ${newStatus}`,
-      });
-    } catch (error) {
-      console.error("Error updating status:", error);
-      notification.error({
-        message: "Cập nhật trạng thái thất bại",
-        description: "Có lỗi xảy ra khi cập nhật trạng thái tài khoản.",
-      });
-    }
-  };
-
   const handleSearch = (value) => {
     if (value.trim() === "") {
       setData(initialData);
     } else {
-      const filteredData = initialData.filter(
-        (user) =>
-          user.username.toLowerCase().startsWith(value.toLowerCase()) ||
-          user.email.toLowerCase().startsWith(value.toLowerCase())
+      const filteredData = initialData.filter((report) =>
+        report.reason.toLowerCase().startsWith(value.toLowerCase())
       );
       setData(filteredData);
     }
@@ -161,58 +113,42 @@ function Report() {
 
   const columns = [
     {
-      title: "Name",
-      dataIndex: "username",
-      key: "username",
-      render: (text, record) => (
+      title: "Account",
+      dataIndex: "account",
+      key: "account",
+      render: (_, record) => (
         <span>
-          {text} <br />
+          {record.account.username} <br />
           <span style={{ fontSize: "12px", color: "gray" }}>
-            {record.email}
+            {record.account.email}
           </span>
         </span>
       ),
     },
     {
-      title: "Full Name",
-      dataIndex: "fullname",
-      key: "fullname",
+      title: "Reason",
+      dataIndex: "reason",
+      key: "reason",
     },
     {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-    },
-    {
-      title: "Phone Number",
-      dataIndex: "phoneNumber",
-      key: "phoneNumber",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (_, record) => {
-        return (
-          <Select
-            defaultValue={record.status}
-            onChange={(value) => handleStatusChange(value, record.key)}
-            style={{ width: 120 }}
-          >
-            <Option value="Active">Active</Option>
-            <Option value="InActive">Inactive</Option>
-          </Select>
-        );
-      },
+      title: "Video",
+      dataIndex: "videoHistory",
+      key: "thumbnail",
+      render: (_, record) => (
+        <img
+          width={80}
+          height={80}
+          src={getThumbnailUrl(extractVideoId(record.videoHistory.mP4Url))}
+          alt=""
+          style={{ borderRadius: 10 }}
+        />
+      ),
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <>
-          <Button type="primary" onClick={() => handleSaveStatus(record.key)}>
-            Save
-          </Button>
           <Button
             type="primary"
             danger
@@ -236,7 +172,7 @@ function Report() {
         <Layout style={{ padding: "0 24px 24px" }}>
           <Content style={{ padding: 24, margin: 0, minHeight: 280 }}>
             <Search
-              placeholder="Search Advertiser"
+              placeholder="Search Report"
               allowClear
               enterButton="Search"
               size="large"
@@ -254,7 +190,7 @@ function Report() {
       </Layout>
 
       <Modal
-        title="Xác nhận xóa tài khoản"
+        title="Xác nhận khóa tài khoản"
         visible={isModalVisible}
         onOk={handleDelete}
         onCancel={handleCancel}
