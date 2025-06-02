@@ -27,6 +27,7 @@ function CreatePackage() {
     localStorage.removeItem("authToken");
     sessionStorage.removeItem("authToken");
     navigate("/login");
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleCreate = async (values) => {

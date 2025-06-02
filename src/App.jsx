@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -60,7 +60,10 @@ import ProgramListPage from "./pages/ProgramList/ProgramListPage";
 import ScheduleListPage from "./pages/ScheduleList/ScheduleListPage";
 import AdvertiserAccount from "./pages/AdminPage/AdvertiserAccount";
 import VideoHistoryListPage from "./pages/VideoHistoryList/VideoHistoryListPage";
-
+import AdsStatisticsPage from "./pages/Ads-Statistic/AdsStatisticsPage";
+import Report from "./pages/AdminPage/Report";
+import * as signalR from "@microsoft/signalr";
+import { toast } from "react-toastify";
 
 const ScrollToTopWrapper = () => {
   const { pathname } = useLocation();
@@ -73,6 +76,97 @@ const ScrollToTopWrapper = () => {
 };
 
 function App() {
+  const connectionRef = useRef(null);
+  const [user, setUser] = useState(() => {
+    const storedUserData = localStorage.getItem("userData");
+    return storedUserData ? JSON.parse(storedUserData) : null;
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedUserData = localStorage.getItem("userData");
+      setUser(storedUserData ? JSON.parse(storedUserData) : null);
+    };
+
+    // Theo dõi thay đổi localStorage (kể cả khi reload)
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  const notifyReport = (message, reportId) => {
+    toast.info(
+      <div>
+        📢 Có nội dung bị báo cáo, click để xem ngay!
+        <br />
+        <button
+          style={{
+            marginTop: 6,
+            backgroundColor: "#4e73df",
+            color: "#fff",
+            border: "none",
+            padding: "4px 10px",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            window.location.href = `/reports`;
+          }}
+        >
+          Xem báo cáo
+        </button>
+      </div>,
+      { autoClose: false }
+    );
+  };
+
+  useEffect(() => {
+    if (!user || !user.accountID) return;
+
+    const isAdmin = user.roleName === "Admin";
+
+    if (isAdmin) {
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(
+          `${
+            import.meta.env.VITE_SERVER_API_PREFIX
+          }/hubs/notification?accountId=${user.accountID}`
+        )
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+      connectionRef.current = connection;
+
+      const setupConnection = async () => {
+        try {
+          await connection.start();
+          await connection.invoke("JoinAdminGroup");
+          console.log("✅ Joined admin group");
+        } catch (err) {
+          console.error("❌ SignalR connection error:", err);
+        }
+      };
+
+      if (connectionRef.current) {
+        connectionRef.current.on("ReceiveNotification", (message, reportId) => {
+          notifyReport(message, reportId);
+        });
+      }
+
+      setupConnection();
+
+      return () => {
+        if (connectionRef.current) {
+          connectionRef.current.stop();
+          console.log("👋 Left SignalR connection");
+        }
+      };
+    }
+  }, [user]);
+
   const router = createBrowserRouter([
     {
       path: "/login",
@@ -235,11 +329,11 @@ function App() {
       children: [
         {
           index: true,
-          element: <StatisticsPage />,
+          element: <AdsStatisticsPage />,
         },
         {
           path: "statistics",
-          element: <StatisticsPage />,
+          element: <AdsStatisticsPage />,
         },
         {
           path: "post",
@@ -432,6 +526,14 @@ function App() {
           element: (
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdvertiserAccount />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "/reports",
+          element: (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Report />
             </ProtectedRoute>
           ),
         },

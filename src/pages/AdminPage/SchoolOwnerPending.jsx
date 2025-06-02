@@ -104,6 +104,7 @@ function SchoolOwnerPending() {
     localStorage.removeItem("authToken");
     sessionStorage.removeItem("authToken");
     navigate("/login");
+    window.dispatchEvent(new Event("storage"));
   };
 
   const columns = [

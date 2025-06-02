@@ -152,96 +152,65 @@ const StatisticsPage = () => {
     }
   };
 
-  const analytics = async (channelId, dateRange) => {
-    if (!channelId) {
-      setIsLoading(false);
-      return;
-    }
-    try {
-      setIsLoading(true);
-      const response = await apiFetch(
-        `Analytics/analys-by-channel?channelId=${channelId}&dateRange=${dateRange}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            Accept: "application/json",
-          },
+  useEffect(() => {
+    const fetchChannelData = async () => {
+      if (!channel || !channel.$values?.length) {
+        setIsLoading(false);
+        return;
+      }
+
+      const channelId = channel.$values[0].schoolChannelID;
+
+      try {
+        setIsLoading(true);
+
+        // Gọi Analytics
+        const analyticsResponse = await apiFetch(
+          `Analytics/analys-by-channel?channelId=${channelId}&dateRange=${dateRange}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (!analyticsResponse.ok) throw new Error("Kênh không tồn tại!");
+        const analyticsData = await analyticsResponse.json();
+        if (!analyticsData) throw new Error("Không có dữ liệu kênh!");
+
+        const formattedStats = formatSummaryStats(analyticsData);
+        setSummaryStats(formattedStats);
+
+        // Gọi Videos
+        const videoResponse = await apiFetch(
+          `VideoHistory/by-channel/${channelId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (!videoResponse.ok) throw new Error("Kênh không tồn tại!");
+        const videoData = await videoResponse.json();
+        if (!videoData) throw new Error("Không có dữ liệu kênh!");
+        if (videoData.$values?.length > 0) {
+          setVideos(videoData.$values);
         }
-      );
-
-      if (!response.ok) {
-        throw new Error("Kênh không tồn tại!");
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error(error.message || "Có lỗi xảy ra khi kiểm tra kênh!");
+      } finally {
+        setIsLoading(false);
       }
-      const data = await response.json();
-      if (!data) {
-        throw new Error("Không có dữ liệu kênh!");
-      }
-      const formattedStats = formatSummaryStats(data);
-      setSummaryStats(formattedStats);
-    } catch (error) {
-      console.error("Error checking channel:", error);
-      toast.error(error.message || "Có lỗi xảy ra khi kiểm tra kênh!");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  useEffect(() => {
-    if (
-      Object.prototype.hasOwnProperty.call(channel || {}, "$values") &&
-      channel.$values?.length > 0
-    ) {
-      analytics(channel.$values[0].schoolChannelID, dateRange);
-    } else {
-      setIsLoading(false);
-    }
+    fetchChannelData();
   }, [channel, dateRange]);
-
-  const getVideos = async (channelId) => {
-    if (!channelId) {
-      setIsLoading(false);
-      return;
-    }
-    try {
-      setIsLoading(true);
-      const response = await apiFetch(`VideoHistory/by-channel/${channelId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Kênh không tồn tại!");
-      }
-      const data = await response.json();
-      if (!data) {
-        throw new Error("Không có dữ liệu kênh!");
-      }
-
-      if (data && data.$values?.length > 0) {
-        setVideos(data.$values);
-      }
-    } catch (error) {
-      console.error("Error checking channel:", error);
-      toast.error(error.message || "Có lỗi xảy ra khi kiểm tra kênh!");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (
-      Object.prototype.hasOwnProperty.call(channel || {}, "$values") &&
-      channel.$values?.length > 0
-    ) {
-      getVideos(channel.$values[0].schoolChannelID);
-    } else {
-      setIsLoading(false);
-    }
-  }, [channel]);
 
   const audienceData = [
     { time: "00:00", viewers: 120 },

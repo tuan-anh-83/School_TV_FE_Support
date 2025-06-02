@@ -139,6 +139,7 @@ function ScheduleList() {
     localStorage.removeItem("authToken");
     sessionStorage.removeItem("authToken");
     navigate("/login");
+    window.dispatchEvent(new Event("storage"));
   };
 
   const handleOpenSelectAds = async (record) => {

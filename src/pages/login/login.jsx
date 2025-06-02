@@ -110,6 +110,7 @@ function Login() {
     } finally {
       setLoading(false);
     }
+    window.dispatchEvent(new Event("storage"));
   };
 
   // Cleanup function when component unmounts

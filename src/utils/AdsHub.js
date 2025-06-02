@@ -92,4 +92,36 @@ const leaveScheduleGroup = async (scheduleId) => {
   }
 };
 
-export { startAdsHub, stopAdsHub, joinScheduleGroup, leaveScheduleGroup, connection };
+const joinAdminGroup = async () => {
+  console.log("Attempting to join group with admin:");
+
+  // Wait for connection if not connected yet
+  if (connection?.state !== signalR.HubConnectionState.Connected) {
+    return;
+  }
+
+  try {
+    await connection.invoke("JoinAdminGroup");
+    console.log(`Successfully joined group admin`);
+  } catch (error) {
+    console.error(`Failed to join group admin:`, error);
+  }
+};
+
+const leaveAdminGroup = async () => {
+  console.log("Attempting to leave group with admin:");
+
+  // Wait for connection if not connected yet
+  if (connection.state !== signalR.HubConnectionState.Connected) {
+    return;
+  }
+
+  try {
+    await connection.invoke("LeaveAdminGroup");
+    console.log(`Successfully leaved group admin`);
+  } catch (error) {
+    console.error(`Failed to leave group admin:`, error);
+  }
+};
+
+export { startAdsHub, stopAdsHub, joinScheduleGroup, leaveScheduleGroup, joinAdminGroup, leaveAdminGroup, connection };

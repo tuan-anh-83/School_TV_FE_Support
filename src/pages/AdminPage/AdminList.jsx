@@ -129,6 +129,7 @@ function AdminList() {
     localStorage.removeItem("authToken");
     sessionStorage.removeItem("authToken");
     navigate("/login");
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (

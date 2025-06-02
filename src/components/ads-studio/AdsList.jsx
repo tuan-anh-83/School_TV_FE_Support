@@ -24,6 +24,7 @@ import {
 import "@mdxeditor/editor/style.css";
 import { toast } from "react-toastify";
 import apiFetch from "../../config/baseAPI";
+import { extractVideoId, getThumbnailUrl } from "../../utils/image";
 
 const { Title } = Typography;
 
@@ -221,7 +222,6 @@ function AdsList() {
       setVideoFile(null);
       setSelectedAd(null);
       onFetchAds(); // Refresh the ads list
-
     } catch (error) {
       console.error("Error updating ad:", error);
     } finally {
@@ -267,6 +267,21 @@ function AdsList() {
 
   const columns = [
     {
+      title: "",
+      dataIndex: "videoUrl",
+      key: "videoUrl",
+      width: 80,
+      render: (videoUrl) => (
+        <img
+          width={80}
+          height={80}
+          style={{ borderRadius: 10 }}
+          src={getThumbnailUrl(extractVideoId(videoUrl))}
+          alt=""
+        />
+      ),
+    },
+    {
       title: "Tiêu đề",
       dataIndex: "title",
       key: "title",
@@ -275,7 +290,7 @@ function AdsList() {
       title: "Thời lượng (giây)",
       dataIndex: "durationSeconds",
       key: "durationSeconds",
-      width: 140,
+      width: 160,
     },
     {
       title: "Ngày tạo",

@@ -35,6 +35,7 @@ const Header = ({ user }) => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userData");
     navigate("/login");
+    window.dispatchEvent(new Event("storage"));
   };
 
   useEffect(() => {

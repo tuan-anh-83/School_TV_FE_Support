@@ -14,6 +14,7 @@ import {
   SnippetsOutlined,
   VideoCameraAddOutlined,
   CalendarOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import "./AdminMenu.scss";
 import PropTypes from "prop-types";
@@ -162,6 +163,11 @@ const AdminMenu = ({ onLogout }) => {
     },
     {
       key: "9",
+      icon: <WarningOutlined />,
+      label: <Link to="/reports">Reports</Link>,
+    },
+    {
+      key: "10",
       icon: <LogoutOutlined />,
       label: "Log out",
       onClick: onLogout,
