@@ -222,7 +222,7 @@ function StudioVideo() {
     }
 
     formData.append("SchoolChannelId", channel.$values[0].schoolChannelID);
-    formData.append("Type", "Recorded");
+    formData.append("Type", "Pending");
 
     try {
       setIsBtnLoading(true);
