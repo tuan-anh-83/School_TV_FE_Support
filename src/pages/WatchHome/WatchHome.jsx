@@ -229,7 +229,7 @@ export default function WatchHome() {
             {bannerSlides.map((slide, index) => (
               <div className="swiper-slide" key={index}>
                 <img
-                  src={slide.image}
+                  src={"https://murraysinteriors.com.au/wp-content/uploads/2018/09/dummy-banner.jpg"}
                   alt={slide.title}
                   className="banner-image"
                 />

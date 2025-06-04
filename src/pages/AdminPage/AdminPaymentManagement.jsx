@@ -84,6 +84,11 @@ function AdminPaymentManagement() {
       render: (text) => <strong style={{ fontSize: "15px" }}>{text}</strong>,
     },
     {
+      title: "Package",
+      dataIndex: "package",
+      key: "package",
+    },
+    {
       title: "Amount",
       dataIndex: "amount",
       key: "amount",

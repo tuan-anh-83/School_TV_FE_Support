@@ -144,22 +144,6 @@ function Report() {
         />
       ),
     },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <>
-          <Button
-            type="primary"
-            danger
-            style={{ marginLeft: 10, width: "60px" }}
-            onClick={() => showDeleteModal(record.key)}
-          >
-            Ban
-          </Button>
-        </>
-      ),
-    },
   ];
 
   return (

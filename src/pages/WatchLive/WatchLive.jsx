@@ -1095,7 +1095,7 @@ const WatchLive = () => {
         return;
       }
 
-      const response = await apiFetch("Report", {
+      const response = await apiFetch("Report/CreateReport", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1108,7 +1108,7 @@ const WatchLive = () => {
         }),
       });
 
-      if (response.status !== 201) {
+      if (!response.ok) {
         throw new Error("Không thể gửi báo cáo");
       }
 

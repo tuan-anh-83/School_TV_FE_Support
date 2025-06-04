@@ -53,10 +53,10 @@ const ProgramDetailPage = () => {
   }, [program?.thumbnail]);
 
   useEffect(() => {
-    setUpcomingTime(getTimeUntilStart(currentSchedule?.startTime));
+    setUpcomingTime(getTimeUntilStart(currentSchedule?.startTime ?? "1900-01-01"));
 
     const interval = setInterval(() => {
-      const result = getTimeUntilStart(currentSchedule?.startTime);
+      const result = getTimeUntilStart(currentSchedule?.startTime ?? "1900-01-01");
       setUpcomingTime(result);
 
       if (result === "Đã bắt đầu hoặc phát xong.") {
@@ -162,7 +162,6 @@ const ProgramDetailPage = () => {
       }
 
       const data = await response.json();
-      console.log(data.data);
       setProgram(data.data);
       setCurrentSchedule(data.data?.currentSchedule);
 
