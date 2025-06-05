@@ -229,15 +229,15 @@ export default function WatchHome() {
             {bannerSlides.map((slide, index) => (
               <div className="swiper-slide" key={index}>
                 <img
-                  src={"https://murraysinteriors.com.au/wp-content/uploads/2018/09/dummy-banner.jpg"}
+                  src={"https://murraysinteriors.com.au/wp-content/uploads/2018/09/dummy-banner.jpg "}
                   alt={slide.title}
                   className="banner-image"
                 />
-                <div className="banner-content">
+                {/* <div className="banner-content">
                   <div className="banner-badge">{slide.type}</div>
                   <h2>{slide.title || "Không có tiêu đề"}</h2>
                   <p>{slide.channel || "Không xác định"}</p>
-                </div>
+                </div> */}
               </div>
             ))}
           </div>
