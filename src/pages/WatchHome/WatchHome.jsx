@@ -7,6 +7,10 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { Link } from "react-router-dom";
 import Swiper from "swiper";
 import dayjs from "dayjs";
+import b1 from "../../assets/images/b1.jpg";
+import b2 from "../../assets/images/b2.jpg";
+import b3 from "../../assets/images/b3.jpg";
+import b4 from "../../assets/images/b4.jpg";
 
 export default function WatchHome() {
   const [liveSchedules, setLiveSchedules] = useState([]);
@@ -17,65 +21,7 @@ export default function WatchHome() {
   const [videoLoading, setVideoLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(true);
-  const [bannerSlides, setBannerSlides] = useState([]);
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  useEffect(() => {
-    const generateBannerSlides = () => {
-      const allContent = [
-        ...(liveSchedules || []).map((item) => ({
-          ...item,
-          type: "Đang Phát Sóng",
-          title: item.program?.title,
-          channel: item.schoolChannelName,
-          image: `https://picsum.photos/seed/${item.scheduleID}/1920/1080`,
-        })),
-        ...(upcomingSchedules || []).map((item) => ({
-          ...item,
-          type: "Sắp Diễn Ra",
-          title: item.program?.programName,
-          channel: item.program?.schoolChannel?.name,
-          image: `https://picsum.photos/seed/${item.scheduleID}/1920/1080`,
-        })),
-        ...(videoHistory || []).map((item) => ({
-          ...item,
-          type: "Video Lưu Trữ",
-          title: item.program?.programName,
-          channel: item.program?.schoolChannel?.name,
-          image: `https://picsum.photos/seed/${item.videoHistoryID}/1920/1080`,
-        })),
-        ...(posts || []).map((item) => ({
-          ...item,
-          type: "Bài Viết Cộng Đồng",
-          title: item.title,
-          channel: item.schoolChannel?.name,
-          image: item.newsPictures?.$values?.[0]?.fileData
-            ? `data:image/jpeg;base64,${item.newsPictures.$values[0].fileData}`
-            : `https://picsum.photos/seed/${item.newsID}/1920/1080`,
-        })),
-      ];
-
-      console.log(allContent);
-
-      // Shuffle array and take 5 items
-      const shuffled = [...allContent].sort(() => Math.random() - 0.5);
-      setBannerSlides(shuffled.slice(0, 5));
-    };
-
-    // Generate slides when content is loaded
-    if (!loading && !upcomingLoading && !videoLoading && !postsLoading) {
-      generateBannerSlides();
-    }
-  }, [
-    liveSchedules,
-    upcomingSchedules,
-    videoHistory,
-    posts,
-    loading,
-    upcomingLoading,
-    videoLoading,
-    postsLoading,
-  ]);
+  const [bannerSlides, setBannerSlides] = useState([b1, b2, b3, b4]);
 
   const convertToGMT7 = (dateString) => {
     if (!dateString) return new Date();
@@ -223,16 +169,13 @@ export default function WatchHome() {
         href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css"
       />
       <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+      <div className="w-full" style={{ height: "5.5rem", objectFit: "contain" }}></div>
       <section className="banner-section">
         <div className="swiper">
           <div className="swiper-wrapper">
             {bannerSlides.map((slide, index) => (
               <div className="swiper-slide" key={index}>
-                <img
-                  src={"https://murraysinteriors.com.au/wp-content/uploads/2018/09/dummy-banner.jpg "}
-                  alt={slide.title}
-                  className="banner-image"
-                />
+                <img src={slide} alt={slide} className="banner-image" />
                 {/* <div className="banner-content">
                   <div className="banner-badge">{slide.type}</div>
                   <h2>{slide.title || "Không có tiêu đề"}</h2>
