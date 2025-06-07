@@ -65,6 +65,7 @@ const WatchLive = () => {
   const [isPlayingAd, setIsPlayingAd] = useState(false);
   const [currentScheduleId, setCurrentScheduleId] = useState(null);
   const [currentStatus, setCurrentStatus] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const initializePlayer = () => {
@@ -98,6 +99,41 @@ const WatchLive = () => {
         playerRef.current.dispose();
         playerRef.current = null;
       }
+    };
+  }, []);
+
+  // Detect fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      );
+      setIsFullscreen(isCurrentlyFullscreen);
+      console.log("🖥️ Fullscreen changed:", isCurrentlyFullscreen);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange
+      );
+      document.removeEventListener(
+        "mozfullscreenchange",
+        handleFullscreenChange
+      );
+      document.removeEventListener(
+        "MSFullscreenChange",
+        handleFullscreenChange
+      );
     };
   }, []);
 
@@ -682,32 +718,66 @@ const WatchLive = () => {
     }
 
     startAdsHub(accountId, (ad) => {
+      console.log("🎯 Processing received ad:", ad);
+
       const now = dayjs().tz("Asia/Ho_Chi_Minh");
       const adStart = dayjs(ad.startTime).tz("Asia/Ho_Chi_Minh");
       const adEnd = dayjs(ad.endTime).tz("Asia/Ho_Chi_Minh");
 
+      console.log("⏰ Time comparison:", {
+        now: now.format("YYYY-MM-DD HH:mm:ss"),
+        adStart: adStart.format("YYYY-MM-DD HH:mm:ss"),
+        adEnd: adEnd.format("YYYY-MM-DD HH:mm:ss"),
+        delayMs: adStart.diff(now),
+        durationMs: adEnd.diff(adStart),
+      });
+
       const delayMs = adStart.diff(now);
+
+      const startAdPlayback = () => {
+        console.log("▶️ Starting ad playback:", ad.title);
+        // Pause main video when ad starts
+        if (playerRef.current && !playerRef.current.isDisposed()) {
+          playerRef.current.pause();
+          console.log("⏸️ Main video paused");
+        }
+
+        setCurrentAd(ad);
+        setIsPlayingAd(true);
+      };
+
+      const endAdPlayback = () => {
+        console.log("⏹️ Ending ad playback");
+        // Resume main video when ad ends
+        if (playerRef.current && !playerRef.current.isDisposed()) {
+          playerRef.current.play().catch(console.error);
+          console.log("▶️ Main video resumed");
+        }
+
+        setIsPlayingAd(false);
+        setCurrentAd(null);
+      };
 
       if (delayMs > 0) {
         // ⏳ Chưa tới giờ → delay phát
+        console.log(`⏳ Scheduling ad to start in ${delayMs}ms`);
         setTimeout(() => {
-          setCurrentAd(ad);
-          setIsPlayingAd(true);
+          startAdPlayback();
 
-          setTimeout(async () => {
-            setIsPlayingAd(false);
-            setCurrentAd(null);
+          setTimeout(() => {
+            endAdPlayback();
           }, adEnd.diff(adStart) + 5000);
         }, delayMs);
-      } else {
-        // ✅ Đã tới giờ hoặc trễ rồi → phát ngay
-        setCurrentAd(ad);
-        setIsPlayingAd(true);
+      } else if (adEnd.isAfter(now)) {
+        // ✅ Đã tới giờ và chưa kết thúc → phát ngay
+        console.log("✅ Starting ad immediately");
+        startAdPlayback();
 
-        setTimeout(async () => {
-          setIsPlayingAd(false);
-          setCurrentAd(null);
-        }, adEnd.diff(now) + 5000);
+        setTimeout(() => {
+          endAdPlayback();
+        }, adEnd.diff(now) + 1000);
+      } else {
+        console.log("⚠️ Ad time has already passed, skipping");
       }
     });
 
@@ -1171,6 +1241,42 @@ const WatchLive = () => {
 
   return (
     <div className="main-container" style={{ background: "var(--bg-color)" }}>
+      {/* Fullscreen Ad Overlay */}
+      {isPlayingAd && currentAd && isFullscreen && (
+        <div className="ad-overlay-fullscreen">
+          <div className="ad-container-fullscreen">
+            <iframe
+              src={`${currentAd.videoUrl}?autoplay=1&mute=0&controls=0&playsinline=1`}
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+              style={{
+                width: "100%",
+                height: "100%",
+                border: "none",
+                pointerEvents: "none",
+              }}
+              onLoad={() =>
+                console.log(
+                  "📺 Fullscreen Ad iframe loaded:",
+                  currentAd.videoUrl
+                )
+              }
+              onError={() =>
+                console.error(
+                  "❌ Fullscreen Ad iframe failed to load:",
+                  currentAd.videoUrl
+                )
+              }
+            />
+            <div className="ad-info-fullscreen">
+              <span className="ad-label-fullscreen">
+                Quảng cáo: {currentAd.title}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="content-section">
         <section className="stream-section">
           <div className="video-container">
@@ -1207,27 +1313,50 @@ const WatchLive = () => {
                 >
                   <i className="fas fa-calendar-alt" /> Lịch chiếu
                 </button>
-                {isPlayingAd && currentAd ? (
-                  <iframe
-                    src={`${currentAd.videoUrl}?autoplay=1&mute=1&controls=0&rel=0&playsinline=1`}
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      border: "none",
-                      zIndex: 3,
-                    }}
+                {/* Video player chính luôn hiển thị */}
+                <div data-vjs-player>
+                  <video
+                    ref={videoRef}
+                    className="video-js vjs-default-skin vjs-16-9"
+                    width="352"
+                    height="198"
+                    playsInline
                   />
-                ) : (
-                  <div data-vjs-player>
-                    <video
-                      ref={videoRef}
-                      className="video-js vjs-default-skin vjs-16-9"
-                      width="352"
-                      height="198"
-                      playsInline
-                    />
+                </div>
+
+                {/* Overlay quảng cáo - chỉ hiển thị khi không fullscreen */}
+                {isPlayingAd && currentAd && !isFullscreen && (
+                  <div className="ad-overlay">
+                    <div className="ad-container">
+                      <iframe
+                        src={`${currentAd.videoUrl}?autoplay=1&mute=0&controls=0&playsinline=1`}
+                        allow="autoplay; encrypted-media; fullscreen"
+                        allowFullScreen
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          border: "none",
+                          pointerEvents: "none",
+                        }}
+                        onLoad={() =>
+                          console.log(
+                            "📺 Ad iframe loaded:",
+                            currentAd.videoUrl
+                          )
+                        }
+                        onError={() =>
+                          console.error(
+                            "❌ Ad iframe failed to load:",
+                            currentAd.videoUrl
+                          )
+                        }
+                      />
+                      <div className="ad-info">
+                        <span className="ad-label">
+                          Quảng cáo: {currentAd.title}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
