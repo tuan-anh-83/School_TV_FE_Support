@@ -452,7 +452,7 @@ const StatisticsPage = () => {
                       <PlayCircleOutlined />
                     </div>
                     <div style={durationBadgeStyle}>
-                      {video.duration.toFixed(2)}
+                      {(video.duration ?? 0).toFixed(2)}
                     </div>
                   </div>
                 }

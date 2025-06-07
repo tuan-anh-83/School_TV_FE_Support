@@ -898,7 +898,20 @@ const WatchLive = () => {
                 )} - ${currentProgram.endTime.format("HH:mm")})`
               );
             } else {
-              // Fallback to first program if something went wrong in our logic
+              if (!now.isBefore(schedules[0].startTime)) {
+                // Fallback to first program if something went wrong in our logic
+                setDisplayIframeUrl(schedules[0].iframeUrl);
+                setDisplayMp4Url(schedules[0].mp4Url);
+                setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
+                setCurrentScheduleId(schedules[0].scheduleID);
+                setCurrentProgram(schedules[0].program);
+                setCurrentStatus(schedules[0].status);
+              }
+            }
+          } else {
+            if (!now.isBefore(schedules[0].startTime)) {
+              // For past or future days, just show the first program in the list
+              // (User can click on specific programs to view them)
               setDisplayIframeUrl(schedules[0].iframeUrl);
               setDisplayMp4Url(schedules[0].mp4Url);
               setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
@@ -906,15 +919,6 @@ const WatchLive = () => {
               setCurrentProgram(schedules[0].program);
               setCurrentStatus(schedules[0].status);
             }
-          } else {
-            // For past or future days, just show the first program in the list
-            // (User can click on specific programs to view them)
-            setDisplayIframeUrl(schedules[0].iframeUrl);
-            setDisplayMp4Url(schedules[0].mp4Url);
-            setVideoHistoryId(schedules[0].videoHistoryIdFromSchedule);
-            setCurrentScheduleId(schedules[0].scheduleID);
-            setCurrentProgram(schedules[0].program);
-            setCurrentStatus(schedules[0].status);
           }
         } else {
           setDisplayIframeUrl("");
@@ -1283,7 +1287,11 @@ const WatchLive = () => {
                   {displaySchedule.find((s) => s.iframeUrl === displayIframeUrl)
                     ?.programName || "Chương trình đang phát sóng"}
                 </h1>
-                {videoHistoryId && <div className="live-badge">LIVE</div>}
+                {videoHistoryId &&
+                  (currentStatus === "Live" ||
+                    currentStatus === "LateStart") && (
+                    <div className="live-badge">LIVE</div>
+                  )}
               </div>
 
               <div className="stream-actions">
