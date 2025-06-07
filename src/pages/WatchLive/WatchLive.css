@@ -241,6 +241,124 @@
   box-shadow: 0 4px 12px var(--shadow-color);
 }
 
+/* Ad Overlay Styles - Full Video Container */
+.ad-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.ad-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ad-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.ad-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 11;
+}
+
+.ad-label {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Fullscreen Ad Overlay Styles */
+.ad-overlay-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.ad-container-fullscreen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ad-container-fullscreen iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.ad-info-fullscreen {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10001;
+}
+
+.ad-label-fullscreen {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .ad-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ad-info {
+    top: 10px;
+    right: 10px;
+  }
+
+  .ad-info-fullscreen {
+    top: 10px;
+    right: 10px;
+  }
+
+  .ad-label-fullscreen {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
+
 .video-container iframe {
   position: absolute;
   top: 0;
@@ -583,7 +701,7 @@
 }
 
 .subscribe-button.cantSubscribed {
-  background:rgb(167, 172, 168)
+  background: rgb(167, 172, 168);
 }
 
 /* Comments section - YouTube style */
